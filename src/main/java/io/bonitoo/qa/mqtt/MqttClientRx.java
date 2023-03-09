@@ -38,6 +38,7 @@ public class MqttClientRx implements MqttClient {
 
     @Override
     public MqttClient connect(String username, String password) throws InterruptedException {
+        // TODO implement
         return null;
     }
 

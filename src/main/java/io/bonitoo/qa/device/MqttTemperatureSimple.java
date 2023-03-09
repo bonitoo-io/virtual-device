@@ -7,27 +7,35 @@ import io.bonitoo.qa.util.Config;
 import io.bonitoo.qa.util.Generator;
 import io.bonitoo.qa.util.Utils;
 
-public class MqttTemperatureAnon extends AbstractDevice{
+public class MqttTemperatureSimple extends AbstractDevice{
+
 
     MqttClientBlocking client;
 
-    private MqttTemperatureAnon(){
+//    String topic;
+
+//    String id;
+
+//    long interval;
+
+    private MqttTemperatureSimple(){
         super();
     }
 
-    static public MqttTemperatureAnon Device(MqttClientBlocking client, String topic){
-        MqttTemperatureAnon mqtp = new MqttTemperatureAnon();
-        mqtp.client = client;
-        mqtp.topic = topic;
-        mqtp.id = Config.getDeviceID();
-        mqtp.name = Config.getProp("device.name") == null ?
+    static public MqttTemperatureSimple Device(MqttClientBlocking client, String topic){
+        MqttTemperatureSimple mqts = new MqttTemperatureSimple();
+        mqts.client = client;
+        mqts.topic = topic;
+        mqts.id = Config.getDeviceID();
+        mqts.name = Config.getProp("device.name") == null ?
                 Class.class.getName() :
                 Config.getProp("device.name");
-        mqtp.description = Config.getProp("device.description") == null ?
-                "Anonymous temperature reporting device" :
+        mqts.description = Config.getProp("device.description") == null ?
+                "Simply authenticated device for reporting temperature" :
                 Config.getProp("device.description");
-        mqtp.interval = Long.parseLong(Config.getProp("device.interval"));
-        return mqtp;
+
+        mqts.interval = Long.parseLong(Config.getProp("device.interval"));
+        return mqts;
     }
 
     @Override
@@ -36,7 +44,7 @@ public class MqttTemperatureAnon extends AbstractDevice{
         long ttl = System.currentTimeMillis() + Long.parseLong(Config.getProp("device.ttl"));
 
         try {
-            client.connectAnon();
+            client.connect(Config.getProp("device.username"), Config.getProp("device.password"));
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -55,4 +63,5 @@ public class MqttTemperatureAnon extends AbstractDevice{
         client.disconnect();
 
     }
+
 }

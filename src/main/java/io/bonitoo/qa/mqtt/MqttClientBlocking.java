@@ -30,8 +30,24 @@ public class MqttClientBlocking implements MqttClient{
     }
 
     @Override
-    public MqttClient connect(String username, String password) throws InterruptedException {
-        return null;
+    public MqttClientBlocking connect(String username, String password) throws InterruptedException {
+        System.out.println("Authenticated BLOCKING CONNECTING");
+
+        Mqtt5ConnAck ack = client.connectWith()
+                .simpleAuth()
+                .username(username)
+                .password(password.getBytes())
+                .applySimpleAuth()
+                .willPublish()
+                .topic("home/will")
+                .payload(String.format("device %s gone", Config.getDeviceID()).getBytes())
+                .applyWillPublish()
+                .send();
+
+        System.out.println("DEBUG ack " + ack);
+        System.out.println("DEBUG client state " + client.getState());
+
+        return this;
     }
 
     @Override
