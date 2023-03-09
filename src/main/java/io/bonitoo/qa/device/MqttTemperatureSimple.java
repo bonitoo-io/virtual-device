@@ -12,12 +12,6 @@ public class MqttTemperatureSimple extends AbstractDevice{
 
     MqttClientBlocking client;
 
-//    String topic;
-
-//    String id;
-
-//    long interval;
-
     private MqttTemperatureSimple(){
         super();
     }

@@ -11,7 +11,7 @@ An alternate location can be defined by the environment variable `VIRTUAL_DEVICE
 # Build
 
 ```shell
-$mvn clean compile
+$ mvn clean compile
 ```
 
 ## Run Subscriber
