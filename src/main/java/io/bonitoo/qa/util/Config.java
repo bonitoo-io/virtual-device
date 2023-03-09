@@ -1,7 +1,6 @@
 package io.bonitoo.qa.util;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -14,12 +13,14 @@ public class Config {
 
     static private void readProps(){
         props = new Properties();
+        try{
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        InputStream is = loader.getResourceAsStream(configFile);
-        try {
+        InputStream is = loader.getResourceAsStream(configFile) == null ?
+                new FileInputStream(new File(configFile)) :
+                loader.getResourceAsStream(configFile);
             props.load(is);
         } catch (IOException e) {
-            System.out.println("Unable to load device.conf");
+            System.out.println(String.format("Unable to load config file %s", configFile));
             System.err.println(e);
             System.exit(1);
         }
