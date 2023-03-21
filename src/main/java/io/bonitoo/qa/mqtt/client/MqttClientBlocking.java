@@ -1,16 +1,17 @@
-package io.bonitoo.qa.mqtt;
+package io.bonitoo.qa.mqtt.client;
 
 import com.hivemq.client.mqtt.mqtt5.Mqtt5BlockingClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import com.hivemq.client.mqtt.mqtt5.message.connect.connack.Mqtt5ConnAck;
-import io.bonitoo.qa.util.Config;
+import io.bonitoo.qa.conf.mqtt.broker.BrokerConfig;
+import io.bonitoo.qa.conf.Config;
 import lombok.*;
 
 @Builder
 @AllArgsConstructor
 @Getter
 @Setter
-public class MqttClientBlocking implements MqttClient{
+public class MqttClientBlocking extends AbstractMqttClient implements MqttClient {
 
     Mqtt5BlockingClient client;
 
@@ -18,19 +19,31 @@ public class MqttClientBlocking implements MqttClient{
         super();
     }
 
-    static public MqttClientBlocking Client(){
+    static public MqttClientBlocking Client(BrokerConfig broker){
         MqttClientBlocking mcb = new MqttClientBlocking();
+        mcb.broker = broker;
         String deviceID = Config.getDeviceID();
         mcb.client = Mqtt5Client.builder()
                 .identifier(deviceID)
-                .serverHost(Config.getProp("broker.host"))
-                .serverPort(Integer.parseInt(Config.getProp("broker.port")))
+                .serverHost(broker.getHost())
+                .serverPort(broker.getPort())
                 .buildBlocking();
         return mcb;
     }
 
     @Override
-    public MqttClientBlocking connect(String username, String password) throws InterruptedException {
+    public MqttClient connect() throws InterruptedException {
+        if(broker.getAuth().getUsername() != null){
+            System.out.println("BLOCKING CLIENT CONNECTING WITH AUTH");
+            return connectSimple(broker.getAuth().getUsername(),broker.getAuth().getPassword());
+        }else{
+            System.out.println("BLOCKING CLIENT CONNECTING ANON");
+            return connectAnon();
+        }
+    }
+
+    @Override
+    public MqttClientBlocking connectSimple(String username, String password) throws InterruptedException {
         System.out.println("Authenticated BLOCKING CONNECTING");
 
         Mqtt5ConnAck ack = client.connectWith()

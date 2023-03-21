@@ -1,10 +1,19 @@
-package io.bonitoo.qa.util;
+package io.bonitoo.qa.data.generator;
 
 public class Generator {
 
     private static final long DAY_MILLIS = 24 * 60 * 60 * 1000;
     private static final long MONTH_MILLIS = DAY_MILLIS * 30;
     public static double genDoubleVal(long period, double min, double max, long time){
+
+        if(period == 0){
+            if(0 < min || 0 > max ) {
+                return (max + min) / 2;
+            }
+            else {
+                return 0;
+            }
+        }
 
         double dPeriod = (double)period;
         final double diff = max - min;
@@ -32,5 +41,9 @@ public class Generator {
 
     public static double genTVOC(long time){
         return (long)(genDoubleVal(1, 250, 2000, time) * 1e2) / 1e2;
+    }
+
+    public static double precision(double val, double prec){
+        return (long)(val * prec) / prec;
     }
 }

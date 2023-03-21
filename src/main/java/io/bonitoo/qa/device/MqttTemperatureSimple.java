@@ -2,12 +2,13 @@ package io.bonitoo.qa.device;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.bonitoo.qa.data.TemperatureSample;
-import io.bonitoo.qa.mqtt.MqttClientBlocking;
-import io.bonitoo.qa.util.Config;
-import io.bonitoo.qa.util.Generator;
-import io.bonitoo.qa.util.Utils;
+import io.bonitoo.qa.conf.device.DeviceConfig;
+import io.bonitoo.qa.mqtt.client.MqttClientBlocking;
+import io.bonitoo.qa.conf.Config;
+import io.bonitoo.qa.data.generator.Generator;
+import io.bonitoo.qa.data.generator.Utils;
 
-public class MqttTemperatureSimple extends AbstractDevice{
+public class MqttTemperatureSimple extends Device {
 
 
     MqttClientBlocking client;
@@ -16,45 +17,37 @@ public class MqttTemperatureSimple extends AbstractDevice{
         super();
     }
 
-    static public MqttTemperatureSimple Device(MqttClientBlocking client, String topic){
+    static public MqttTemperatureSimple Device(MqttClientBlocking client, DeviceConfig config){
         MqttTemperatureSimple mqts = new MqttTemperatureSimple();
         mqts.client = client;
-        mqts.topic = topic;
-        mqts.id = Config.getDeviceID();
-        mqts.name = Config.getProp("device.name") == null ?
-                Class.class.getName() :
-                Config.getProp("device.name");
-        mqts.description = Config.getProp("device.description") == null ?
-                "Simply authenticated device for reporting temperature" :
-                Config.getProp("device.description");
-
-        mqts.interval = Long.parseLong(Config.getProp("device.interval"));
+        mqts.config = config;
         return mqts;
     }
 
     @Override
     public void run() {
 
-        long ttl = System.currentTimeMillis() + Long.parseLong(Config.getProp("device.ttl"));
+        long ttl = System.currentTimeMillis() + Config.TTL();
 
         try {
-            client.connect(Config.getProp("device.username"), Config.getProp("device.password"));
+            client.connect();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
 
         try {
             while(System.currentTimeMillis() < ttl){
-                client.publish(topic, Utils.pojoToJSON(new TemperatureSample(id,
+                client.publish(config.getSamples().get(0).getTopic(), Utils.pojoToJSON(new TemperatureSample(config.getId(),
                         System.currentTimeMillis(),
                         Generator.genTemperature(System.currentTimeMillis()))));
-                Thread.sleep(interval);
+                Thread.sleep(config.getInterval());
             }
         } catch (JsonProcessingException | InterruptedException e) {
             throw new RuntimeException(e);
+        } finally {
+            client.disconnect();
         }
 
-        client.disconnect();
 
     }
 

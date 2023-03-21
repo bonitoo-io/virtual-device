@@ -1,11 +1,12 @@
-package io.bonitoo.qa.mqtt;
+package io.bonitoo.qa.mqtt.client;
 
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import com.hivemq.client.mqtt.mqtt5.message.connect.connack.Mqtt5ConnAck;
 import com.hivemq.client.mqtt.mqtt5.message.disconnect.Mqtt5Disconnect;
 import com.hivemq.client.mqtt.mqtt5.message.disconnect.Mqtt5DisconnectReasonCode;
-import io.bonitoo.qa.util.Config;
+import io.bonitoo.qa.conf.mqtt.broker.BrokerConfig;
+import io.bonitoo.qa.conf.Config;
 import lombok.*;
 
 import java.util.concurrent.CompletableFuture;
@@ -14,7 +15,7 @@ import java.util.concurrent.CompletableFuture;
 @AllArgsConstructor
 @Setter
 @Getter
-public class MqttClientAsync implements MqttClient {
+public class MqttClientAsync extends AbstractMqttClient implements MqttClient {
 
     Mqtt5AsyncClient client;
 
@@ -22,8 +23,9 @@ public class MqttClientAsync implements MqttClient {
         super();
     }
 
-    static public MqttClientAsync Client(){
+    static public MqttClientAsync Client(BrokerConfig broker){
         MqttClientAsync mqc = new MqttClientAsync();
+        mqc.broker = broker;
 
         String deviceID = Config.getDeviceID();
 
@@ -31,15 +33,21 @@ public class MqttClientAsync implements MqttClient {
 
         mqc.client = Mqtt5Client.builder()
                 .identifier(deviceID)
-                .serverHost(Config.getProp("broker.host"))
-                .serverPort(Integer.parseInt(Config.getProp("broker.port")))
+                .serverHost(broker.getHost())
+                .serverPort(broker.getPort())
                 .buildAsync();
 
         return mqc;
     }
 
     @Override
-    public MqttClient connect(String username, String password) throws InterruptedException {
+    public MqttClient connect() throws InterruptedException {
+        // todo implement - see MqttClientBlocking
+        return null;
+    }
+
+    @Override
+    public MqttClient connectSimple(String username, String password) throws InterruptedException {
         //TODO implement
         return null;
     }

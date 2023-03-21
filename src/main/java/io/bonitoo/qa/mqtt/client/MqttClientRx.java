@@ -1,11 +1,12 @@
-package io.bonitoo.qa.mqtt;
+package io.bonitoo.qa.mqtt.client;
 
 import com.hivemq.client.mqtt.datatypes.MqttQos;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5RxClient;
 import com.hivemq.client.mqtt.mqtt5.message.connect.connack.Mqtt5ConnAck;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
-import io.bonitoo.qa.util.Config;
+import io.bonitoo.qa.conf.mqtt.broker.BrokerConfig;
+import io.bonitoo.qa.conf.Config;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
@@ -17,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 @AllArgsConstructor
 @Setter
 @Getter
-public class MqttClientRx implements MqttClient {
+public class MqttClientRx extends AbstractMqttClient implements MqttClient {
 
     Mqtt5RxClient client;
 
@@ -25,19 +26,26 @@ public class MqttClientRx implements MqttClient {
         super();
     }
 
-    static public MqttClientRx Client(){
+    static public MqttClientRx Client(BrokerConfig broker){
         MqttClientRx mcr = new MqttClientRx();
+        mcr.broker = broker;
         String deviceID = Config.getDeviceID();
         mcr.client = Mqtt5Client.builder()
                 .identifier(deviceID)
-                .serverHost(Config.getProp("broker.host"))
-                .serverPort(Integer.parseInt(Config.getProp("broker.port")))
+                .serverHost(broker.getHost())
+                .serverPort(broker.getPort())
                 .buildRx();
         return mcr;
     }
 
     @Override
-    public MqttClient connect(String username, String password) throws InterruptedException {
+    public MqttClient connect() throws InterruptedException {
+        // todo implement - see MqttClientBlocking
+        return null;
+    }
+
+    @Override
+    public MqttClient connectSimple(String username, String password) throws InterruptedException {
         // TODO implement
         return null;
     }

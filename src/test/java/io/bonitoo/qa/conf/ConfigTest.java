@@ -1,5 +1,6 @@
-package io.bonitoo.qa.util;
+package io.bonitoo.qa.conf;
 
+import io.bonitoo.qa.conf.Config;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;

@@ -1,0 +1,54 @@
+---
+name: testing
+ttl: 60000
+broker:
+  host: localhost
+  port: 1883
+  auth:
+    username: fred
+    password: changeit
+samples:
+  - id: tempApp
+    topic: test/foo
+    items:
+    - name: temperature
+      id: random
+      max: 40.0
+      min: -10.0
+      period: 30
+  - id: humidApp
+    topic: test/bar
+    items:
+    - name: humidity
+      id: random
+      max: 100.0
+      min: 0.0
+      period: 10
+  - id: builtInApp
+    items:
+    - name: builtInTemp
+devices:
+  - id: random
+    interval: 1000
+    jitter: 0
+    count: 1
+    name: virtual vanilla
+    description: virtual vanilla device
+    samples:
+      - tempApp
+  - id: random
+    interval: 1000
+    jitter: 0
+    count: 1
+    name: virtual chocolate
+    description: virtual chocolate device
+    samples:
+      - humidApp
+  - id: random
+    interval: 1000
+    jitter: 500
+    count: 2
+    name: virtual strawberry
+    description: virtual strawberry device
+    samples:
+      - builtinApp

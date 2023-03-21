@@ -1,7 +1,9 @@
-package io.bonitoo.qa.mqtt;
+package io.bonitoo.qa.mqtt.client;
 
 public interface MqttClient {
-    MqttClient connect(String username, String password) throws InterruptedException;
+    MqttClient connect() throws InterruptedException;
+
+    MqttClient connectSimple(String username, String password) throws InterruptedException;
 
     MqttClient connectAnon() throws InterruptedException;
 

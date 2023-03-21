@@ -1,4 +1,4 @@
-package io.bonitoo.qa.util;
+package io.bonitoo.qa.data.generator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
