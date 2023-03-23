@@ -1,0 +1,72 @@
+---
+ttl: 10000
+broker:
+  host: localhost
+  port: 1883
+  auth:
+    username: fred
+    password: changeit
+items:
+  - name: "tension"
+    type: "Double"
+    max: 2.0
+    min: -1.0
+    period: 1
+  - name: "nuts"
+    type: "Long"
+    max: 100.0
+    min: 1.0
+    period: 1
+  - name: "label"
+    type: "String"
+    values:
+      - "Salted"
+      - "unsalted"
+      - "smoked"
+samples:
+  - id: "random"
+    name: "alpha"
+    topic: "test/alpha"
+    items:
+      - "tension"
+      - "nuts"
+  - id: "random"
+    name: "beta"
+    topic: "test/beta"
+    items:
+      - "label"
+      - name: "flowRate"
+        type: Double
+        max: 30
+        min: 5
+        period: 2
+devices:
+  - id: "random"
+    name: "Test Device 01"
+    description: "testing device configuration"
+    interval: 1000
+    jitter: 200
+    count: 3
+    samples:
+      - "alpha"
+  - id: "random"
+    name: "Test Device 02"
+    description: "test device configuration"
+    interval: 3000
+    jitter: 0
+    count: 1
+    samples:
+      - beta
+      - id: "random"
+        name: "gammaInline"
+        topic: "test/gamma"
+        items:
+          - name: "radiance"
+            type: "Double"
+            max: 27
+            min: 0.1
+            period: 2
+          - name: "appLabel"
+            type: "String"
+            values:
+              - "lumens"
