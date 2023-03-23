@@ -3,8 +3,10 @@ package io.bonitoo.qa.mqtt.client;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5BlockingClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import com.hivemq.client.mqtt.mqtt5.message.connect.connack.Mqtt5ConnAck;
+import io.bonitoo.qa.conf.device.DeviceConfig;
 import io.bonitoo.qa.conf.mqtt.broker.BrokerConfig;
 import io.bonitoo.qa.conf.Config;
+import io.bonitoo.qa.util.LogHelper;
 import lombok.*;
 
 @Builder
@@ -19,12 +21,12 @@ public class MqttClientBlocking extends AbstractMqttClient implements MqttClient
         super();
     }
 
-    static public MqttClientBlocking Client(BrokerConfig broker){
+    static public MqttClientBlocking Client(BrokerConfig broker, String id){
         MqttClientBlocking mcb = new MqttClientBlocking();
         mcb.broker = broker;
         String deviceID = Config.getDeviceID();
         mcb.client = Mqtt5Client.builder()
-                .identifier(deviceID)
+                .identifier(id)
                 .serverHost(broker.getHost())
                 .serverPort(broker.getPort())
                 .buildBlocking();
@@ -33,18 +35,16 @@ public class MqttClientBlocking extends AbstractMqttClient implements MqttClient
 
     @Override
     public MqttClient connect() throws InterruptedException {
-        if(broker.getAuth().getUsername() != null){
-            System.out.println("BLOCKING CLIENT CONNECTING WITH AUTH");
-            return connectSimple(broker.getAuth().getUsername(),broker.getAuth().getPassword());
-        }else{
-            System.out.println("BLOCKING CLIENT CONNECTING ANON");
+        if(broker.getAuth() == null || broker.getAuth().getUsername() == null){
             return connectAnon();
+        }else{
+            return connectSimple(broker.getAuth().getUsername(),broker.getAuth().getPassword());
         }
     }
 
     @Override
     public MqttClientBlocking connectSimple(String username, String password) throws InterruptedException {
-        System.out.println("Authenticated BLOCKING CONNECTING");
+        logger.info(LogHelper.buildMsg(client.getConfig().getClientIdentifier().get().toString(), "Connect Simple", broker.getAuth().getUsername()));
 
         Mqtt5ConnAck ack = client.connectWith()
                 .simpleAuth()
@@ -57,20 +57,28 @@ public class MqttClientBlocking extends AbstractMqttClient implements MqttClient
                 .applyWillPublish()
                 .send();
 
-        System.out.println("DEBUG ack " + ack);
-        System.out.println("DEBUG client state " + client.getState());
+        logger.debug(LogHelper.buildMsg(client.getConfig().getClientIdentifier().get().toString(),
+                "ACK Connect",
+                ack.toString()));
+        logger.debug(LogHelper.buildMsg(client.getConfig().getClientIdentifier().get().toString(),
+                "Current state",
+                client.getState().toString()));
 
         return this;
     }
 
     @Override
     public MqttClientBlocking connectAnon() throws InterruptedException {
-        System.out.println("BLOCKING CONNECTING");
+        logger.info(LogHelper.buildMsg(client.getConfig().getClientIdentifier().get().toString(), "Connect Anonymous", ""));
 
         Mqtt5ConnAck ack = client.connect();
 
-        System.out.println("DEBUG ack " + ack);
-        System.out.println("DEBUG client state " + client.getState());
+        logger.debug(LogHelper.buildMsg(client.getConfig().getClientIdentifier().get().toString(),
+                "ACK Connect",
+                ack.toString()));
+        logger.debug(LogHelper.buildMsg(client.getConfig().getClientIdentifier().get().toString(),
+                "Current state",
+                client.getState().toString()));
 
         return this;
     }
@@ -78,7 +86,9 @@ public class MqttClientBlocking extends AbstractMqttClient implements MqttClient
     @Override
     public MqttClientBlocking publish(String topic, String payload) throws InterruptedException {
 
-        System.out.println("BLOCKING PUBLISHING");
+        logger.info(LogHelper.buildMsg(client.getConfig().getClientIdentifier().get().toString(),
+                "Publishing",
+                String.format("[%s] - %s", topic, payload)));
 
         client.publishWith()
                 .topic(topic)
@@ -92,15 +102,15 @@ public class MqttClientBlocking extends AbstractMqttClient implements MqttClient
     @Override
     public MqttClientBlocking disconnect() {
 
-        System.out.println("BLOCKING DISCONNECTING");
-
         client.disconnect();
+
+        logger.info(LogHelper.buildMsg(client.getConfig().getClientIdentifier().get().toString(), "Disconnected", ""));
 
         return this;
     }
 
     @Override
     public void shutdown() {
-
+        logger.info(LogHelper.buildMsg(client.getConfig().getClientIdentifier().get().toString(), "Shutting down", ""));
     }
 }

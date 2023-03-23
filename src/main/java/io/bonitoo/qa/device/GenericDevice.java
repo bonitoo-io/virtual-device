@@ -6,6 +6,7 @@ import io.bonitoo.qa.conf.data.SampleConfig;
 import io.bonitoo.qa.conf.device.DeviceConfig;
 import io.bonitoo.qa.mqtt.client.MqttClientBlocking;
 import io.bonitoo.qa.conf.Config;
+import io.bonitoo.qa.util.LogHelper;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,12 +18,19 @@ import lombok.Setter;
 @NoArgsConstructor
 public class GenericDevice extends Device{
 
+    int number;
+
     MqttClientBlocking client;
 
-    static public GenericDevice Device(MqttClientBlocking client, DeviceConfig config){
+    static public GenericDevice SingleDevice(MqttClientBlocking client, DeviceConfig config){
+        return NumberedDevice(client, config, 1);
+    }
+
+    static public GenericDevice NumberedDevice(MqttClientBlocking client, DeviceConfig config, int number){
         GenericDevice device = new GenericDevice();
         device.client = client;
         device.config = config;
+        device.number = number;
         return device;
     }
 
@@ -34,9 +42,9 @@ public class GenericDevice extends Device{
 
         try {
             if(config.getJitter() > 0) {
-                Thread.sleep(config.getJitter());
+                Thread.sleep(config.getJitter() * number);
             }
-            System.out.println("GENERIC CONNECTING");
+            logger.info(LogHelper.buildMsg(config.getId(), "Device Connection", ""));
             client.connect();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
@@ -44,19 +52,18 @@ public class GenericDevice extends Device{
 
         try {
             while(System.currentTimeMillis() < ttl){
-                System.out.println("GENERIC LOOP " + (ttl - System.currentTimeMillis()));
+                logger.debug(LogHelper.buildMsg(config.getId(),"Wait to publish", Long.toString((ttl - System.currentTimeMillis()))));
                 Thread.sleep(config.getJitter());
                 for(SampleConfig sampleConf : config.getSamples()){
                     String jsonSample = GenericSample.of(sampleConf).toJson();
-                    System.out.println("GENERIC PUBLISHING from " + sampleConf + " toJson " + jsonSample);
+                    logger.debug(LogHelper.buildMsg(config.getId(),"Publishing", jsonSample));
                     client.publish(sampleConf.getTopic(),
                             jsonSample);
 
                 }
                 Thread.sleep(config.getInterval());
             }
-
-            System.out.println("GENERIC LOOP END " + (ttl - System.currentTimeMillis()));
+            logger.debug(LogHelper.buildMsg(config.getId(),"Published", Long.toString((ttl - System.currentTimeMillis()))));
         } catch (JsonProcessingException | InterruptedException e) {
             throw new RuntimeException(e);
         }finally{

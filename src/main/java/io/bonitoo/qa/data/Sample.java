@@ -68,7 +68,7 @@ public abstract class Sample {
 
     public String toJson() throws JsonProcessingException {
         checkNameClash();
-        ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        ObjectWriter objectWriter = new ObjectMapper().writer(); //.withDefaultPrettyPrinter();
         return objectWriter.writeValueAsString(this);
     }
 }

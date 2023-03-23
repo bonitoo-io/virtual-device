@@ -13,6 +13,7 @@ import java.util.concurrent.ExecutionException;
 
 public class Mqtt5Subscriber {
 
+    // todo pass in topicFilter string as arg or in config
     static public void main(String[] args){
         Mqtt5BlockingClient client = Mqtt5Client.builder()
           //      .identifier(UUID.randomUUID().toString())
@@ -25,7 +26,7 @@ public class Mqtt5Subscriber {
         System.out.println("DEBUG connect ack " + ack);
 
         CompletableFuture<Mqtt5SubAck> futureSubAck = client.toAsync().subscribeWith()
-                .topicFilter("test/wumpus")
+                .topicFilter("test/#")
                 .qos(MqttQos.AT_LEAST_ONCE)
                 .callback(publish -> {
                     String content = StandardCharsets.UTF_8.decode(publish.getPayload().get()).toString();

@@ -26,7 +26,7 @@ public class Config {
     static RunnerConfig runnerConfig;
     static Properties props;
 
-    static String configFile =  System.getenv(envConfigFile) == null ? "device.conf" : System.getenv(envConfigFile);
+    static String configFile =  System.getenv(envConfigFile) == null ? "device.conf" : System.getenv(envConfigFile).trim();
 
     static private void readProps(){
         props = new Properties();
@@ -42,6 +42,8 @@ public class Config {
             System.exit(1);
         }
     }
+
+    // TODO update to work with genericDevice
 
     static private void readConfFile(){
         readProps();

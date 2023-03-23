@@ -3,6 +3,7 @@ package io.bonitoo.qa;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.bonitoo.qa.device.Device;
 import io.bonitoo.qa.conf.device.DeviceConfig;
+import io.bonitoo.qa.device.GenericDevice;
 import io.bonitoo.qa.device.MqttTemperatureAnon;
 import io.bonitoo.qa.device.MqttTemperatureSimple;
 import io.bonitoo.qa.conf.mqtt.broker.BrokerConfig;
@@ -25,21 +26,22 @@ public class DeviceRunner {
 
         List<Device> devices = new ArrayList<>();
 
-        ExecutorService service = Executors.newFixedThreadPool(2);
-
-        DeviceConfig config = Config.getDeviceConfs().get(0);
+        List<DeviceConfig> devConfigs = Config.getDeviceConfs();
 
         BrokerConfig broker = Config.getBrokerConf();
 
-        MqttClientBlocking client = MqttClientBlocking.Client(broker);
-
-        if(broker.getAuth().getUsername() == null){
-            System.out.println("Using device with anonymous connection");
-            devices.add(MqttTemperatureAnon.Device(client, config));
-        }else {
-            System.out.println("Using device with simple auth for user " + broker.getAuth().getUsername());
-            devices.add(MqttTemperatureSimple.Device(client, config));
+        for(DeviceConfig devConf : devConfigs) {
+            for(int i = 0; i < devConf.getCount(); i++) {
+                if(devConf.getCount() > 1){
+                    DeviceConfig copyDevConfig = new DeviceConfig(devConf, (i+1));
+                    devices.add(GenericDevice.NumberedDevice(MqttClientBlocking.Client(broker, copyDevConfig.getId()), copyDevConfig, (i+1)));
+                }else{
+                    devices.add(GenericDevice.SingleDevice(MqttClientBlocking.Client(broker, devConf.getId()), devConf));
+                }
+            }
         }
+
+        ExecutorService service = Executors.newFixedThreadPool(devices.size());
 
         devices.forEach(device -> {
             service.execute(device);

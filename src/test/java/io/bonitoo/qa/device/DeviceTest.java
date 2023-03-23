@@ -16,12 +16,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -58,7 +60,7 @@ public class DeviceTest {
 
         devConf.setInterval(1000l);
 
-        GenericDevice device = GenericDevice.Device(mockClient, devConf);
+        GenericDevice device = GenericDevice.SingleDevice(mockClient, devConf);
 
         executor.execute(device);
 
@@ -94,7 +96,7 @@ public class DeviceTest {
             when(mockClient.publish(eq(sampConf.getTopic()), anyString())).thenReturn(mockClient);
         }
 
-        GenericDevice device = GenericDevice.Device(mockClient, Config.deviceConf(0));
+        GenericDevice device = GenericDevice.SingleDevice(mockClient, Config.deviceConf(0));
 
         executor.execute(device);
 
@@ -139,7 +141,7 @@ public class DeviceTest {
         ExecutorService executor = Executors.newFixedThreadPool(Config.getDeviceConfs().size());
 
         for(DeviceConfig devConf : Config.getDeviceConfs()){
-            GenericDevice genDev = GenericDevice.Device(mockClient, devConf);
+            GenericDevice genDev = GenericDevice.SingleDevice(mockClient, devConf);
             executor.execute(genDev);
         }
 
@@ -174,11 +176,11 @@ public class DeviceTest {
                 Arrays.asList(itemBA, itemBB));
 
         List<Device> testDevices = Arrays.asList(
-                GenericDevice.Device(mockClientA, new DeviceConfig("random","Test Device A", "First Device for Testing",
+                GenericDevice.SingleDevice(mockClientA, new DeviceConfig("random","Test Device A", "First Device for Testing",
                         Arrays.asList(sampleConfA, sampleConfB), 1000l, 0l, 1)),
-                GenericDevice.Device(mockClientB, new DeviceConfig("random","Test Device B", "Second Device for Testing",
+                GenericDevice.SingleDevice(mockClientB, new DeviceConfig("random","Test Device B", "Second Device for Testing",
                         Arrays.asList(sampleConfA, sampleConfB), 1000l, 0l, 1)),
-                GenericDevice.Device(mockClientC, new DeviceConfig("random","Test Device C", "Third Device for Testing",
+                GenericDevice.SingleDevice(mockClientC, new DeviceConfig("random","Test Device C", "Third Device for Testing",
                         Arrays.asList(sampleConfA, sampleConfB), 1000l, 0l, 1))
                 );
 
@@ -232,7 +234,7 @@ public class DeviceTest {
         devConf.setInterval(1000l);
         devConf.setJitter(500l);
 
-        GenericDevice device = GenericDevice.Device(mockClient, devConf);
+        GenericDevice device = GenericDevice.SingleDevice(mockClient, devConf);
 
         executor.execute(device);
 
@@ -242,6 +244,44 @@ public class DeviceTest {
 
         verify(mockClient, times(1)).connect();
         verify(mockClient, times(2)).publish(eq(sampConf.getTopic()), anyString());
+    }
+
+    @Test
+    public void deviceCopyTest(){
+        ItemConfig itemConfA = new ItemNumConfig("volt", ItemType.Double, 1, 15, 2);
+        ItemConfig itemConfB = new ItemNumConfig("pulses", ItemType.Long, 0l, 20l, 1);
+        ItemConfig itemConfC = new ItemStringConfig("state", ItemType.String, Arrays.asList("OK", "WARN", "CRIT"));
+
+        SampleConfig sampConfA = new SampleConfig("random", "testSample", "test/copy",
+                Arrays.asList(itemConfA, itemConfB, itemConfC));
+        SampleConfig sampConfB = new SampleConfig ("beta-sample", "betaSample", "test/beta",
+                Arrays.asList(itemConfA));
+
+        DeviceConfig devConf = new DeviceConfig("random", "testDevice", "device for testing",
+                Arrays.asList(sampConfA, sampConfB), 3000l, 500l, 2);
+
+        DeviceConfig copyConf = new DeviceConfig(devConf, 2);
+
+        // ensure deep copy
+        assertNotEquals(devConf.hashCode(), copyConf.hashCode());
+        assertEquals( devConf.getInterval(), copyConf.getInterval());
+        assertEquals(devConf.getJitter(), copyConf.getJitter());
+        assertEquals(devConf.getDescription(), copyConf.getDescription());
+        assertEquals(1, copyConf.getCount());
+        assertEquals(String.format("%s-%03d", devConf.getId(), 2), copyConf.getId());
+        assertEquals(String.format("%s-%03d", devConf.getName(), 2), copyConf.getName());
+
+        for(ListIterator<SampleConfig> itConf = devConf.getSamples().listIterator();
+            itConf.hasNext(); ){
+            SampleConfig devSampleConf = itConf.next();
+            // ensure deep copy of samples
+            assertNotEquals(devSampleConf.hashCode(), copyConf.getSamples().get(itConf.previousIndex()).hashCode());
+            assertEquals(String.format("%s-%03d", devSampleConf.getId(), 2),
+                    copyConf.getSamples().get(itConf.previousIndex()).getId());
+            assertEquals(String.format("%s-%03d", devSampleConf.getName(), 2),
+                    copyConf.getSamples().get(itConf.previousIndex()).getName());
+        }
+
     }
 }
 

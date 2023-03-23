@@ -50,6 +50,13 @@ public class SampleConfig {
         SampleConfigRegistry.add(this.name, this);
     }
 
+    public SampleConfig(SampleConfig sampleConfig){
+       this.id = sampleConfig.getId();
+       this.name = sampleConfig.getName();
+       this.topic = sampleConfig.getTopic();
+       this.items =  sampleConfig.getItems();
+    }
+
     /*
     public String getId(){
         if(id == null || id.toUpperCase().equals("RANDOM")){

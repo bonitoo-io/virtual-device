@@ -131,4 +131,20 @@ Example from CNT
                 "Sample Configuration named abcdefghijklmnopqrstuvwxyz not found");
 
     }
+
+    @Test
+    public void copySampleTest(){
+        ItemConfig itemConfA = new ItemNumConfig("size", ItemType.Double, 1, 15, 2);
+        ItemConfig itemConfB = new ItemNumConfig("incidents", ItemType.Long, 0l, 20l, 1);
+        ItemConfig itemConfC = new ItemStringConfig("alert", ItemType.String, Arrays.asList("OK", "INFO", "WARN", "CRIT"));
+
+        SampleConfig origSConf = new SampleConfig("random", "testing", "test/copy",
+                Arrays.asList(itemConfA, itemConfB, itemConfC));
+
+        SampleConfig copySConf = new SampleConfig(origSConf);
+        SampleConfig newHandleConf = origSConf;
+
+        assertEquals(copySConf, origSConf);
+        assertNotEquals(copySConf.hashCode(), origSConf.hashCode());
+    }
 }
