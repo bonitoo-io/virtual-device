@@ -19,7 +19,6 @@ public class Generator {
         final double diff = max - min;
         final double periodVal = (diff / 4.0) * Math.sin(((time / DAY_MILLIS) % period / dPeriod) * 2.0 * Math.PI);
         final double dayVal = (diff / 4.0) * Math.sin(((time % DAY_MILLIS) / DAY_MILLIS) * 2 * Math.PI - Math.PI / 2 );
-        // todo finish
         return min + diff / 2 + periodVal + dayVal + Math.random();
     }
 

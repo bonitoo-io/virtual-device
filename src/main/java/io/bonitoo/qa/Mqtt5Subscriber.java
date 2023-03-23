@@ -16,7 +16,7 @@ public class Mqtt5Subscriber {
     // todo pass in topicFilter string as arg or in config
     static public void main(String[] args){
         Mqtt5BlockingClient client = Mqtt5Client.builder()
-          //      .identifier(UUID.randomUUID().toString())
+                .identifier(UUID.randomUUID().toString())
                 .identifier("testClient")
                 .serverHost("localhost")
                 .buildBlocking();

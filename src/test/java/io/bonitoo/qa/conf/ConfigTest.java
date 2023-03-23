@@ -103,4 +103,34 @@ public class ConfigTest {
 
     }
 
+    @Test
+    public void systemPropsTest(){
+        // Based on virtualdevice.props
+        Properties propsHolder = Config.getProps();
+        assertEquals("1883", propsHolder.get("default.broker.port"));
+        assertEquals("localhost", propsHolder.get("default.broker.host"));
+        assertEquals("testRunnerConfig.yml", propsHolder.get("runner.conf"));
+
+
+        System.setProperty("default.broker.port", "10883");
+        System.setProperty("default.broker.host", "http://mars.device.portal.mars");
+        System.setProperty("runner.conf", "martian.yml");
+
+        Config.props = null;
+
+        Properties newProps = Config.getProps();
+
+        assertEquals("10883", newProps.get("default.broker.port"));
+        assertEquals("http://mars.device.portal.mars", newProps.get("default.broker.host"));
+        assertEquals("martian.yml", newProps.get("runner.conf"));
+
+        // restore state
+        System.clearProperty("default.broker.port");
+        System.clearProperty("default.broker.host");
+        System.clearProperty("runner.conf");
+
+        Config.props = propsHolder;
+
+    }
+
 }

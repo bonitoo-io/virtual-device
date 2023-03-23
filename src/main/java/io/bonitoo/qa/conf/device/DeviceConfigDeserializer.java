@@ -16,7 +16,6 @@ import java.util.List;
 
 public class DeviceConfigDeserializer extends StdDeserializer<DeviceConfig> {
 
-    // todo define default values in global config
     static final Long defaultInterval = Long.parseLong(Config.getProp("default.device.interval"));
     static final Long defaultJitter = Long.parseLong(Config.getProp("default.device.jitter"));
 

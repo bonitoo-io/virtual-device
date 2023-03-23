@@ -12,8 +12,12 @@ import io.bonitoo.qa.conf.data.SampleConfigRegistry;
 import io.bonitoo.qa.conf.device.DeviceConfig;
 import io.bonitoo.qa.conf.mqtt.broker.AuthConfig;
 import io.bonitoo.qa.conf.mqtt.broker.BrokerConfig;
+import io.bonitoo.qa.util.LogHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +25,8 @@ import java.util.Properties;
 import java.util.UUID;
 
 public class Config {
+
+    static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     static final String envConfigFile = "VIRTUAL_DEVICE_CONFIG";
 
@@ -32,59 +38,38 @@ public class Config {
     static private void readProps(){
         props = new Properties();
         try{
+            logger.info(LogHelper.buildMsg("config", "Reading base config", configFile));
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         InputStream is = loader.getResourceAsStream(configFile) == null ?
                 new FileInputStream(new File(configFile)) :
                 loader.getResourceAsStream(configFile);
             props.load(is);
         } catch (IOException e) {
-            System.out.println(String.format("Unable to load config file %s", configFile));
-            System.err.println(e);
+            logger.error(LogHelper.buildMsg("config", "Load failure", String.format("Unable to load config file %s", configFile)));
+            logger.error(LogHelper.buildMsg("config", "Load exception", e.toString()));
             System.exit(1);
         }
+
+        // Overwrite properties set in JVM with system values
+        for(String key: props.stringPropertyNames()){
+            if(System.getProperty(key) != null){
+                props.setProperty(key, System.getProperty(key));
+            }
+        }
     }
-
-    /*
-    static private void readConfFile(){
-        readProps();
-        AuthConfig authConfig = new AuthConfig(props.getProperty("broker.username"),
-                props.getProperty("broker.password"));
-        BrokerConfig brokerConfig = new BrokerConfig(props.getProperty("broker.host"),
-                Integer.parseInt(props.getProperty("broker.port")),
-                authConfig);
-        List<SampleConfig> samplesConfig = new ArrayList<>();
-        List<DeviceConfig> devicesConfig = new ArrayList<>();
-        String sampleId = props.getProperty("sample.id") == null || props.getProperty("sample.id").equals("device.id") ?
-                props.getProperty("device.id") : props.getProperty("sample.id");
-        samplesConfig.add(new SampleConfig(sampleId, props.getProperty("sample.name"),
-                props.getProperty("sample.topic"),
-                (String[])null));
-        devicesConfig.add(new DeviceConfig(props.getProperty("device.id"),
-                props.getProperty("device.name"),
-                props.getProperty("device.description"),
-               samplesConfig,
-               Long.parseLong(props.getProperty("device.interval")),
-               0l,
-               1
-        ));
-
-        runnerConfig = new RunnerConfig(brokerConfig, devicesConfig, Long.parseLong(props.getProperty("runner.ttl")));
-
-    }*/
 
     static protected void readRunnerConfig(){
         if(props == null){
             readProps();
         }
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        System.out.println("DEBUG Config runner.conf " + props.getProperty("runner.conf"));
+        logger.info(LogHelper.buildMsg("config", "Reading runner config", props.getProperty("runner.conf")));
 
         URL runnerConfResourceFile = loader.getResource(props.getProperty("runner.conf"));
 
         File confFile = runnerConfResourceFile == null ?
                 new File(props.getProperty("runner.conf")) :
                 new File(runnerConfResourceFile.getFile());
-
         try{
             ObjectMapper om = new ObjectMapper(new YAMLFactory());
             runnerConfig = om.readValue(confFile, RunnerConfig.class);
@@ -107,7 +92,6 @@ public class Config {
         return props;
     }
 
-    // Todo Use and Test the following
     static public BrokerConfig getBrokerConf(){
         if(runnerConfig == null){
             readRunnerConfig();
