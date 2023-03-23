@@ -23,16 +23,13 @@ public class MqttClientAsync extends AbstractMqttClient implements MqttClient {
         super();
     }
 
-    static public MqttClientAsync Client(BrokerConfig broker){
+    static public MqttClientAsync Client(BrokerConfig broker, String id){
         MqttClientAsync mqc = new MqttClientAsync();
         mqc.broker = broker;
-
-        String deviceID = Config.getDeviceID();
-
-        System.out.println("deviceID " + deviceID);
+        mqc.id = id;
 
         mqc.client = Mqtt5Client.builder()
-                .identifier(deviceID)
+                .identifier(id)
                 .serverHost(broker.getHost())
                 .serverPort(broker.getPort())
                 .buildAsync();

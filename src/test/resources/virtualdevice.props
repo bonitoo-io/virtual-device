@@ -1,0 +1,8 @@
+test.val=foo
+default.ttl=30000
+default.broker.host=localhost
+default.broker.port=1883
+default.device.interval=3000
+default.device.jitter=0
+default.device.count=1
+runner.conf=testRunnerConfig.yml

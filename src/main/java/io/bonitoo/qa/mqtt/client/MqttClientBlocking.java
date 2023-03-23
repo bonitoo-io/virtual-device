@@ -24,7 +24,7 @@ public class MqttClientBlocking extends AbstractMqttClient implements MqttClient
     static public MqttClientBlocking Client(BrokerConfig broker, String id){
         MqttClientBlocking mcb = new MqttClientBlocking();
         mcb.broker = broker;
-        String deviceID = Config.getDeviceID();
+        mcb.id = id;
         mcb.client = Mqtt5Client.builder()
                 .identifier(id)
                 .serverHost(broker.getHost())
@@ -53,7 +53,7 @@ public class MqttClientBlocking extends AbstractMqttClient implements MqttClient
                 .applySimpleAuth()
                 .willPublish()
                 .topic("home/will")
-                .payload(String.format("device %s gone", Config.getDeviceID()).getBytes())
+                .payload(String.format("device %s gone", id).getBytes())
                 .applyWillPublish()
                 .send();
 

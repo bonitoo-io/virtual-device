@@ -26,12 +26,12 @@ public class MqttClientRx extends AbstractMqttClient implements MqttClient {
         super();
     }
 
-    static public MqttClientRx Client(BrokerConfig broker){
+    static public MqttClientRx Client(BrokerConfig broker, String id){
         MqttClientRx mcr = new MqttClientRx();
         mcr.broker = broker;
-        String deviceID = Config.getDeviceID();
+        mcr.id = id;
         mcr.client = Mqtt5Client.builder()
-                .identifier(deviceID)
+                .identifier(id)
                 .serverHost(broker.getHost())
                 .serverPort(broker.getPort())
                 .buildRx();

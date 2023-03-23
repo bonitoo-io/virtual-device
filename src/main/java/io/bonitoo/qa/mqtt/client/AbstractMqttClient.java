@@ -18,6 +18,8 @@ public abstract class AbstractMqttClient {
 
     static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+    String id;
+
     BrokerConfig broker;
 
 }

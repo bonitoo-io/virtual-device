@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
@@ -50,8 +51,8 @@ public class DeviceTest {
         Config.getRunnerConfig().sampleConf(0, 0).setItems(Arrays.asList(iConf));
         Config.getRunnerConfig().setTtl(2000l);
 
-        assertEquals(1, Config.getDeviceConfs().size());
-        assertEquals(1, Config.getSampleConfs(0).size());
+        assertEquals(2, Config.getDeviceConfs().size());
+        assertEquals(2, Config.getSampleConfs(0).size());
 
         DeviceConfig devConf = Config.deviceConf(0);
 
@@ -77,10 +78,12 @@ public class DeviceTest {
 
         ItemConfig iConf = new ItemNumConfig("testItem", ItemType.Double, 0, 100, 1);
 
-        assertEquals(1, Config.getSampleConfs(0).size());
+        assertEquals(2, Config.getSampleConfs(0).size());
         Config.sampleConf(0, 0).setTopic("test/sample0");
         Config.sampleConf(0, 0).setId("sample0");
         Config.sampleConf(0, 0).setItems(Arrays.asList(iConf));
+
+        Config.deviceConf(0).setSamples(new ArrayList<>());
 
         Config.getSampleConfs(0).add(new SampleConfig("sampleA","sampleA","test/sampleA",Arrays.asList(iConf)));
         Config.getSampleConfs(0).add(new SampleConfig("sampleB","sampleB","test/sampleB",Arrays.asList(iConf)));
@@ -89,8 +92,8 @@ public class DeviceTest {
         Config.getRunnerConfig().setTtl(2000l);
         Config.deviceConf(0).setInterval(1000l);
 
-        assertEquals(1, Config.getDeviceConfs().size());
-        assertEquals(3, Config.getSampleConfs(0).size());
+        assertEquals(2, Config.getDeviceConfs().size());
+        assertEquals(2, Config.getSampleConfs(0).size());
 
         for(SampleConfig sampConf : Config.getSampleConfs(0)) {
             when(mockClient.publish(eq(sampConf.getTopic()), anyString())).thenReturn(mockClient);
@@ -224,8 +227,8 @@ public class DeviceTest {
         Config.getRunnerConfig().sampleConf(0, 0).setItems(Arrays.asList(iConf));
         Config.getRunnerConfig().setTtl(3000l);
 
-        assertEquals(1, Config.getDeviceConfs().size());
-        assertEquals(1, Config.getSampleConfs(0).size());
+        assertEquals(2, Config.getDeviceConfs().size());
+        assertEquals(2, Config.getSampleConfs(0).size());
 
         DeviceConfig devConf = Config.deviceConf(0);
 

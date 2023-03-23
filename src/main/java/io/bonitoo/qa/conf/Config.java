@@ -14,6 +14,7 @@ import io.bonitoo.qa.conf.mqtt.broker.AuthConfig;
 import io.bonitoo.qa.conf.mqtt.broker.BrokerConfig;
 
 import java.io.*;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -26,7 +27,7 @@ public class Config {
     static RunnerConfig runnerConfig;
     static Properties props;
 
-    static String configFile =  System.getenv(envConfigFile) == null ? "device.conf" : System.getenv(envConfigFile).trim();
+    static String configFile =  System.getenv(envConfigFile) == null ? "virtualdevice.props" : System.getenv(envConfigFile).trim();
 
     static private void readProps(){
         props = new Properties();
@@ -43,8 +44,7 @@ public class Config {
         }
     }
 
-    // TODO update to work with genericDevice
-
+    /*
     static private void readConfFile(){
         readProps();
         AuthConfig authConfig = new AuthConfig(props.getProperty("broker.username"),
@@ -70,28 +70,29 @@ public class Config {
 
         runnerConfig = new RunnerConfig(brokerConfig, devicesConfig, Long.parseLong(props.getProperty("runner.ttl")));
 
-    }
+    }*/
 
-    static private void readRunnerConfig(){
+    static protected void readRunnerConfig(){
+        if(props == null){
+            readProps();
+        }
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        File confFile = new File(loader.getResource(configFile).getFile());
+        System.out.println("DEBUG Config runner.conf " + props.getProperty("runner.conf"));
+
+        URL runnerConfResourceFile = loader.getResource(props.getProperty("runner.conf"));
+
+        File confFile = runnerConfResourceFile == null ?
+                new File(props.getProperty("runner.conf")) :
+                new File(runnerConfResourceFile.getFile());
+
         try{
             ObjectMapper om = new ObjectMapper(new YAMLFactory());
             runnerConfig = om.readValue(confFile, RunnerConfig.class);
-        } catch (StreamReadException e) {
-            throw new RuntimeException(e);
-        } catch (VirtualDeviceConfigException e){
-            // not a yaml file
-            System.out.println(e.getMessage());
-            readConfFile();
-        } catch (DatabindException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    // TODO remove and update usages
     static public String getProp(String key){
         if(props == null){
             readProps();
@@ -100,6 +101,9 @@ public class Config {
     }
 
     static public Properties getProps(){
+        if(props == null){
+            readProps();
+        }
         return props;
     }
 
@@ -134,10 +138,6 @@ public class Config {
 
     static public Long TTL(){
         return runnerConfig.getTtl();
-    }
-
-    static public String getDeviceID(){
-        return getProp("device.id");
     }
 
     static public DeviceConfig deviceConf(int i){

@@ -17,13 +17,6 @@ import java.util.List;
 
 public class RunnerConfigDeserializer extends StdDeserializer<RunnerConfig> {
 
-    // todo add to global default config
-    static final long defaultTTL = 60000l;
-
-    static final String defaultHost = "localhost";
-
-    static final int defaultPort = 1883;
-
     public RunnerConfigDeserializer(){
         this(null);
     }
@@ -52,9 +45,10 @@ public class RunnerConfigDeserializer extends StdDeserializer<RunnerConfig> {
         }
 
 
-        Long ttl = ttlNode == null ? defaultTTL : ttlNode.asLong();
+        Long ttl = ttlNode == null ? Long.parseLong(Config.getProp("default.ttl")) : ttlNode.asLong();
 
-        BrokerConfig broker = brokerNode == null ? new BrokerConfig(defaultHost, defaultPort, null) :
+        BrokerConfig broker = brokerNode == null ? new BrokerConfig(Config.getProp("default.broker.host"),
+                Integer.parseInt(Config.getProp("default.broker.port")), null) :
                 ctx.readValue(brokerNode.traverse(jsonParser.getCodec()), BrokerConfig.class);
 
         if(itemsNode != null) {

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import io.bonitoo.qa.conf.Config;
 import io.bonitoo.qa.conf.data.SampleConfig;
 import io.bonitoo.qa.conf.data.SampleConfigRegistry;
 import io.bonitoo.qa.conf.device.DeviceConfig;
@@ -16,10 +17,10 @@ import java.util.List;
 public class DeviceConfigDeserializer extends StdDeserializer<DeviceConfig> {
 
     // todo define default values in global config
-    static final Long defaultInterval = 3000l;
-    static final Long defaultJitter = 0l;
+    static final Long defaultInterval = Long.parseLong(Config.getProp("default.device.interval"));
+    static final Long defaultJitter = Long.parseLong(Config.getProp("default.device.jitter"));
 
-    static final int defaultCount = 1;
+    static final int defaultCount = Integer.parseInt(Config.getProp("default.device.count"));
 
     public DeviceConfigDeserializer(){
         this(null);

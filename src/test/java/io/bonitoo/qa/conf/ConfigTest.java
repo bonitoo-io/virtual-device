@@ -1,6 +1,10 @@
 package io.bonitoo.qa.conf;
 
 import io.bonitoo.qa.conf.Config;
+import io.bonitoo.qa.conf.data.ItemConfigRegistry;
+import io.bonitoo.qa.conf.data.SampleConfigRegistry;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -12,6 +16,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ConfigTest {
 
+    @BeforeEach
+    public void setup(){
+        Config.reset();
+    }
+
     @Test
     public void testReadDeviceConf(){
         String val = Config.getProp("test.val");
@@ -19,18 +28,11 @@ public class ConfigTest {
     }
 
     @Test
-    public void consistentDeviceID(){
-        String deviceID = Config.getDeviceID();
-        assertNotNull(deviceID);
-        assertEquals(deviceID, Config.getProp("device.id"));
-        assertEquals(deviceID, Config.getDeviceID());
-    }
-
-    @Test void configFileOutsidePath() throws IOException {
+    void configFileOutsidePath() throws IOException {
         Properties propsHolder = Config.getProps();
         // zero out props to force new read
         Config.props = null;
-        assertNull(Config.getProps());
+        assertNull(Config.props);
         // create a file outside of the resource path
         File testDir = new File("./test-temp");
         testDir.mkdirs();
@@ -54,6 +56,51 @@ public class ConfigTest {
         Config.props = propsHolder;
         // verify state restored
         assertEquals("foo", Config.getProp("test.val"));
+    }
+
+    @Test
+    public void getRunnerConfigTest(){
+        // Based on testRunnnerConfig.yml as specified in virtualdevice.props runner.conf
+        RunnerConfig rConf = Config.getRunnerConfig();
+        System.out.println("DEBUG rConf " + rConf);
+        assertEquals(10000, rConf.getTtl());
+        assertEquals(2, rConf.getDevices().size());
+        assertEquals(2, rConf.getDevices().get(0).getSamples().size());
+        assertEquals(2, rConf.getDevices().get(1).getSamples().size());
+        assertEquals(3, SampleConfigRegistry.keys().size());
+        for(String sampKey: SampleConfigRegistry.keys()){
+            assertEquals(2, SampleConfigRegistry.get(sampKey).getItems().size());
+        }
+        assertEquals(6, ItemConfigRegistry.keys().size());
+    }
+
+    @Test
+    public void runnerConfigOutsideOfPathTest() throws IOException {
+        String runnerConfPropHolder = Config.getProp("runner.conf");
+        RunnerConfig runnerConfHolder = Config.getRunnerConfig();
+        File testDir = new File("./test-temp");
+        testDir.mkdirs();
+        File fooFile = new File("./test-temp/foo.yml");
+        if(!fooFile.exists()){
+            fooFile.createNewFile();
+        }
+        FileWriter writer = new FileWriter(fooFile);
+        writer.write("---");
+        Config.props.setProperty("runner.conf", "./test-temp/foo.yml");
+
+        // attempt to read fake file throws exception
+        assertThrowsExactly(RuntimeException.class, () -> Config.readRunnerConfig(), "com.fasterxml.jackson.databind.exc.MismatchedInputException: No content to map due to end-of-input");
+
+        // reset state
+        fooFile.delete();
+        testDir.delete();
+        Config.runnerConfig = runnerConfHolder;
+        Config.getProps().setProperty("runner.conf", runnerConfPropHolder);
+
+        RunnerConfig rConf = Config.getRunnerConfig();
+
+        assertNotNull(rConf);
+
     }
 
 }

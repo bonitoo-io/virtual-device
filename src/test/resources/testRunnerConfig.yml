@@ -1,5 +1,5 @@
 ---
-ttl: 30000
+ttl: 10000
 broker:
   host: localhost
   port: 1883
