@@ -65,14 +65,20 @@ public class Config {
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         logger.info(LogHelper.buildMsg("config", "Reading runner config", props.getProperty("runner.conf")));
 
-        URL runnerConfResourceFile = loader.getResource(props.getProperty("runner.conf"));
+        InputStream runnerConfStream = loader.getResourceAsStream(props.getProperty("runner.conf"));
 
-        File confFile = runnerConfResourceFile == null ?
-                new File(props.getProperty("runner.conf")) :
-                new File(runnerConfResourceFile.getFile());
         try{
+
+        if(runnerConfStream == null){
+            runnerConfStream = new FileInputStream(new File(props.getProperty("runner.conf")));
+        }
+
             ObjectMapper om = new ObjectMapper(new YAMLFactory());
-            runnerConfig = om.readValue(confFile, RunnerConfig.class);
+            runnerConfig = om.readValue(runnerConfStream, RunnerConfig.class);
+            if(runnerConfig == null){
+                throw new VirtualDeviceConfigException(String.format("Failed to parse config file %s", props.getProperty("runner.conf")));
+            }
+            logger.info(LogHelper.buildMsg("config", "Parse runner config success", props.getProperty("runner.conf")));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
