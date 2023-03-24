@@ -1,4 +1,4 @@
-name: Java CI
+name: Virtual Device CI
 
 on: [push]
 
@@ -14,7 +14,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-      - run: mvn --batch-mode --update-snapshots package
+      - run: mvn clean --batch-mode --update-snapshots package
       - run: mkdir staging && cp target/*.jar staging
       - uses: actions/upload-artifact@v3
         with:
