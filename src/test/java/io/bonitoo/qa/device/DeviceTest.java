@@ -65,7 +65,7 @@ public class DeviceTest {
 
         executor.execute(device);
 
-        executor.awaitTermination(Config.TTL(), TimeUnit.MILLISECONDS);
+        executor.awaitTermination(Config.ttl(), TimeUnit.MILLISECONDS);
 
         executor.shutdown();
 
@@ -103,7 +103,7 @@ public class DeviceTest {
 
         executor.execute(device);
 
-        executor.awaitTermination(Config.TTL(), TimeUnit.MILLISECONDS);
+        executor.awaitTermination(Config.ttl(), TimeUnit.MILLISECONDS);
 
         executor.shutdown();
 
@@ -148,7 +148,7 @@ public class DeviceTest {
             executor.execute(genDev);
         }
 
-        executor.awaitTermination(Config.TTL() * 2, TimeUnit.MILLISECONDS);
+        executor.awaitTermination(Config.ttl() * 2, TimeUnit.MILLISECONDS);
 
         executor.shutdown();
 
@@ -199,7 +199,7 @@ public class DeviceTest {
             executor.execute(device);
         }
 
-        executor.awaitTermination(Config.TTL() + 100, TimeUnit.MILLISECONDS);
+        executor.awaitTermination(Config.ttl() + 100, TimeUnit.MILLISECONDS);
 
         executor.shutdown();
 
@@ -241,7 +241,7 @@ public class DeviceTest {
 
         executor.execute(device);
 
-        executor.awaitTermination(Config.TTL() + 500, TimeUnit.MILLISECONDS);
+        executor.awaitTermination(Config.ttl() + 500, TimeUnit.MILLISECONDS);
 
         executor.shutdown();
 

@@ -27,7 +27,7 @@ public class MqttTemperatureSimple extends Device {
     @Override
     public void run() {
 
-        long ttl = System.currentTimeMillis() + Config.TTL();
+        long ttl = System.currentTimeMillis() + Config.ttl();
 
         try {
             client.connect();
