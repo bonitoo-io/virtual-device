@@ -5,13 +5,15 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.bonitoo.qa.conf.data.SampleConfig;
 import io.bonitoo.qa.conf.device.DeviceConfig;
 import io.bonitoo.qa.conf.mqtt.broker.BrokerConfig;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
-import java.util.List;
+/**
+ * Configures the runner including collecting devices.
+ */
 @Setter
 @Getter
 @AllArgsConstructor
@@ -20,24 +22,24 @@ import java.util.List;
 @JsonDeserialize(using = RunnerConfigDeserializer.class)
 public class RunnerConfig {
 
-    BrokerConfig broker;
-    List<DeviceConfig> devices;
-    Long ttl;
+  BrokerConfig broker;
+  List<DeviceConfig> devices;
+  Long ttl;
 
-    @Override
-    public String toString(){
-        String result = String.format("ttl:%d\nBroker: %s\n", ttl, broker);
+  @Override
+  public String toString() {
+    StringBuilder result = new StringBuilder(String.format("ttl:%d\nBroker: %s\n", ttl, broker));
 
-        result += "\n";
+    result.append("\n");
 
-        for(int i = 0; i < devices.size(); i++){
-            result += String.format("Device:%s", devices.get(i));
-        }
-
-        return result;
+    for (DeviceConfig device : devices) {
+      result.append(String.format("Device:%s", device));
     }
 
-     public SampleConfig sampleConf(int ofDev, int index){
-        return devices.get(ofDev).getSample(index);
-    }
+    return result.toString();
+  }
+
+  public SampleConfig sampleConf(int ofDev, int index) {
+    return devices.get(ofDev).getSample(index);
+  }
 }
