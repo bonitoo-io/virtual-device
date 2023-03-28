@@ -61,7 +61,7 @@ public class DeviceTest {
 
         devConf.setInterval(1000l);
 
-        GenericDevice device = GenericDevice.SingleDevice(mockClient, devConf);
+        GenericDevice device = GenericDevice.singleDevice(mockClient, devConf);
 
         executor.execute(device);
 
@@ -99,7 +99,7 @@ public class DeviceTest {
             when(mockClient.publish(eq(sampConf.getTopic()), anyString())).thenReturn(mockClient);
         }
 
-        GenericDevice device = GenericDevice.SingleDevice(mockClient, Config.deviceConf(0));
+        GenericDevice device = GenericDevice.singleDevice(mockClient, Config.deviceConf(0));
 
         executor.execute(device);
 
@@ -144,7 +144,7 @@ public class DeviceTest {
         ExecutorService executor = Executors.newFixedThreadPool(Config.getDeviceConfs().size());
 
         for(DeviceConfig devConf : Config.getDeviceConfs()){
-            GenericDevice genDev = GenericDevice.SingleDevice(mockClient, devConf);
+            GenericDevice genDev = GenericDevice.singleDevice(mockClient, devConf);
             executor.execute(genDev);
         }
 
@@ -179,11 +179,11 @@ public class DeviceTest {
                 Arrays.asList(itemBA, itemBB));
 
         List<Device> testDevices = Arrays.asList(
-                GenericDevice.SingleDevice(mockClientA, new DeviceConfig("random","Test Device A", "First Device for Testing",
+                GenericDevice.singleDevice(mockClientA, new DeviceConfig("random","Test Device A", "First Device for Testing",
                         Arrays.asList(sampleConfA, sampleConfB), 1000l, 0l, 1)),
-                GenericDevice.SingleDevice(mockClientB, new DeviceConfig("random","Test Device B", "Second Device for Testing",
+                GenericDevice.singleDevice(mockClientB, new DeviceConfig("random","Test Device B", "Second Device for Testing",
                         Arrays.asList(sampleConfA, sampleConfB), 1000l, 0l, 1)),
-                GenericDevice.SingleDevice(mockClientC, new DeviceConfig("random","Test Device C", "Third Device for Testing",
+                GenericDevice.singleDevice(mockClientC, new DeviceConfig("random","Test Device C", "Third Device for Testing",
                         Arrays.asList(sampleConfA, sampleConfB), 1000l, 0l, 1))
                 );
 
@@ -237,7 +237,7 @@ public class DeviceTest {
         devConf.setInterval(1000l);
         devConf.setJitter(500l);
 
-        GenericDevice device = GenericDevice.SingleDevice(mockClient, devConf);
+        GenericDevice device = GenericDevice.singleDevice(mockClient, devConf);
 
         executor.execute(device);
 
