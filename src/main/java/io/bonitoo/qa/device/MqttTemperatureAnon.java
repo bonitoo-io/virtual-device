@@ -5,7 +5,7 @@ import io.bonitoo.qa.data.TemperatureSample;
 import io.bonitoo.qa.conf.device.DeviceConfig;
 import io.bonitoo.qa.mqtt.client.MqttClientBlocking;
 import io.bonitoo.qa.conf.Config;
-import io.bonitoo.qa.data.generator.Generator;
+import io.bonitoo.qa.data.generator.NumGenerator;
 import io.bonitoo.qa.data.generator.Utils;
 
 public class MqttTemperatureAnon extends Device {
@@ -36,9 +36,9 @@ public class MqttTemperatureAnon extends Device {
 
         try {
             while(System.currentTimeMillis() < ttl){
-                client.publish(config.getSamples().get(0).getTopic(), Utils.pojoToJSON(new TemperatureSample(config.getId(),
+                client.publish(config.getSamples().get(0).getTopic(), Utils.pojoToJson(new TemperatureSample(config.getId(),
                         System.currentTimeMillis(),
-                        Generator.genTemperature(System.currentTimeMillis()))));
+                        NumGenerator.genTemperature(System.currentTimeMillis()))));
                 Thread.sleep(config.getInterval());
             }
         } catch (JsonProcessingException | InterruptedException e) {
