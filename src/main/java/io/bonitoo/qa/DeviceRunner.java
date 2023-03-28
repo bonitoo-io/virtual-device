@@ -36,11 +36,11 @@ public class DeviceRunner {
       for (int i = 0; i < devConf.getCount(); i++) {
         if (devConf.getCount() > 1) {
           DeviceConfig copyDevConfig = new DeviceConfig(devConf, (i + 1));
-          devices.add(GenericDevice.numberedDevice(MqttClientBlocking.Client(broker,
+          devices.add(GenericDevice.numberedDevice(MqttClientBlocking.client(broker,
               copyDevConfig.getId()),
               copyDevConfig, (i + 1)));
         } else {
-          devices.add(GenericDevice.singleDevice(MqttClientBlocking.Client(broker,
+          devices.add(GenericDevice.singleDevice(MqttClientBlocking.client(broker,
               devConf.getId()),
               devConf));
         }
