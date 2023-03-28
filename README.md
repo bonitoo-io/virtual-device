@@ -46,15 +46,15 @@ An alternate runner config can be specified in that file or through the property
 
 ## Configuring a Generic Device Runner
 
-A configuration is defined in YAML.  It needs to define the following artefact types.
+It needs to define the following types.
 
-   * `RunnerConfig` - which contains...
+   * `RunnerConfig` - the top level type which contains...
       * `ttl` - a definition in milliseconds of how long the device runner should run.  
       * `broker` - a configuration for connecting to an MQTT5 broker (see below).
       * `items` - a list of items to be included in a sample.  Item values will be generated randomly (see below). 
       * `samples` - a list of samples bound to a topic and including a payload based on an internal item list (see below). 
       * `devices` - a list of devices, which will generate the sample messages published to the MQTT5 broker (see below).
-   * `BrokerConfig` - defines how to connect to an MQTT5 broker. It contains...
+   * `broker` - defines how to connect to an MQTT5 broker. It contains...
       * `host` - name of the broker host. Defaults to `localhost`.
       * `port` - port to which the host is listening. Defaults to `1883`
       * `auth` - a configuration for simple authentication.  To connect anonymously this property can be omitted, or the `username` can be left unset. It includes two fields. 
