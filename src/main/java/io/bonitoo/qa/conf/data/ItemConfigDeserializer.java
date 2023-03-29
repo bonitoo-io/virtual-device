@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import io.bonitoo.qa.conf.VirtualDeviceConfigException;
 import io.bonitoo.qa.data.ItemType;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,6 +25,18 @@ public class ItemConfigDeserializer extends StdDeserializer<ItemConfig> {
     super(vc);
   }
 
+  private static JsonNode safeGetNode(JsonNode node,
+                                      String subName)
+      throws VirtualDeviceConfigException {
+    JsonNode subNode = node.get(subName);
+    if (subNode == null) {
+      throw new VirtualDeviceConfigException(
+        String.format("property \"%s\" for node %s is null.  Cannot parse any further", subName, node)
+      );
+    }
+    return subNode;
+  }
+
   @Override
   public ItemConfig deserialize(JsonParser jsonParser,
                                 DeserializationContext deserializationContext)
@@ -40,18 +53,18 @@ public class ItemConfigDeserializer extends StdDeserializer<ItemConfig> {
 
     switch (type) {
       case Double:
-        max = node.get("max").asDouble();
-        min = node.get("min").asDouble();
-        period = node.get("period").asLong();
+        max = safeGetNode(node, "max").asDouble();
+        min = safeGetNode(node, "min").asDouble();
+        period = safeGetNode(node, "period").asLong();
         return new ItemNumConfig(name, type, (Double) min, (Double) max, period);
       case Long:
-        max = node.get("max").asLong();
-        min = node.get("min").asLong();
-        period = node.get("period").asLong();
+        max = safeGetNode(node, "max").asLong();
+        min = safeGetNode(node,"min").asLong();
+        period = safeGetNode(node, "period").asLong();
         return new ItemNumConfig(name, type, (Long) min, (Long) max, period);
       case String:
         vals = new ArrayList<>();
-        for (Iterator<JsonNode> it = node.get("values").elements(); it.hasNext(); ) {
+        for (Iterator<JsonNode> it = safeGetNode(node, "values").elements(); it.hasNext(); ) {
           JsonNode elem = it.next();
           vals.add(elem.asText());
         }
