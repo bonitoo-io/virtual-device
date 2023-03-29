@@ -85,8 +85,8 @@ The broker represents a connection to an MQTT5 broker. It contains...
 
 Items represent the base elements in a sample, whose values can be randomly generated.  An item requires a name and a type and then fields for defining value limits based on its type.  Four types are currently supported: 
 
-   * `Double`, 
-   * `Long`, 
+   * `Double`
+   * `Long`
    * `String` 
    * `BuiltInTemp` - a builtin temperature generator. 
    * other builtins can be added.
@@ -118,6 +118,7 @@ This penultimate layer of abstraction represents an array of devices to be run. 
 
    * `id` - an identifier for the device.  Here again the value `random` leads to an internally generated random UUID. 
    * `name` - a name for the device. 
+   * `description` - explanatory note about the device.
    * `interval` - the interval in milliseconds that a device instance will wait when generating and then publishing new samples.
    * `jitter` - an offset in milliseconds for an additional short wait, useful when publishing samples from more than one device of the same type.
    * `count` - the number of devices of the type being defined to be created.  Default is 1.  If more than one device is run then its id and the id's of its samples will include a serial number suffix.   
