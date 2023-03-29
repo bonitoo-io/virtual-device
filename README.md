@@ -241,6 +241,3 @@ docker exec -it hive-mq tools/mqtt-cli/bin/mqtt sub --topic=test/#
    * [MQTT 5.0 Standard](https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html)
    * [Public Hive MQ](https://www.hivemq.com/public-mqtt-broker/)
    * [Mosquitto](https://mosquitto.org/)
-
-
-
