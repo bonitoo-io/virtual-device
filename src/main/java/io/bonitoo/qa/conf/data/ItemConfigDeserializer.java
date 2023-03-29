@@ -31,7 +31,8 @@ public class ItemConfigDeserializer extends StdDeserializer<ItemConfig> {
     JsonNode subNode = node.get(subName);
     if (subNode == null) {
       throw new VirtualDeviceConfigException(
-        String.format("property \"%s\" for node %s is null.  Cannot parse any further", subName, node)
+        String.format("property \"%s\" for node %s is null.  Cannot parse any further",
+          subName, node)
       );
     }
     return subNode;
@@ -59,7 +60,7 @@ public class ItemConfigDeserializer extends StdDeserializer<ItemConfig> {
         return new ItemNumConfig(name, type, (Double) min, (Double) max, period);
       case Long:
         max = safeGetNode(node, "max").asLong();
-        min = safeGetNode(node,"min").asLong();
+        min = safeGetNode(node, "min").asLong();
         period = safeGetNode(node, "period").asLong();
         return new ItemNumConfig(name, type, (Long) min, (Long) max, period);
       case String:
