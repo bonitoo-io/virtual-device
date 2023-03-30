@@ -26,12 +26,16 @@ function help(){
   echo "$0 - A simple script for starting a mosquitto container"
   echo .
   echo "Commands"
-  echo "   start - start the container."
-  echo "   stop  - stop the container."
-  echo "   clean - clean remove the container and clean local directories."
-  echo "             N.B. requires sudo."
-  echo "   up    - check if container is currently running."
-  echo "   down  - check if container is currently down."
+  echo "   start    - start the container."
+  echo "   stop     - stop the container."
+  echo "   clean    - clean remove the container and clean local directories."
+  echo "                N.B. requires sudo."
+  echo "   up       - check if container is currently running."
+  echo "   down     - check if container is currently down."
+  echo "   addUser  - adds a new user to the password file."
+  echo "                N.B. followed by <username> <password>"
+  echo "   add-user - alias for addUser."
+  echo "   add      - alias for addUser."
 }
 
 function setup_mosquitto(){
@@ -137,6 +141,25 @@ function clean_mosquitto(){
 
 }
 
+function add_user_mosquitto(){
+  STOPPED=$(mosquitto_stopped)
+
+  if [[ $STOPPED == "true" ]]; then
+    error_exit "Mosquitto needs to be running to add user.  Please run broker.sh start"
+  fi
+
+  if [[ ! $1 ]]; then
+    error_exit "add user requires a username parameter. None found. Exiting."
+  fi
+
+  if [[ ! $2 ]]; then
+    error_exit "add user requires a password parameter.  None found.  Exiting."
+  fi
+
+  docker exec -it mosquito-mq mosquitto_passwd -b mosquitto/data/password-file $1 $2
+
+}
+
 case "$1" in
    "start")
      setup_mosquitto
@@ -154,6 +177,9 @@ case "$1" in
    "down")
      mosquitto_stopped
      ;;
+   "addUser"|"add-user"|"add")
+      add_user_mosquitto $2 $3
+      ;;
    *)
      help;
      exit 1;;
