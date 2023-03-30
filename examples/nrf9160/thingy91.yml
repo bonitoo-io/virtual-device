@@ -1,0 +1,86 @@
+---
+ttl: 10000
+broker:
+  host: localhost
+  port: 1883
+  auth:
+    username: fred
+    password: changeit
+items:
+  - name: "messageType"
+    type: "String"
+    values:
+      - "DATA"
+#  - name: "FLIP"
+#    type: "String"
+#    values:
+#      - "UPSIDE_DOWN"
+samples:
+  - id: "nrf-12345678901"
+    name: "humiditySensor"
+    topic: "test/alpha"
+    items:
+      - "messageType"
+      - name: "data"
+        type: Double
+        max: 100.0
+        min: 0.0
+        period: 2
+      - name: "appId"
+        type: String
+        values:
+          - "HUMID"
+  - id: "nrf-12345678901"
+    name: "temperatureSensor"
+    topic: "test/alpha"
+    items:
+      - "messageType"
+      - name: "data"
+        type: Double
+        max: 30.0
+        min: 5.0
+        period: 1
+      - name: "appId"
+        type: String
+        values:
+          - "TEMP"
+  - id: "nrf-12345678901"
+    name: "airSensor"
+    topic: "test/alpha"
+    items:
+      - "messageType"
+      - name: "data"
+        type: Double
+        max: 1100.0
+        min: 900.0
+        period: 1
+      - name: "appId"
+        type: String
+        values:
+          - "AIR_PRESS"
+  - id: "nrf-12345678901"
+    name: "buttonSensor"
+    topic: "test/alpha"
+    items:
+      - "messageType"
+      - name: "data"
+        type: Long
+        max: 1.0
+        min: 0.0
+        period: 20
+      - name: "appId"
+        type: String
+        values:
+          - "BUTTON"
+devices:
+  - id: "thingy91"
+    name: "nrf-12345678901"
+    description: "Thingy91 Device"
+    interval: 1000
+    jitter: 200
+    count: 3
+    samples:
+      - "humiditySensor"
+      - "temperatureSensor"
+      - "airSensor"
+      - "buttonSensor"
