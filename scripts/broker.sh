@@ -69,7 +69,7 @@ function start_mosquitto(){
     return
   fi
 
-  docker rm mosquito-mq
+  docker rm mosquito-mq > /dev/null
   docker run --name mosquito-mq -p 1883:1883 -p 9001:9001 -v ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf -v ./mosquitto/data:/mosquitto/data eclipse-mosquitto
 
 }

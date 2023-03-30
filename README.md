@@ -210,19 +210,37 @@ devices:
 
 This project leverages the Hive MQ client API.  During development testing was mostly done against Mosquitto, using the Mosquitto docker image.  
 
-> Tip for starting Mosquitto docker
+### Starting Mosquitto docker
+
+A simple bash script has been provided to start a Mosquitto docker container listening at localhost.  
+
+*Start mosquitto docker*
 
 ```shell
-docker run --name mosquito-mq -p 1883:1883 -p 9001:9001 -v ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf -v ./mosquitto/data:/mosquitto/data eclipse-mosquitto
+scripts/broker.sh start
+```
+On success the following should be visible in the terminal. 
+
+```
+$ scripts/broker.sh start
+1680179637: mosquitto version 2.0.15 starting
+1680179637: Config loaded from /mosquitto/config/mosquitto.conf.
+1680179637: Opening ipv4 listen socket on port 1883.
+1680179637: Opening ipv6 listen socket on port 1883.
+1680179637: mosquitto version 2.0.15 running
+...
 ```
 
-Here a mosquitto password file was generated to the mapped `mosquitto/data` volume using the `mosquitto_password` utility in the docker image.  Using this volume mapping a user can be added to the password file with the following command.
+*Stop mosquitto docker*
 
 ```shell
-docker exec -it mosquito-mq mosquitto_passwd -b  /mosquitto/data/password-file tester changeit
+scripts/broker.sh stop
 ```
+*Cleanup local container and local directories*
 
-And simple authentication and the password file can be activated in `/mosquitto/config/mosquitto.conf`
+```shell
+scripts/broker.sh clean
+```
 
 ### HiveMQ docker tips
 
