@@ -20,6 +20,17 @@ The project contains two main classes:
 * `DeviceRunner` - which sets up and runs a list of devices.
 * `Mqtt5Subscriber` - which is included as a simple utility for subscribing to topics and inspecting MQTT broker messaging.  
 
+## System requirements
+
+This project was built using the following: 
+
+   * Java SE 17
+   * Maven 3.5.6
+
+For best behavior it should be built with these versions or higher of these platforms.  Please ensure that they are installed before proceeding. 
+
+Support scripts are written in bash to be run on linux.  Bash version 5.1.16 was used. 
+
 ## Build
 
 The build relies on Apache Maven.  To build a snapshot jar run the following.  
@@ -34,7 +45,7 @@ This will generate a runnable `virtual-device-<version>-<githash>.jar` file.
 
 The MQTT5Subscriber class is a simple utility useful in verifying published messages.  By default, it subscribes to the topic `test/#` but this can be changed with the property `sub.topic`, eg `-Dsub.topic=stoker/co2`.
 
-MQTT5Subsciber is currently runnable only as a compiled class.  This is most easily done through maven.
+MQTT5Subscriber is currently runnable only as a compiled class.  This is most easily done through maven.
 
 ```sh
 mvn exec:java -Dmain.class="io.bonitoo.qa.Mqtt5Subscriber" 
