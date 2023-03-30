@@ -27,7 +27,7 @@ This project was built using the following:
    * Java SE 17
    * Maven 3.5.6
 
-For best behavior it should be built with these versions or higher of these platforms.  Please ensure that they are installed before proceeding. 
+For best results it should be built with these versions or higher of these platforms.  Please ensure that they are installed before proceeding. 
 
 Support scripts are written in bash to be run on linux.  Bash version 5.1.16 was used. 
 
