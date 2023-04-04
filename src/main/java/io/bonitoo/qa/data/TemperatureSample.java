@@ -1,29 +1,29 @@
 package io.bonitoo.qa.data;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-/*
-Example from CNT
-
-{
-  "appId": "AIR_QUAL",
-  "data": 26.0,
-  "messageType": "DATA",
-  "ts": 1677874340000,
-  "timestamp": "3/3/3333 3:33:33 PM"
-}
+/**
+ * A standard sample based on temperature.
+ *
+ * <p>Note this type was used in the very first POC iteration of this project and
+ * should be removed or repurposed.
  */
 
+// TODO refactor with inheritance from Sample type
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Setter
 @Getter
-public class TemperatureSample{
+public class TemperatureSample {
 
-    public String id;
+  public String id;
 
-    public long timestamp;
+  public long timestamp;
 
-    public double tmpr;
+  public double tmpr;
 }

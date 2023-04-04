@@ -45,16 +45,15 @@ devices:
     name: "Test Device 01"
     description: "testing device configuration"
     interval: 1000
-    jitter: 0
-    count: 1
+    jitter: 200
+    count: 3
     samples:
       - "alpha"
-      - "beta"
   - id: "random"
     name: "Test Device 02"
     description: "test device configuration"
     interval: 3000
-    jitter: 500
+    jitter: 0
     count: 1
     samples:
       - beta

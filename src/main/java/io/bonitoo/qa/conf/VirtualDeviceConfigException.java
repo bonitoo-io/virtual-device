@@ -1,7 +1,11 @@
 package io.bonitoo.qa.conf;
 
-public class VirtualDeviceConfigException extends IllegalStateException{
-    public VirtualDeviceConfigException(String typeName) {
-        super(typeName);
-    }
+/**
+ * Exception to be thrown when encountering exceptional states while configuring
+ * virtual devices or their runner.
+ */
+public class VirtualDeviceConfigException extends IllegalStateException {
+  public VirtualDeviceConfigException(String typeName) {
+    super(typeName);
+  }
 }

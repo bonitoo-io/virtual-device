@@ -1,160 +1,193 @@
 package io.bonitoo.qa.conf;
 
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import io.bonitoo.qa.conf.RunnerConfig;
-import io.bonitoo.qa.conf.VirtualDeviceConfigException;
-import io.bonitoo.qa.conf.data.SampleConfig;
 import io.bonitoo.qa.conf.data.ItemConfigRegistry;
+import io.bonitoo.qa.conf.data.SampleConfig;
 import io.bonitoo.qa.conf.data.SampleConfigRegistry;
 import io.bonitoo.qa.conf.device.DeviceConfig;
-import io.bonitoo.qa.conf.mqtt.broker.AuthConfig;
 import io.bonitoo.qa.conf.mqtt.broker.BrokerConfig;
-
-import java.io.*;
-import java.util.ArrayList;
+import io.bonitoo.qa.util.LogHelper;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Properties;
-import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * Handles the basic configuration.
+ */
 public class Config {
 
-    static final String envConfigFile = "VIRTUAL_DEVICE_CONFIG";
+  static final String envConfigFile = "VIRTUAL_DEVICE_CONFIG";
+  static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+  static RunnerConfig runnerConfig;
+  static Properties props;
 
-    static RunnerConfig runnerConfig;
-    static Properties props;
+  static String configFile = System.getenv(envConfigFile) == null ? "virtualdevice.props" :
+      System.getenv(envConfigFile).trim();
 
-    static String configFile =  System.getenv(envConfigFile) == null ? "device.conf" : System.getenv(envConfigFile);
-
-    static private void readProps(){
-        props = new Properties();
-        try{
-        ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        InputStream is = loader.getResourceAsStream(configFile) == null ?
-                new FileInputStream(new File(configFile)) :
-                loader.getResourceAsStream(configFile);
-            props.load(is);
-        } catch (IOException e) {
-            System.out.println(String.format("Unable to load config file %s", configFile));
-            System.err.println(e);
-            System.exit(1);
-        }
+  private static void readProps() {
+    props = new Properties();
+    logger.info(LogHelper.buildMsg("config", "Reading base config", configFile));
+    ClassLoader loader = Thread.currentThread().getContextClassLoader();
+    try (
+        InputStream is = loader.getResourceAsStream(configFile) == null
+            ? Files.newInputStream(new File(configFile).toPath()) :
+            loader.getResourceAsStream(configFile); ) {
+      props.load(is);
+    } catch (IOException e) {
+      logger.error(LogHelper.buildMsg("config", "Load failure",
+          String.format("Unable to load config file %s", configFile)));
+      logger.error(LogHelper.buildMsg("config", "Load exception", e.toString()));
+      System.exit(1);
     }
 
-    static private void readConfFile(){
-        readProps();
-        AuthConfig authConfig = new AuthConfig(props.getProperty("broker.username"),
-                props.getProperty("broker.password"));
-        BrokerConfig brokerConfig = new BrokerConfig(props.getProperty("broker.host"),
-                Integer.parseInt(props.getProperty("broker.port")),
-                authConfig);
-        List<SampleConfig> samplesConfig = new ArrayList<>();
-        List<DeviceConfig> devicesConfig = new ArrayList<>();
-        String sampleId = props.getProperty("sample.id") == null || props.getProperty("sample.id").equals("device.id") ?
-                props.getProperty("device.id") : props.getProperty("sample.id");
-        samplesConfig.add(new SampleConfig(sampleId, props.getProperty("sample.name"),
-                props.getProperty("sample.topic"),
-                (String[])null));
-        devicesConfig.add(new DeviceConfig(props.getProperty("device.id"),
-                props.getProperty("device.name"),
-                props.getProperty("device.description"),
-               samplesConfig,
-               Long.parseLong(props.getProperty("device.interval")),
-               0l,
-               1
-        ));
-
-        runnerConfig = new RunnerConfig(brokerConfig, devicesConfig, Long.parseLong(props.getProperty("runner.ttl")));
-
+    // Overwrite properties set in JVM with system values
+    for (String key : props.stringPropertyNames()) {
+      if (System.getProperty(key) != null) {
+        props.setProperty(key, System.getProperty(key));
+      }
     }
+  }
 
-    static private void readRunnerConfig(){
-        ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        File confFile = new File(loader.getResource(configFile).getFile());
-        try{
-            ObjectMapper om = new ObjectMapper(new YAMLFactory());
-            runnerConfig = om.readValue(confFile, RunnerConfig.class);
-        } catch (StreamReadException e) {
-            throw new RuntimeException(e);
-        } catch (VirtualDeviceConfigException e){
-            // not a yaml file
-            System.out.println(e.getMessage());
-            readConfFile();
-        } catch (DatabindException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+  protected static void readRunnerConfig() {
+    if (props == null) {
+      readProps();
     }
+    ClassLoader loader = Thread.currentThread().getContextClassLoader();
+    logger.info(LogHelper.buildMsg("config", "Reading runner config",
+        props.getProperty("runner.conf")));
 
-    // TODO remove and update usages
-    static public String getProp(String key){
-        if(props == null){
-            readProps();
-        }
-        return props.getProperty(key);
-    }
+    InputStream runnerConfStream = loader.getResourceAsStream(props.getProperty("runner.conf"));
 
-    static public Properties getProps(){
-        return props;
-    }
+    try {
 
-    // Todo Use and Test the following
-    static public BrokerConfig getBrokerConf(){
-        if(runnerConfig == null){
-            readRunnerConfig();
-        }
-        return runnerConfig.getBroker();
-    }
+      if (runnerConfStream == null) {
+        runnerConfStream = Files.newInputStream(
+          new File(props.getProperty("runner.conf")
+          ).toPath());
+      }
 
-    static public List<SampleConfig> getSampleConfs(int ofDev){
-        if(runnerConfig == null){
-            readRunnerConfig();
-        }
-        return runnerConfig.getDevices().get(ofDev).getSamples();
+      ObjectMapper om = new ObjectMapper(new YAMLFactory());
+      runnerConfig = om.readValue(runnerConfStream, RunnerConfig.class);
+      if (runnerConfig == null) {
+        throw new VirtualDeviceConfigException(
+          String.format("Failed to parse config file %s", props.getProperty("runner.conf"))
+        );
+      }
+      logger.info(LogHelper.buildMsg("config",
+          "Parse runner config success",
+          props.getProperty("runner.conf")));
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    static public List<DeviceConfig> getDeviceConfs(){
-        if(runnerConfig == null){
-            readRunnerConfig();
-        }
-        return runnerConfig.getDevices();
+  /**
+   * Helper method to get a property by key.
+   *
+   * @param key - the key of the desired property.
+   *
+   * @return - the value of the desired property.
+   */
+  public static String getProp(String key) {
+    if (props == null) {
+      readProps();
     }
+    return props.getProperty(key);
+  }
 
-    static public RunnerConfig getRunnerConfig(){
-        if(runnerConfig == null){
-            readRunnerConfig();
-        }
-        return runnerConfig;
+  /**
+   * Gets the properties.
+   *
+   * @return - the top level properties.
+   */
+  public static Properties getProps() {
+    if (props == null) {
+      readProps();
     }
+    return props;
+  }
 
-    static public Long TTL(){
-        return runnerConfig.getTtl();
+  /**
+   * Gets the broker configuration.
+   *
+   * @return - a broker configuration.
+   */
+  public static BrokerConfig getBrokerConf() {
+    if (runnerConfig == null) {
+      readRunnerConfig();
     }
+    return runnerConfig.getBroker();
+  }
 
-    static public String getDeviceID(){
-        return getProp("device.id");
+  /**
+   * Gets a list of sample configs for the specified device.
+   *
+   * @param ofDev - index of the device.
+   *
+   * @return - list of sample configs. 
+   */
+  public static List<SampleConfig> getSampleConfs(int ofDev) {
+    if (runnerConfig == null) {
+      readRunnerConfig();
     }
+    return runnerConfig.getDevices().get(ofDev).getSamples();
+  }
 
-    static public DeviceConfig deviceConf(int i){
-        return getDeviceConfs().get(i);
+  /**
+   * Returns the device configs in the runner config.
+   *
+   * @return - list of device configs.
+   */
+  public static List<DeviceConfig> getDeviceConfs() {
+    if (runnerConfig == null) {
+      readRunnerConfig();
     }
+    return runnerConfig.getDevices();
+  }
 
-    static public SampleConfig sampleConf(int ofDev, int i){
-        return getSampleConfs(ofDev).get(i);
+  /**
+   * Gets the whole inner runner config.
+   *
+   * @return - the runner config.
+   */
+  public static RunnerConfig getRunnerConfig() {
+    if (runnerConfig == null) {
+      readRunnerConfig();
     }
+    return runnerConfig;
+  }
 
-    //alias for above
-    static public BrokerConfig brokerConf(){
-        return getBrokerConf();
-    }
+  public static Long ttl() {
+    return runnerConfig.getTtl();
+  }
 
-    static public void reset(){
-        runnerConfig = null;
-        ItemConfigRegistry.clear();
-        SampleConfigRegistry.clear();
-        runnerConfig = getRunnerConfig();
-    }
+  public static DeviceConfig deviceConf(int i) {
+    return getDeviceConfs().get(i);
+  }
+
+  public static SampleConfig sampleConf(int ofDev, int i) {
+    return getSampleConfs(ofDev).get(i);
+  }
+
+  //alias for above
+  public static BrokerConfig brokerConf() {
+    return getBrokerConf();
+  }
+
+  /**
+   * Resets the entire configuration.  Used mainly in testing.
+   */
+  public static void reset() {
+    runnerConfig = null;
+    ItemConfigRegistry.clear();
+    SampleConfigRegistry.clear();
+    runnerConfig = getRunnerConfig();
+  }
 }
