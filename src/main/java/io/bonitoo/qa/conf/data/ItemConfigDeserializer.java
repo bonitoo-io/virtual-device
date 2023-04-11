@@ -3,7 +3,7 @@ package io.bonitoo.qa.conf.data;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
-import io.bonitoo.qa.conf.VDevDeserializer;
+import io.bonitoo.qa.conf.VirDevDeserializer;
 import io.bonitoo.qa.data.ItemType;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import java.util.List;
  * Deserializes YAML configuration node of an item configuration into
  * an ItemConfig object.
  */
-public class ItemConfigDeserializer extends VDevDeserializer<ItemConfig> {
+public class ItemConfigDeserializer extends VirDevDeserializer<ItemConfig> {
 
   public ItemConfigDeserializer() {
     this(null);

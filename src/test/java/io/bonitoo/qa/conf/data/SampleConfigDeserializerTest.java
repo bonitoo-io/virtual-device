@@ -4,12 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import io.bonitoo.qa.conf.VDevConfigException;
-import io.bonitoo.qa.conf.data.ItemConfig;
-import io.bonitoo.qa.conf.data.ItemNumConfig;
-import io.bonitoo.qa.conf.data.ItemStringConfig;
-import io.bonitoo.qa.conf.data.SampleConfig;
-import io.bonitoo.qa.conf.data.SampleConfigRegistry;
+import io.bonitoo.qa.conf.VirDevConfigException;
 import io.bonitoo.qa.data.ItemType;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -114,7 +109,7 @@ public class SampleConfigDeserializerTest {
 
         ObjectMapper om = new ObjectMapper(new YAMLFactory());
 
-        assertThrowsExactly(VDevConfigException.class,
+        assertThrowsExactly(VirDevConfigException.class,
           () -> om.readValue(badYaml, SampleConfig.class), "property \"items\" for node " +
             "{\"id\":\"cokoliv\",\"name\":\"mlok\",\"topic\":\"testing/test\"} is null.  " +
             "Cannot parse any further");
@@ -127,7 +122,7 @@ public class SampleConfigDeserializerTest {
 
         ObjectMapper om = new ObjectMapper(new YAMLFactory());
 
-        assertThrowsExactly(VDevConfigException.class,
+        assertThrowsExactly(VirDevConfigException.class,
           () -> om.readValue(badYaml, SampleConfig.class), "property \"id\" " +
             "for node {\"name\":\"foo\"} is null.  Cannot parse any further");
     }

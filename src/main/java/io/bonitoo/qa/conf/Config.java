@@ -76,7 +76,7 @@ public class Config {
       ObjectMapper om = new ObjectMapper(new YAMLFactory());
       runnerConfig = om.readValue(runnerConfStream, RunnerConfig.class);
       if (runnerConfig == null) {
-        throw new VDevConfigException(
+        throw new VirDevConfigException(
           String.format("Failed to parse config file %s", props.getProperty("runner.conf"))
         );
       }
