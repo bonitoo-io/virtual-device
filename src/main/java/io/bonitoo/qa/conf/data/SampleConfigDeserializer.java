@@ -1,10 +1,10 @@
 package io.bonitoo.qa.conf.data;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import io.bonitoo.qa.conf.VDevDeserializer;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * A deserializer for a SampleConfig document.
  */
-public class SampleConfigDeserializer extends StdDeserializer<SampleConfig> {
+public class SampleConfigDeserializer extends VDevDeserializer<SampleConfig> {
 
   public SampleConfigDeserializer() {
     this(null);
@@ -28,10 +28,10 @@ public class SampleConfigDeserializer extends StdDeserializer<SampleConfig> {
       throws IOException {
 
     JsonNode node = jsonParser.getCodec().readTree(jsonParser);
-    String name = node.get("name").asText();
-    String id = node.get("id").asText();
-    String topic = node.get("topic").asText();
-    JsonNode itemsNode = node.get("items");
+    String name = safeGetNode(node,"name").asText();
+    String id = safeGetNode(node, "id").asText();
+    String topic = safeGetNode(node,"topic").asText();
+    JsonNode itemsNode = safeGetNode(node,"items");
     List<ItemConfig> items = new ArrayList<>();
 
     for (JsonNode itemNode : itemsNode) {

@@ -5,12 +5,14 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import io.bonitoo.qa.conf.VDevDeserializer;
+
 import java.io.IOException;
 
 /**
  * Deserializes a node to a BrokerConfig instance.
  */
-public class BrokerConfigDeserializer extends StdDeserializer<BrokerConfig> {
+public class BrokerConfigDeserializer extends VDevDeserializer<BrokerConfig> {
 
   public BrokerConfigDeserializer() {
     this(null);
@@ -26,9 +28,9 @@ public class BrokerConfigDeserializer extends StdDeserializer<BrokerConfig> {
       throws IOException {
 
     JsonNode node = jsonParser.getCodec().readTree(jsonParser);
-    String host = node.get("host").asText();
-    int port = node.get("port").asInt();
-    JsonNode authNode = node.get("auth");
+    String host = safeGetNode(node,"host").asText();
+    int port = safeGetNode(node,"port").asInt();
+    JsonNode authNode = safeGetNode(node,"auth");
     AuthConfig authConf = ctx.readValue(authNode.traverse(jsonParser.getCodec()),
         AuthConfig.class);
 

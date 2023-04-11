@@ -18,7 +18,7 @@ import java.util.List;
  * Deserializes a YAML runner configuration file to corresponding objects.
  */
 
-public class RunnerConfigDeserializer extends StdDeserializer<RunnerConfig> {
+public class RunnerConfigDeserializer extends VDevDeserializer<RunnerConfig> {
 
   public RunnerConfigDeserializer() {
     this(null);
@@ -30,26 +30,21 @@ public class RunnerConfigDeserializer extends StdDeserializer<RunnerConfig> {
 
   @Override
   public RunnerConfig deserialize(JsonParser jsonParser, DeserializationContext ctx)
-      throws IOException, VirtualDeviceConfigException {
+      throws IOException, VDevConfigException {
 
     JsonNode node = jsonParser.getCodec().readTree(jsonParser);
 
-    JsonNode ttlNode = node.get("ttl");
-    JsonNode brokerNode = node.get("broker");
-    JsonNode itemsNode = node.get("items");
-    JsonNode samplesNode = node.get("samples");
-    JsonNode devicesNode = node.get("devices");
-
-    if (ttlNode == null
-        && brokerNode == null
-        && itemsNode == null
-        && samplesNode == null
-        && devicesNode == null) {
-      throw new VirtualDeviceConfigException(
-        "RunnerConfig source contains no nodes to be serialized"
+    if(node == null){
+      throw new VDevConfigException(
+        "RunnerConfig source contains no node to be serialized"
       );
     }
 
+    JsonNode ttlNode = safeGetNode(node,"ttl");
+    JsonNode brokerNode = safeGetNode(node,"broker");
+    JsonNode itemsNode = node.get("items"); // can be null
+    JsonNode samplesNode = node.get("samples"); // can be null
+    JsonNode devicesNode = safeGetNode(node,"devices");
 
     final Long ttl = ttlNode == null
         ? Long.parseLong(Config.getProp("default.ttl"))

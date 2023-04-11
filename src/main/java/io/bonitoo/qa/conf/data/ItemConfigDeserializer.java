@@ -3,8 +3,7 @@ package io.bonitoo.qa.conf.data;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import io.bonitoo.qa.conf.VirtualDeviceConfigException;
+import io.bonitoo.qa.conf.VDevDeserializer;
 import io.bonitoo.qa.data.ItemType;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,7 +14,7 @@ import java.util.List;
  * Deserializes YAML configuration node of an item configuration into
  * an ItemConfig object.
  */
-public class ItemConfigDeserializer extends StdDeserializer<ItemConfig> {
+public class ItemConfigDeserializer extends VDevDeserializer<ItemConfig> {
 
   public ItemConfigDeserializer() {
     this(null);
@@ -23,19 +22,6 @@ public class ItemConfigDeserializer extends StdDeserializer<ItemConfig> {
 
   protected ItemConfigDeserializer(Class<?> vc) {
     super(vc);
-  }
-
-  private static JsonNode safeGetNode(JsonNode node,
-                                      String subName)
-      throws VirtualDeviceConfigException {
-    JsonNode subNode = node.get(subName);
-    if (subNode == null) {
-      throw new VirtualDeviceConfigException(
-        String.format("property \"%s\" for node %s is null.  Cannot parse any further",
-          subName, node)
-      );
-    }
-    return subNode;
   }
 
   @Override
