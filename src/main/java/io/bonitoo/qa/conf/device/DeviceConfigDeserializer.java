@@ -1,11 +1,11 @@
 package io.bonitoo.qa.conf.device;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import io.bonitoo.qa.conf.Config;
+import io.bonitoo.qa.conf.VirDevConfigException;
+import io.bonitoo.qa.conf.VirDevDeserializer;
 import io.bonitoo.qa.conf.data.SampleConfig;
 import io.bonitoo.qa.conf.data.SampleConfigRegistry;
 import java.io.IOException;
@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * A Deserializer to DeviceConfig instances.
  */
-public class DeviceConfigDeserializer extends StdDeserializer<DeviceConfig> {
+public class DeviceConfigDeserializer extends VirDevDeserializer<DeviceConfig> {
 
   static final Long defaultInterval = Long.parseLong(Config.getProp("default.device.interval"));
   static final Long defaultJitter = Long.parseLong(Config.getProp("default.device.jitter"));
@@ -36,16 +36,20 @@ public class DeviceConfigDeserializer extends StdDeserializer<DeviceConfig> {
       throws IOException {
 
     JsonNode node = jsonParser.getCodec().readTree(jsonParser);
-    String id = node.get("id").asText();
-    String name = node.get("name").asText();
-    String description = node.get("description").asText();
+    String id = safeGetNode(node, "id").asText();
+    String name = safeGetNode(node, "name").asText();
+    String description = safeGetNode(node, "description").asText();
     Long interval = node.get("interval") == null ? defaultInterval : node.get("interval").asLong();
     Long jitter = node.get("jitter") == null ? defaultJitter : node.get("jitter").asLong();
     int count = node.get("count") == null ? defaultCount : node.get("count").asInt();
-    JsonNode samplesNode = node.get("samples");
+    JsonNode samplesNode = safeGetNode(node, "samples");
     List<SampleConfig> samples = new ArrayList<>();
 
     for (JsonNode sampleNode : samplesNode) {
+      if (sampleNode == null) {
+        throw new VirDevConfigException("Encountered null sampleNode.  "
+          + "Cannot continue deserialization of device " + name);
+      }
       if (sampleNode.isTextual()) {
         samples.add(SampleConfigRegistry.get(sampleNode.asText()));
       } else {

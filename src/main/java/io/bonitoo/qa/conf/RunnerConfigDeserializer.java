@@ -3,7 +3,6 @@ package io.bonitoo.qa.conf;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import io.bonitoo.qa.conf.data.ItemConfig;
 import io.bonitoo.qa.conf.data.ItemConfigRegistry;
 import io.bonitoo.qa.conf.data.SampleConfig;
@@ -18,7 +17,7 @@ import java.util.List;
  * Deserializes a YAML runner configuration file to corresponding objects.
  */
 
-public class RunnerConfigDeserializer extends StdDeserializer<RunnerConfig> {
+public class RunnerConfigDeserializer extends VirDevDeserializer<RunnerConfig> {
 
   public RunnerConfigDeserializer() {
     this(null);
@@ -30,14 +29,20 @@ public class RunnerConfigDeserializer extends StdDeserializer<RunnerConfig> {
 
   @Override
   public RunnerConfig deserialize(JsonParser jsonParser, DeserializationContext ctx)
-      throws IOException, VirtualDeviceConfigException {
+      throws IOException, VirDevConfigException {
 
     JsonNode node = jsonParser.getCodec().readTree(jsonParser);
 
+    if (node == null) {
+      throw new VirDevConfigException(
+        "RunnerConfig source contains no node to be serialized"
+      );
+    }
+
     JsonNode ttlNode = node.get("ttl");
     JsonNode brokerNode = node.get("broker");
-    JsonNode itemsNode = node.get("items");
-    JsonNode samplesNode = node.get("samples");
+    JsonNode itemsNode = node.get("items"); // can be null
+    JsonNode samplesNode = node.get("samples"); // can be null
     JsonNode devicesNode = node.get("devices");
 
     if (ttlNode == null
@@ -45,11 +50,10 @@ public class RunnerConfigDeserializer extends StdDeserializer<RunnerConfig> {
         && itemsNode == null
         && samplesNode == null
         && devicesNode == null) {
-      throw new VirtualDeviceConfigException(
+      throw new VirDevConfigException(
         "RunnerConfig source contains no nodes to be serialized"
       );
     }
-
 
     final Long ttl = ttlNode == null
         ? Long.parseLong(Config.getProp("default.ttl"))

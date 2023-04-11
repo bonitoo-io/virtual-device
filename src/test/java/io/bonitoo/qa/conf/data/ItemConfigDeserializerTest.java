@@ -4,11 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import io.bonitoo.qa.conf.VirtualDeviceConfigException;
-import io.bonitoo.qa.conf.data.ItemConfig;
-import io.bonitoo.qa.conf.data.ItemNumConfig;
-import io.bonitoo.qa.conf.data.ItemStringConfig;
-import io.bonitoo.qa.conf.data.ItemConfigRegistry;
+import io.bonitoo.qa.conf.VirDevConfigException;
 import io.bonitoo.qa.data.ItemType;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -91,7 +87,7 @@ public class ItemConfigDeserializerTest {
           "min: 0\n";
 
         ObjectMapper om = new ObjectMapper(new YAMLFactory());
-        assertThrowsExactly(VirtualDeviceConfigException.class,
+        assertThrowsExactly(VirDevConfigException.class,
           () -> om.readValue(badYaml, ItemConfig.class),
           "property \"period\" for node {\"name\":\"profNode01\"," +
             "\"type\":\"Double\",\"max\":150,\"min\":0} is null.  Cannot parse any further");
