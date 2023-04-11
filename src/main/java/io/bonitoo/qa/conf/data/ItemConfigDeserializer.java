@@ -31,8 +31,8 @@ public class ItemConfigDeserializer extends VirDevDeserializer<ItemConfig> {
 
     JsonNode node = jsonParser.getCodec().readTree(jsonParser);
 
-    ItemType type = ItemType.valueOf(node.get("type").asText());
-    String name = node.get("name").asText();
+    ItemType type = ItemType.valueOf(safeGetNode(node, "type").asText());
+    String name = safeGetNode(node, "name").asText();
     Object max;
     Object min;
     long period;
