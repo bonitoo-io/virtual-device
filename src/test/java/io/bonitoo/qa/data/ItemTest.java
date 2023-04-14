@@ -1,12 +1,12 @@
 package io.bonitoo.qa.data;
 
-import io.bonitoo.qa.conf.data.ItemConfig;
-import io.bonitoo.qa.conf.data.ItemNumConfig;
-import io.bonitoo.qa.conf.data.ItemStringConfig;
-import io.bonitoo.qa.conf.data.ItemConfigRegistry;
+import io.bonitoo.qa.conf.data.*;
+import io.bonitoo.qa.plugin.*;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -57,6 +57,57 @@ public class ItemTest {
         assertThrowsExactly(RuntimeException.class,
                 () -> ItemConfigRegistry.get("zyxwvutsrqponmlkjihgfedcba"),
                 "Item Configuration named zyxwvutsrqponmlkjihgfedcba not found");
+    }
+
+
+    public static class PiItemGenPlugin extends ItemGenPlugin {
+        public PiItemGenPlugin(String name, boolean enabled, ItemConfig config, PluginProperties props) {
+            super(name, enabled, config, props);
+        }
+
+        public PiItemGenPlugin(){
+            this.name = null;
+            this.props = null;
+            this.enabled = false;
+            this.dataConfig = null;
+        }
+
+        @Override
+        public void onLoad() {
+            enabled = true;
+        }
+
+        @Override
+        public Object genData(Object... args) {
+            return Math.PI;
+        }
+    }
+
+    @Test
+    public void pluginItemTest() throws ClassNotFoundException,
+      PluginConfigException {
+
+        Properties generalProps = new Properties();
+        generalProps.put("plugin.main", PiItemGenPlugin.class.getName());
+        generalProps.put("plugin.name", "PiItemGenerator");
+        generalProps.put("plugin.description", "GeneratesPI");
+        generalProps.put("plugin.version","0.0.1");
+        generalProps.put("plugin.type", "Item");
+        generalProps.put("plugin.resultType", "Double");
+
+        PluginProperties props = new PluginProperties(generalProps);
+
+        PiItemGenPlugin plugin = new PiItemGenPlugin(props.getName(), true, null, props);
+
+        plugin.setDataConfig(new ItemPluginConfig(props.getName(), props.getName() + "01", plugin));
+
+        assertEquals(PluginResultType.Double, plugin.getResultType());
+        assertEquals(props.getName() + "01", plugin.getDataConfig().getName());
+
+        Item item = Item.of(plugin.getItemConfig());
+
+        assertEquals(Math.PI, item.asDouble());
+
     }
 
 }

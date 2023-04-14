@@ -1,0 +1,32 @@
+package io.bonitoo.qa.plugin;
+
+import io.bonitoo.qa.conf.data.DataConfig;
+import io.bonitoo.qa.conf.data.ItemConfig;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
+public class CounterItemPlugin extends ItemGenPlugin{
+
+  AtomicLong counter = new AtomicLong(0);
+  public CounterItemPlugin(String name, boolean enabled, ItemConfig config, PluginProperties props) {
+    super(name, enabled, config, props);
+  }
+
+  public CounterItemPlugin(){
+    super();
+  }
+
+  @Override
+  public void onLoad() {
+    enabled = true;
+  }
+
+  @Override
+  public Long genData(Object... args) {
+    int delta = (args.length < 1 || args[0] == null) ? 1 : (Integer)args[0];
+    return counter.addAndGet(delta);
+  }
+}

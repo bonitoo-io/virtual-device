@@ -13,9 +13,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @JsonDeserialize(using = ItemConfigDeserializer.class)
-public class ItemConfig {
+public class ItemConfig extends DataConfig{
 
-  String name;
+  //String name;
 
   ItemType type;
 
@@ -54,6 +54,11 @@ public class ItemConfig {
     final ItemConfig conf = (ItemConfig) obj;
 
     return (name.equals(conf.name) && type.equals(conf.type));
+  }
+
+  @Override
+  public String toString(){
+    return String.format("name:%s,type:%s", name, type);
   }
 
 }

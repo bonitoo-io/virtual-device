@@ -8,5 +8,6 @@ public enum ItemType {
     Double,
     Long,
     String,
-    BuiltInTemp
+    BuiltInTemp,
+    Plugin
 }

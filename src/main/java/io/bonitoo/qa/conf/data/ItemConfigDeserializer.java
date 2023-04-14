@@ -3,9 +3,14 @@ package io.bonitoo.qa.conf.data;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
+import io.bonitoo.qa.conf.VirDevConfigException;
 import io.bonitoo.qa.conf.VirDevDeserializer;
 import io.bonitoo.qa.data.ItemType;
+import io.bonitoo.qa.plugin.PluginConfigException;
+import io.bonitoo.qa.plugin.PluginResultType;
+
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -33,6 +38,7 @@ public class ItemConfigDeserializer extends VirDevDeserializer<ItemConfig> {
 
     ItemType type = ItemType.valueOf(safeGetNode(node, "type").asText());
     String name = safeGetNode(node, "name").asText();
+    String plugin;
     Object max;
     Object min;
     long period;
@@ -56,6 +62,15 @@ public class ItemConfigDeserializer extends VirDevDeserializer<ItemConfig> {
           vals.add(elem.asText());
         }
         return new ItemStringConfig(name, type, vals);
+      case Plugin:
+        plugin = safeGetNode(node, "pluginName").asText();
+        PluginResultType resultType = PluginResultType.valueOf(safeGetNode(node, "resultType").asText());
+        try {
+          return new ItemPluginConfig(plugin, name, resultType);
+        } catch (PluginConfigException | InvocationTargetException | NoSuchMethodException | InstantiationException
+                 | IllegalAccessException e) {
+          throw new VirDevConfigException(e);
+        }
       default:
         throw new RuntimeException(String.format("Unhandled Item Type %s", type));
     }

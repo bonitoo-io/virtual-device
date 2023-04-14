@@ -1,0 +1,6 @@
+plugin.main=io.bonitoo.qa.plugin.CounterItemPlugin
+plugin.name=CounterItemPlugin
+plugin.description=A Test plugin with a simple counter
+plugin.version=0.1
+plugin.type=Item
+plugin.resultType=Long

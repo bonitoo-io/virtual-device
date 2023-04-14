@@ -8,4 +8,8 @@ public class VirDevConfigException extends IllegalStateException {
   public VirDevConfigException(String typeName) {
     super(typeName);
   }
+
+  public VirDevConfigException(Throwable throwMe) {
+    super(throwMe);
+  }
 }

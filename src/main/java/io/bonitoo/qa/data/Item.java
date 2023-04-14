@@ -2,9 +2,13 @@ package io.bonitoo.qa.data;
 
 import io.bonitoo.qa.conf.data.ItemConfig;
 import io.bonitoo.qa.conf.data.ItemNumConfig;
+import io.bonitoo.qa.conf.data.ItemPluginConfig;
 import io.bonitoo.qa.conf.data.ItemStringConfig;
 import io.bonitoo.qa.data.generator.NumGenerator;
 import java.util.List;
+
+import io.bonitoo.qa.plugin.ItemGenPlugin;
+import io.bonitoo.qa.plugin.ItemPluginMill;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -63,6 +67,11 @@ public class Item {
         List<String> values = ((ItemStringConfig) config).getValues();
         String value = values.get((int) Math.floor(Math.random() * values.size()));
         it = new Item(value);
+        break;
+      case Plugin:
+        ItemGenPlugin generator = ((ItemPluginConfig) config).getItemGen();
+        // todo check for extra params that can be sent to genData
+        it = new Item(generator.genData());
         break;
       default:
         throw new RuntimeException("Unsupported Type " + config.getType());
