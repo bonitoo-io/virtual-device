@@ -1,14 +1,11 @@
 package io.bonitoo.qa.plugin;
 
 import io.bonitoo.qa.conf.data.ItemPluginConfig;
-
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
 import lombok.AllArgsConstructor;
 
 /**
@@ -66,7 +63,7 @@ public class ItemPluginMill {
    * @throws ClassNotFoundException - thrown if main class cannot be found
    */
   public static void addPluginClass(String key, PluginProperties props, URLClassLoader ucl)
-    throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     if (props.getMain() == null) {
       throw new RuntimeException("Cannot add create plugin class without plugin.main property");
     }
@@ -86,7 +83,8 @@ public class ItemPluginMill {
    * also a default ItemPluginConfig is generated and added to the ItemConfigRegistry.
    *
    * @param pluginName - name of the plugin from plugin.props
-   * @param instanceName - name for this instance so that it can be found
+   * @param pluginDataConfig - dataConfig for this instance, if null one is generated
+   *                         using the name <code>pluginName+Conf<code>
    * @return - the new instance
    * @throws PluginConfigException -
    * @throws NoSuchMethodException -
@@ -94,7 +92,8 @@ public class ItemPluginMill {
    * @throws InstantiationException -
    * @throws IllegalAccessException -
    */
-  public static ItemGenPlugin genNewInstance(String pluginName, String instanceName)
+
+  public static ItemGenPlugin genNewInstance(String pluginName, ItemPluginConfig pluginDataConfig)
       throws PluginConfigException, NoSuchMethodException, InvocationTargetException,
       InstantiationException, IllegalAccessException {
 
@@ -108,11 +107,14 @@ public class ItemPluginMill {
     ItemGenPlugin plugin = pack.pluginClass.getDeclaredConstructor().newInstance();
 
     plugin.setProps(pack.pluginProps);
-    plugin.setName(instanceName);
 
     // instances get stored directly in config from where they get called
     // this pattern follows pattern used in Item class for the default generator
-    plugin.setDataConfig(new ItemPluginConfig(pluginName, instanceName, plugin));
+    if (pluginDataConfig == null) {
+      plugin.setDataConfig(new ItemPluginConfig(pluginName, pluginName + "Conf", plugin));
+    } else {
+      plugin.setDataConfig(pluginDataConfig);
+    }
     plugin.onLoad();
 
     return plugin;

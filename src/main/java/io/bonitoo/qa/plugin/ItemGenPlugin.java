@@ -1,22 +1,23 @@
 package io.bonitoo.qa.plugin;
 
-import io.bonitoo.qa.conf.data.DataConfig;
 import io.bonitoo.qa.conf.data.ItemConfig;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import io.bonitoo.qa.conf.data.ItemPluginConfig;
 
 /**
  * Point from which Item Generator Plugins will be created.
  */
-//@AllArgsConstructor
 public abstract class ItemGenPlugin extends DataGenPlugin<ItemConfig> {
 
-  public ItemGenPlugin(String name, boolean enabled, ItemConfig config, PluginProperties props) {
-    super(name, enabled, config, props);
+  public ItemGenPlugin(PluginProperties props, ItemConfig config, boolean enabled ) {
+    super(props, config, enabled);
   }
 
+  /**
+   * Zero args constructor.
+   *
+   * <p>Sets <code>props</code> and <code>dataConfig</code> to null and <code>enabled</code> to false.</p>
+   */
   public ItemGenPlugin() {
-    this.name = null;
     this.props = null;
     this.enabled = false;
     this.dataConfig = null;
@@ -24,5 +25,19 @@ public abstract class ItemGenPlugin extends DataGenPlugin<ItemConfig> {
 
   public ItemConfig getItemConfig() {
     return (ItemConfig) this.dataConfig;
+  }
+
+  /**
+   * Sets the Item data config associated with this Item data generator plugin.
+   *
+   * <p>Ensures that back references are up-to-date.</p>
+   *
+   * @param itemPluginConfig - the ItemPluginConfig to be associated with the data generator.
+   */
+  public void setPluginConfig(ItemPluginConfig itemPluginConfig) {
+    if (itemPluginConfig.getItemGen() != this) {
+      itemPluginConfig.setItemGen(this);
+    }
+    this.setDataConfig(itemPluginConfig);
   }
 }

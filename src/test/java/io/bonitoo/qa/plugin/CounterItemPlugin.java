@@ -11,8 +11,8 @@ import java.util.concurrent.atomic.AtomicLong;
 public class CounterItemPlugin extends ItemGenPlugin{
 
   AtomicLong counter = new AtomicLong(0);
-  public CounterItemPlugin(String name, boolean enabled, ItemConfig config, PluginProperties props) {
-    super(name, enabled, config, props);
+  public CounterItemPlugin(PluginProperties props, ItemConfig config, boolean enabled) {
+    super(props, config, enabled);
   }
 
   public CounterItemPlugin(){

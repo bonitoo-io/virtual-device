@@ -10,8 +10,8 @@ public class EmptyItemGenPlugin extends ItemGenPlugin{
 
     String value;
 
-    public EmptyItemGenPlugin(String name, boolean enabled, ItemConfig config, PluginProperties props) {
-      super(name, enabled, config, props);
+    public EmptyItemGenPlugin(PluginProperties props, ItemConfig config, boolean enabled) {
+      super(props, config, enabled);
     }
 
     @Override

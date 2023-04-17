@@ -28,8 +28,7 @@ public class ItemConfigDeserializerTest {
       new Properties()
     );
 
-    static EmptyItemGenPlugin plugin = new EmptyItemGenPlugin(props.getName(),
-       false, new ItemConfig(props.getName(), ItemType.Plugin), props);
+    static EmptyItemGenPlugin plugin = new EmptyItemGenPlugin(props, new ItemConfig(props.getName(), ItemType.Plugin), false);
 
     static ItemConfig confDouble = new ItemNumConfig("doubleConf", ItemType.Double, -5, 10, 1);
     static ItemConfig confLong = new ItemNumConfig("longConf", ItemType.Long, 0, 100, 1);
@@ -54,9 +53,9 @@ public class ItemConfigDeserializerTest {
     @BeforeAll
     public static void setStringConstants() throws JsonProcessingException, PluginConfigException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         ItemConfigRegistry.clear();
-        ItemPluginMill.addPluginClass(plugin.getName(), plugin.getClass(), props);
+        ItemPluginMill.addPluginClass(plugin.getPluginName(), plugin.getClass(), props);
         confPlugin = new ItemPluginConfig(props.getName(), props.getName() + "Test01",
-          ItemPluginMill.genNewInstance(props.getName(), props.getName() + "Test01"));
+          ItemPluginMill.genNewInstance(props.getName(), null));
 
         System.out.println("DEBUG ItemPluginMill.keys " + ItemPluginMill.getKeys());
 
@@ -67,16 +66,19 @@ public class ItemConfigDeserializerTest {
         confLongJson = jsonWriter.writeValueAsString(confLong);
         confStringJson = jsonWriter.writeValueAsString(confString);
         confPluginJson = jsonWriter.writeValueAsString(confPlugin);
+        System.out.println("DEBUG confPluginJson " + confPluginJson);
+
 
         confDoubleYaml = yamlWriter.writeValueAsString(confDouble);
         confLongYaml = yamlWriter.writeValueAsString(confLong);
         confStringYaml = yamlWriter.writeValueAsString(confString);
         confPluginYaml = yamlWriter.writeValueAsString(confPlugin);
+        System.out.println("DEBUG confPluginYaml\n" + confPluginYaml);
     }
 
     @AfterAll
     public static void cleanUp(){
-        ItemPluginMill.removePluginClass(plugin.getName());
+        ItemPluginMill.removePluginClass(plugin.getPluginName());
     }
 
     @Test
@@ -101,8 +103,6 @@ public class ItemConfigDeserializerTest {
         assertEquals(configL, ItemConfigRegistry.get(confLong.getName()));
         assertEquals(configS, ItemConfigRegistry.get(confString.getName()));
         assertEquals(configP, ItemConfigRegistry.get(confPlugin.getName()));
-
-        System.out.println("DEBUG configPluginJson " + confPluginJson);
     }
 
     @Test
@@ -128,8 +128,6 @@ public class ItemConfigDeserializerTest {
         assertEquals(configS, ItemConfigRegistry.get(confString.getName()));
         assertEquals(configP, ItemConfigRegistry.get(confPlugin.getName()));
 
-        System.out.println("DEBUG configPluginJson " + confPluginYaml);
-
     }
 
     @Test
@@ -145,6 +143,38 @@ public class ItemConfigDeserializerTest {
           () -> om.readValue(badYaml, ItemConfig.class),
           "property \"period\" for node {\"name\":\"profNode01\"," +
             "\"type\":\"Double\",\"max\":150,\"min\":0} is null.  Cannot parse any further");
+
+    }
+
+    @Test
+    public void pluginDeserializerTest() throws JsonProcessingException {
+        ObjectMapper omj = new ObjectMapper();
+        ObjectMapper omy = new ObjectMapper(new YAMLFactory());
+
+        String localYamlConf = "---\n" +
+          "name: \"TestItemPluginTest01\"\n" +
+          "type: \"Plugin\"\n" +
+          "pluginName: \"TestItemPlugin\"\n" +
+          "resultType: \"Double\"";
+
+        String localJsonConf = "{\n" +
+          "  \"name\" : \"TestItemPluginTest01\",\n" +
+          "  \"type\" : \"Plugin\",\n" +
+          "  \"pluginName\" : \"TestItemPlugin\",\n" +
+          "  \"resultType\" : \"Double\"\n" +
+          "}";
+
+        ItemPluginConfig configPj = (ItemPluginConfig) omj.readValue(localJsonConf, ItemConfig.class);
+        ItemPluginConfig configPy = (ItemPluginConfig) omy.readValue(localYamlConf, ItemConfig.class);
+        @SuppressWarnings("unchecked")
+        Class<ItemGenPlugin> IGPj = (Class<ItemGenPlugin>) ItemPluginMill.getPluginClass(configPj.getPluginName());
+        @SuppressWarnings("unchecked")
+        Class<ItemGenPlugin> IGPy = (Class<ItemGenPlugin>) ItemPluginMill.getPluginClass(configPy.getPluginName());
+
+        assertEquals(EmptyItemGenPlugin.class.getName(), IGPj.getName());
+        assertEquals(EmptyItemGenPlugin.class.getName(), IGPy.getName());
+        assertEquals(props.getName(), ItemPluginMill.getPluginProps(configPj.getPluginName()).getName());
+        assertEquals(props.getName(), ItemPluginMill.getPluginProps(configPy.getPluginName()).getName());
 
     }
 

@@ -61,12 +61,12 @@ public class ItemTest {
 
 
     public static class PiItemGenPlugin extends ItemGenPlugin {
-        public PiItemGenPlugin(String name, boolean enabled, ItemConfig config, PluginProperties props) {
-            super(name, enabled, config, props);
+        public PiItemGenPlugin(PluginProperties props, ItemConfig config, boolean enabled) {
+            super(props, config, enabled);
         }
 
         public PiItemGenPlugin(){
-            this.name = null;
+         //   this.name = null;
             this.props = null;
             this.enabled = false;
             this.dataConfig = null;
@@ -97,7 +97,7 @@ public class ItemTest {
 
         PluginProperties props = new PluginProperties(generalProps);
 
-        PiItemGenPlugin plugin = new PiItemGenPlugin(props.getName(), true, null, props);
+        PiItemGenPlugin plugin = new PiItemGenPlugin(props, null, true);
 
         plugin.setDataConfig(new ItemPluginConfig(props.getName(), props.getName() + "01", plugin));
 

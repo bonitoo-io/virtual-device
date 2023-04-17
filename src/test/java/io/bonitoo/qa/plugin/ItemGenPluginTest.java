@@ -1,5 +1,7 @@
 package io.bonitoo.qa.plugin;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.bonitoo.qa.conf.data.ItemConfig;
 import io.bonitoo.qa.conf.data.ItemConfigRegistry;
 import io.bonitoo.qa.conf.data.ItemPluginConfig;
@@ -108,7 +110,7 @@ public class ItemGenPluginTest {
       new Properties()
       );
     ItemConfig itemConfig = new ItemConfig("TestItemConfig", ItemType.Plugin);
-    EmptyItemGenPlugin plugin = new EmptyItemGenPlugin("EmptyItemGenerator", false, itemConfig, props);
+    EmptyItemGenPlugin plugin = new EmptyItemGenPlugin(props, itemConfig, false);
     assertEquals(EmptyItemGenPlugin.class.getName(), plugin.getMain());
     assertEquals(props.getName(), plugin.getPropsName());
     assertEquals(props.getDescription(), plugin.getDescription());
@@ -117,12 +119,14 @@ public class ItemGenPluginTest {
     assertEquals(itemConfig, plugin.getDataConfig());
     plugin.onLoad();
     assertNull(plugin.genData());
-    plugin.onEnable();
+    assertTrue(plugin.onEnable());
     assertTrue(plugin.isEnabled());
     assertEquals(DEFAULT_VALUE + ":", plugin.genData());
     assertEquals("Foo:A3.14B7", plugin.genData('A', 3.14, 'B', '7'));
     assertEquals(PluginType.Item, plugin.getType());
     assertEquals(PluginResultType.Double, plugin.getResultType());
+    assertFalse(plugin.onDisable());
+    assertFalse(plugin.isEnabled());
   }
 
   // N.B. test relies on resource/counterItemPlugin.props
@@ -135,14 +139,14 @@ public class ItemGenPluginTest {
       @SuppressWarnings("unchecked")
       Class<ItemGenPlugin> clazz = (Class<ItemGenPlugin>) PluginLoader.loadPlugin(pluginFile);
       assertTrue(ItemPluginMill.pluginPackMap.containsKey("CounterItemPlugin"));
-      CounterItemPlugin counterPlugin = (CounterItemPlugin) ItemPluginMill.genNewInstance("CounterItemPlugin", "CounterItemPlugin01");
+      CounterItemPlugin counterPlugin = (CounterItemPlugin) ItemPluginMill.genNewInstance("CounterItemPlugin", null);
       assertEquals("CounterItemPlugin", counterPlugin.getPropsName());
       assertEquals(CounterItemPlugin.class.getName(), counterPlugin.getMain());
       assertEquals("0.1", counterPlugin.getVersion());
       assertEquals(1, counterPlugin.genData());
       assertEquals(2, counterPlugin.genData());
       assertEquals(7, counterPlugin.genData(5));
-      System.out.println("DEBUG counterPlugin " + counterPlugin.getName());
+   //   System.out.println("DEBUG counterPlugin " + counterPlugin.getName());
       System.out.println("DEBUG counterPlugin.genData " + counterPlugin.genData());
       System.out.println("DEBUG counterPlugin.genData " + counterPlugin.genData());
       System.out.println("DEBUG counterPlugin.genData " + counterPlugin.genData(5));
@@ -169,10 +173,20 @@ public class ItemGenPluginTest {
     @SuppressWarnings("unchecked")
     Class<ItemGenPlugin> clazz = (Class<ItemGenPlugin>) PluginLoader.loadPlugin(pluginFile);
     assertTrue(ItemPluginMill.pluginPackMap.containsKey("CounterItemPlugin"));
-    CounterItemPlugin counterPlugin = (CounterItemPlugin) ItemPluginMill.genNewInstance("CounterItemPlugin", "CounterItemPlugin01");
+    CounterItemPlugin counterPlugin = (CounterItemPlugin) ItemPluginMill.genNewInstance("CounterItemPlugin", null);
     assertEquals("CounterItemPlugin", counterPlugin.getPropsName());
 
-    ItemConfig confPlugin = new ItemPluginConfig(counterPlugin.getPluginName(), "plugin01", counterPlugin.getResultType());
+    String localYamlConf = "---\n" +
+      "name: \"plugin01\"\n" +
+      "type: \"Plugin\"\n" +
+      "pluginName: \"" + counterPlugin.getPluginName() + "\"\n" +
+      "resultType: \"" + counterPlugin.getResultType() + "\"";
+
+    ObjectMapper om = new ObjectMapper(new YAMLFactory());
+
+    // ItemConfig confPlugin = new ItemPluginConfig(counterPlugin.getPluginName(), "plugin01", counterPlugin.getResultType());
+    ItemConfig confPlugin = om.readValue(localYamlConf, ItemPluginConfig.class);
+    counterPlugin.setDataConfig(confPlugin);
 
     System.out.println("DEBUG counterPlugin.dataConf " + counterPlugin.getDataConfig());
 
