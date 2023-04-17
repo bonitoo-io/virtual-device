@@ -13,7 +13,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @JsonDeserialize(using = ItemConfigDeserializer.class)
-public class ItemConfig extends DataConfig{
+public class ItemConfig extends DataConfig {
 
   //String name;
 
@@ -57,7 +57,7 @@ public class ItemConfig extends DataConfig{
   }
 
   @Override
-  public String toString(){
+  public String toString() {
     return String.format("name:%s,type:%s", name, type);
   }
 

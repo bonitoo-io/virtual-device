@@ -47,7 +47,8 @@ public class ItemPluginMill {
       throw new RuntimeException("Cannot add create plugin class without plugin.main property");
     }
     @SuppressWarnings("unchecked")
-    Class<? extends ItemGenPlugin> pluginClass = (Class<? extends ItemGenPlugin>) Class.forName(props.getMain());
+    Class<? extends ItemGenPlugin> pluginClass =
+        (Class<? extends ItemGenPlugin>) Class.forName(props.getMain());
     pluginPackMap.put(key, new PluginPack(pluginClass, props));
   }
 
@@ -84,7 +85,7 @@ public class ItemPluginMill {
    *
    * @param pluginName - name of the plugin from plugin.props
    * @param pluginDataConfig - dataConfig for this instance, if null one is generated
-   *                         using the name <code>pluginName+Conf<code>
+   *                         using the name <code>pluginName+Conf</code>
    * @return - the new instance
    * @throws PluginConfigException -
    * @throws NoSuchMethodException -

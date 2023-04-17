@@ -5,10 +5,8 @@ import io.bonitoo.qa.conf.data.ItemNumConfig;
 import io.bonitoo.qa.conf.data.ItemPluginConfig;
 import io.bonitoo.qa.conf.data.ItemStringConfig;
 import io.bonitoo.qa.data.generator.NumGenerator;
-import java.util.List;
-
 import io.bonitoo.qa.plugin.ItemGenPlugin;
-import io.bonitoo.qa.plugin.ItemPluginMill;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

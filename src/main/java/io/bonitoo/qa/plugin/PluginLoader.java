@@ -2,20 +2,17 @@ package io.bonitoo.qa.plugin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Properties;
-import java.util.zip.ZipException;
 
 /**
- * Loads a DataGenPlugin into the VM
+ * Loads a DataGenPlugin into the VM.
  */
 public class PluginLoader {
 
@@ -38,7 +35,8 @@ public class PluginLoader {
     }
   }
 
-  private static PluginProperties loadPluginProperties(File file) throws ZipException, IOException, PluginConfigException {
+  private static PluginProperties loadPluginProperties(File file)
+      throws IOException, PluginConfigException {
     URL url = file.toURI().toURL();
     String jarUrl = "jar:" + url + "!/plugin.props";
 
@@ -55,16 +53,17 @@ public class PluginLoader {
   }
 
   /**
-   * Loads a plugin from a plugin jar file
+   * Loads a plugin from a plugin jar file.
    *
    * @param file - the jar file to be loaded
    * @return - the main class of the plugin defined in the jar plugin file
    * @throws IOException - when there are problems loading the file
    * @throws ClassNotFoundException - when plugin class is not available
-   * @throws PluginConfigException - when the plugin.props file of the plugin is illegal or incomplete
+   * @throws PluginConfigException - when the plugin.props file
+   *                               of the plugin is illegal or incomplete.
    */
   public static Class<? extends DataGenPlugin<?>> loadPlugin(File file) throws IOException,
-    PluginConfigException, ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+      PluginConfigException, ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     if (!file.exists()) {
       return null;
     }

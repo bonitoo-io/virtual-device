@@ -8,7 +8,6 @@ import io.bonitoo.qa.conf.VirDevDeserializer;
 import io.bonitoo.qa.data.ItemType;
 import io.bonitoo.qa.plugin.PluginConfigException;
 import io.bonitoo.qa.plugin.PluginResultType;
-
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -64,10 +63,12 @@ public class ItemConfigDeserializer extends VirDevDeserializer<ItemConfig> {
         return new ItemStringConfig(name, type, vals);
       case Plugin:
         plugin = safeGetNode(node, "pluginName").asText();
-        PluginResultType resultType = PluginResultType.valueOf(safeGetNode(node, "resultType").asText());
+        PluginResultType resultType = PluginResultType
+            .valueOf(safeGetNode(node, "resultType").asText());
         try {
           return new ItemPluginConfig(plugin, name, resultType);
-        } catch (PluginConfigException | InvocationTargetException | NoSuchMethodException | InstantiationException
+        } catch (PluginConfigException | InvocationTargetException
+                 | NoSuchMethodException | InstantiationException
                  | IllegalAccessException e) {
           throw new VirDevConfigException(e);
         }

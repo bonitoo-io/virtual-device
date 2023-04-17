@@ -1,11 +1,12 @@
 package io.bonitoo.qa.plugin;
 
-import io.bonitoo.qa.data.ItemType;
-import lombok.AllArgsConstructor;
+import java.util.Properties;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Properties;
+/**
+ * Encapsulates properties used to configure a data gen plugin.
+ */
 
 @Getter
 @Setter
@@ -31,17 +32,32 @@ public class PluginProperties {
 
   private Properties properties;
 
-  public static Object fetchRequiredProperty(String key, Properties properties) throws PluginConfigException {
+  private static Object fetchRequiredProperty(String key, Properties properties)
+      throws PluginConfigException {
     if (properties == null) {
       throw new PluginConfigException("Properties is null");
     }
     Object obj = properties.getProperty(key);
     if (obj == null) {
-      throw new PluginConfigException(String.format("Required property %s is not defined"));
+      throw new PluginConfigException(String.format("Required property %s is not defined", key));
     }
     return obj;
   }
 
+  /**
+   * Instantiates a new pluginProperties using all required fields.
+   *
+   * <p>If the required properties are not included in the properties instance,
+   * they will be added.</p>
+   *
+   * @param main - name of the main class of the plugin.
+   * @param name - name of the plugin, used locating it in factories and registries.
+   * @param description - what does this plugin do.
+   * @param version - latest version.
+   * @param type - is it an Item plugin or a Sample plugin.
+   * @param resultType - type returned by the required method <code>genData()</code>
+   * @param properties - additional properties used by the plugin.
+   */
   public PluginProperties(String main,
                           String name,
                           String description,
@@ -83,13 +99,33 @@ public class PluginProperties {
 
   }
 
+  /**
+   * Instantiates a pluginProperties object based on java.util.Properties.
+   *
+   * <p>The <code>properties</code> object must contain all properties required
+   * to complete a basic plugin configuration.  Additional properties can be added,
+   * which should then be handled by the data generation plugin implementation.</p>
+   *
+   * <ul>
+   *   <li>{@value #DEFAULT_KEY_MAIN} - the main class</li>
+   *   <li>{@value #DEFAULT_KEY_NAME} - the name of the plugin</li>
+   *   <li>{@value #DEFAULT_KEY_DESC} - a description of the plugin</li>
+   *   <li>{@value #DEFAULT_KEY_TYPE} - the type of plugin defined, e.g. Item or Sample</li>
+   *   <li>{@value #DEFAULT_KEY_VERS} - a version for the plugin</li>
+   *   <li>{@value #DEFAULT_KEY_RTYP} - the return type of this plugin.</li>
+   * </ul>
+   *
+   * @param properties - a java.util.Properties set of properties.
+   * @throws PluginConfigException - thrown if a required property is missing.
+   */
   public PluginProperties(Properties properties) throws PluginConfigException {
     this.properties = properties;
     this.main = (String) fetchRequiredProperty(DEFAULT_KEY_MAIN, properties);
-    this.name = (String) fetchRequiredProperty("plugin.name", properties);
-    this.description = (String) fetchRequiredProperty("plugin.description", properties);
-    this.version = (String) fetchRequiredProperty("plugin.version", properties);
-    this.type = PluginType.valueOf((String) fetchRequiredProperty("plugin.type", properties));
-    this.resultType = PluginResultType.valueOf((String) fetchRequiredProperty("plugin.resultType", properties));
+    this.name = (String) fetchRequiredProperty(DEFAULT_KEY_NAME, properties);
+    this.description = (String) fetchRequiredProperty(DEFAULT_KEY_DESC, properties);
+    this.version = (String) fetchRequiredProperty(DEFAULT_KEY_VERS, properties);
+    this.type = PluginType.valueOf((String) fetchRequiredProperty(DEFAULT_KEY_TYPE, properties));
+    this.resultType = PluginResultType.valueOf(
+      (String) fetchRequiredProperty(DEFAULT_KEY_RTYP, properties));
   }
 }

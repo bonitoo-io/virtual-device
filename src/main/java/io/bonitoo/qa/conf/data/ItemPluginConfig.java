@@ -40,7 +40,8 @@ public class ItemPluginConfig extends ItemConfig {
    *
    * @param pluginName - name of the plugin.  Must match the <code>plugin.name</code>
    *                   property in the plugin.props file.
-   * @param name - name of this ItemConfig.  So that the item can be reused in a virtual device config.
+   * @param name - name of this ItemConfig.
+   *             So that the item can be reused in a virtual device config.
    * @param resultType - The type returned by the <code>genData()</code> method
    *                   of the main class of the plugin.
    * @throws PluginConfigException - thrown if plugin config is misconfigured
@@ -49,7 +50,9 @@ public class ItemPluginConfig extends ItemConfig {
    * @throws InstantiationException -
    * @throws IllegalAccessException -
    */
-  public ItemPluginConfig(String pluginName, String name, PluginResultType resultType) throws PluginConfigException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+  public ItemPluginConfig(String pluginName, String name, PluginResultType resultType)
+      throws PluginConfigException, InvocationTargetException, NoSuchMethodException,
+      InstantiationException, IllegalAccessException {
     this.type = ItemType.Plugin;
     this.name = name;
     this.pluginName = pluginName;
@@ -67,8 +70,9 @@ public class ItemPluginConfig extends ItemConfig {
    * ItemPluginMill.</p>
    *
    * @param pluginName - name of the plugin.  Must match the <code>plugin.name</code>
-   *    *                   property in the plugin.props file.
-   * @param name - name of this ItemConfig.  So that the item can be reused in a VirtualDevice config.
+   *                       property in the plugin.props file.
+   * @param name - name of this ItemConfig.
+   *             So that the item can be reused in a VirtualDevice config.
    * @param generator - the Item data generator to be assigned to the configuration.
    */
   public ItemPluginConfig(String pluginName, String name, ItemGenPlugin generator) {
@@ -106,7 +110,7 @@ public class ItemPluginConfig extends ItemConfig {
       return false;
     }
 
-    final ItemPluginConfig conf = (ItemPluginConfig)obj;
+    final ItemPluginConfig conf = (ItemPluginConfig) obj;
     return pluginName.equals(conf.getPluginName())
       && resultType == conf.getResultType()
       && itemGen == conf.getItemGen();
