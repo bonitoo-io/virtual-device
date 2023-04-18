@@ -57,7 +57,7 @@ public class ItemConfigDeserializerTest {
         confPlugin = new ItemPluginConfig(props.getName(), props.getName() + "Test01",
           ItemPluginMill.genNewInstance(props.getName(), null));
 
-        System.out.println("DEBUG ItemPluginMill.keys " + ItemPluginMill.getKeys());
+//        System.out.println("DEBUG ItemPluginMill.keys " + ItemPluginMill.getKeys());
 
         ObjectWriter jsonWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
         ObjectWriter yamlWriter = new ObjectMapper(new YAMLFactory()).writer().withDefaultPrettyPrinter();
@@ -66,14 +66,14 @@ public class ItemConfigDeserializerTest {
         confLongJson = jsonWriter.writeValueAsString(confLong);
         confStringJson = jsonWriter.writeValueAsString(confString);
         confPluginJson = jsonWriter.writeValueAsString(confPlugin);
-        System.out.println("DEBUG confPluginJson " + confPluginJson);
+//        System.out.println("DEBUG confPluginJson " + confPluginJson);
 
 
         confDoubleYaml = yamlWriter.writeValueAsString(confDouble);
         confLongYaml = yamlWriter.writeValueAsString(confLong);
         confStringYaml = yamlWriter.writeValueAsString(confString);
         confPluginYaml = yamlWriter.writeValueAsString(confPlugin);
-        System.out.println("DEBUG confPluginYaml\n" + confPluginYaml);
+//        System.out.println("DEBUG confPluginYaml\n" + confPluginYaml);
     }
 
     @AfterAll

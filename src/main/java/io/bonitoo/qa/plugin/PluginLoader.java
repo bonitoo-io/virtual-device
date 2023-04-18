@@ -5,16 +5,21 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Loads a DataGenPlugin into the VM.
  */
 public class PluginLoader {
+
+  static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private static Object loadPluginYamlConfig(File file) throws MalformedURLException {
     URL url = file.toURI().toURL();
@@ -27,10 +32,10 @@ public class PluginLoader {
       JarURLConnection conn = (JarURLConnection) inputUrl.openConnection();
       input = conn.getInputStream();
       ObjectMapper om = new ObjectMapper(new YAMLFactory());
+      logger.info(String.format("Reading plugin.yml at %s", inputUrl));
       return om.readValue(input, Object.class);
     } catch (IOException e) {
-      System.out.println("WARNING: Caught IOException " + e);
-      System.out.println("Abort reading config yml");
+      logger.warn(String.format("Caught IOException %s. Abort reading plugin.yml ", e));
       return null;
     }
   }
@@ -49,6 +54,8 @@ public class PluginLoader {
 
     properties.load(input);
 
+    logger.info(String.format("Loaded plugin properties from %s", inputUrl));
+
     return new PluginProperties(properties);
   }
 
@@ -65,13 +72,16 @@ public class PluginLoader {
   public static Class<? extends DataGenPlugin<?>> loadPlugin(File file) throws IOException,
       PluginConfigException, ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     if (!file.exists()) {
+      logger.warn(String.format("Failed to open plugin file %s", file.getName()));
       return null;
     }
+
+    logger.info(String.format("Loading plugin %s", file.getName()));
 
     PluginProperties props = loadPluginProperties(file);
     Object obj = loadPluginYamlConfig(file);
     if (obj != null) {
-      System.out.println("DEBUG Obj " + obj);
+      logger.debug("Yaml config for plugin contains %s " + obj);
     }
 
     URL url = file.toURI().toURL();

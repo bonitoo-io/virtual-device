@@ -1,13 +1,21 @@
 package io.bonitoo.qa.plugin.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
+import java.lang.invoke.MethodHandles;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
 public class JarTool {
-    private Manifest manifest = new Manifest();
+
+    static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private final Manifest manifest = new Manifest();
 
     public void startManifest() {
         manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
@@ -24,13 +32,13 @@ public class JarTool {
     }
 
     public JarOutputStream openJar(String jarFile) throws IOException {
-        return new JarOutputStream(new FileOutputStream(jarFile), manifest);
+        return new JarOutputStream(Files.newOutputStream(Paths.get(jarFile)), manifest);
     }
 
     public void addFile(JarOutputStream target, String rootPath, String source)
       throws FileNotFoundException, IOException {
 
-        System.out.println("DEBUG rootPath " + rootPath);
+        logger.debug(String.format("rootPath:%s", rootPath));
 
         String remaining = "";
         if (rootPath.endsWith(File.separator)) {
@@ -39,14 +47,14 @@ public class JarTool {
             remaining = source.substring(rootPath.length() + 1);
         }
 
-        System.out.println("DEBUG remaining " + remaining);
+        logger.debug(String.format("Remaining:%s", remaining));
         String name = remaining.replace("\\","/");
-        System.out.println("DEBUG name " + name);
+        logger.debug(String.format("Name:%s", name));
         JarEntry entry = new JarEntry(name);
         entry.setTime(new File(source).lastModified());
         target.putNextEntry(entry);
 
-        BufferedInputStream in = new BufferedInputStream(new FileInputStream(source));
+        BufferedInputStream in = new BufferedInputStream(Files.newInputStream(Paths.get(source)));
         byte[] buffer = new byte[1024];
         while (true) {
             int count = in.read(buffer);
@@ -61,7 +69,7 @@ public class JarTool {
 
     public void addRenamedFile(JarOutputStream target, String rootPath, String source, String jarPath)
       throws FileNotFoundException, IOException {
-        System.out.println("DEBUG rootPath " + rootPath);
+        logger.debug(String.format("rootPath:%s", rootPath));
 
         String remaining = "";
         if (rootPath.endsWith(File.separator)) {
@@ -70,14 +78,14 @@ public class JarTool {
             remaining = source.substring(rootPath.length() + 1);
         }
 
-        System.out.println("DEBUG remaining " + remaining);
+        logger.debug(String.format("remaining:%s", remaining));
         String name = remaining.replace("\\","/");
-        System.out.println("DEBUG name " + name);
+        logger.debug(String.format("name:%s", name));
         JarEntry entry = new JarEntry(jarPath);
         entry.setTime(new File(source).lastModified());
         target.putNextEntry(entry);
 
-        BufferedInputStream in = new BufferedInputStream(new FileInputStream(source));
+        BufferedInputStream in = new BufferedInputStream(Files.newInputStream(Paths.get(source)));
         byte[] buffer = new byte[1024];
         while (true) {
             int count = in.read(buffer);

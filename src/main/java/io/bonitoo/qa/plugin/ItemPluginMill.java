@@ -1,17 +1,22 @@
 package io.bonitoo.qa.plugin;
 
 import io.bonitoo.qa.conf.data.ItemPluginConfig;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A class for storing plugin classes and generating instances.
  */
 public class ItemPluginMill {
+
+  static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   @AllArgsConstructor
   static class PluginPack {
@@ -29,6 +34,7 @@ public class ItemPluginMill {
                                     Class<? extends ItemGenPlugin> pluginClass,
                                     PluginProperties props) {
     pluginPackMap.put(key, new PluginPack(pluginClass, props));
+    logger.info(String.format("Added plugin to mill %s:%s", props.getName(), props.getMain()));
   }
 
   /**
@@ -50,6 +56,7 @@ public class ItemPluginMill {
     Class<? extends ItemGenPlugin> pluginClass =
         (Class<? extends ItemGenPlugin>) Class.forName(props.getMain());
     pluginPackMap.put(key, new PluginPack(pluginClass, props));
+    logger.info(String.format("Added plugin to mill %s:%s", props.getName(), props.getMain()));
   }
 
   /**
@@ -73,6 +80,8 @@ public class ItemPluginMill {
         Class.forName(props.getMain(), true, ucl);
 
     pluginPackMap.put(key, new PluginPack(pluginClass, props));
+    logger.info(String.format("Added plugin to mill %s:%s", props.getName(), props.getMain()));
+
   }
 
   public static PluginProperties getPluginProps(String key) {
@@ -118,11 +127,16 @@ public class ItemPluginMill {
     }
     plugin.onLoad();
 
+    logger.info(String.format("Generated new instance %s:%s of plugin %s:%s",
+        plugin.getDataConfig().getName(), plugin.hashCode(),
+        pluginName, pack.pluginClass.getName()));
+
     return plugin;
   }
 
   public static void removePluginClass(String key) {
     pluginPackMap.remove(key);
+    logger.info(String.format("Removed plugin %s", key));
   }
 
   public static Set<String> getKeys() {

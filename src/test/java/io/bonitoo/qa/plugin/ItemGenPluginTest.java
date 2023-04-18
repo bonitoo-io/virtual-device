@@ -12,9 +12,12 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
 import java.util.jar.JarOutputStream;
@@ -22,6 +25,8 @@ import java.util.jar.JarOutputStream;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ItemGenPluginTest {
+
+  static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private static final String DEFAULT_VALUE = "Foo";
   private static final File pluginDir = new File("src/test/plugins");
@@ -41,7 +46,7 @@ public class ItemGenPluginTest {
     jTool.addToManifest("Main-Class", CounterItemPlugin.class.getName());
     JarOutputStream target = jTool.openJar(testJarName);
 
-    System.out.println("DEBUG path replacements " + CounterItemPlugin.class.getName().replace(".", "/") + ".class");
+    logger.debug(String.format("Path replacements %s.class", CounterItemPlugin.class.getName().replace(".", "/")));
 
     jTool.addFile(target, System.getProperty("user.dir")
         + "/target/test-classes",
@@ -70,34 +75,6 @@ public class ItemGenPluginTest {
     // N.B. removes from registry, but loaded class remains until garbage collected
     ItemPluginMill.pluginPackMap.remove("CounterItemPlugin");
   }
-
-  /*
-  static class EmptyItemGenPlugin extends ItemGenPlugin{
-
-    String value;
-
-    public EmptyItemGenPlugin(String name, PluginProperties props, boolean enabled, ItemConfig config) {
-      super(name, props, enabled, config);
-    }
-
-    @Override
-    public void onLoad() {
-      value = DEFAULT_VALUE;
-    }
-
-    @Override
-    public String genData(Object... args) {
-      StringBuilder sb = new StringBuilder();
-      for(Object obj: args){
-        sb.append(obj.toString());
-      }
-      if (enabled) {
-        return value + ":" + sb.toString();
-      } else {
-        return null;
-      }
-    }
-  } */
 
   @Test
   public void createEmptyItemPluginTest(){
@@ -146,28 +123,20 @@ public class ItemGenPluginTest {
       assertEquals(1, counterPlugin.genData());
       assertEquals(2, counterPlugin.genData());
       assertEquals(7, counterPlugin.genData(5));
-   //   System.out.println("DEBUG counterPlugin " + counterPlugin.getName());
-      System.out.println("DEBUG counterPlugin.genData " + counterPlugin.genData());
-      System.out.println("DEBUG counterPlugin.genData " + counterPlugin.genData());
-      System.out.println("DEBUG counterPlugin.genData " + counterPlugin.genData(5));
-      System.out.println("DEBUG DataConfig " + counterPlugin.getDataConfig());
-      System.out.println("DEBUG ItemPluginMill pluginPackMap.keySet() " + ItemPluginMill.pluginPackMap.keySet());
-      System.out.println("DEBUG ItemConfigRegistry keySet() " + ItemConfigRegistry.keys());
+      assertEquals(counterPlugin.getPluginName() + "Conf", counterPlugin.getDataConfig().getName());
+      assertTrue(ItemPluginMill.pluginPackMap.containsKey(((ItemPluginConfig)counterPlugin.getDataConfig()).getPluginName()));
+      assertTrue(ItemConfigRegistry.keys().contains(counterPlugin.getDataConfig().getName()));
     } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | InvocationTargetException |
-             NoSuchMethodException | PluginConfigException e) {
-      throw new RuntimeException(e);
-    } catch (NoSuchFieldException e) {
+             NoSuchMethodException | PluginConfigException | NoSuchFieldException e) {
       throw new RuntimeException(e);
     }
   }
 
   @Test
-  public void itemPluginZDeserializeTest()
+  public void itemPluginDeserializeTest()
     throws IOException, ClassNotFoundException, PluginConfigException,
     InvocationTargetException, NoSuchMethodException, InstantiationException,
     IllegalAccessException, NoSuchFieldException {
-
-    System.out.println("DEBUG ItemPluginMill.keys " + ItemPluginMill.pluginPackMap.keySet());
 
     File pluginFile = new File(testJarName);
     @SuppressWarnings("unchecked")
@@ -184,17 +153,14 @@ public class ItemGenPluginTest {
 
     ObjectMapper om = new ObjectMapper(new YAMLFactory());
 
-    // ItemConfig confPlugin = new ItemPluginConfig(counterPlugin.getPluginName(), "plugin01", counterPlugin.getResultType());
     ItemConfig confPlugin = om.readValue(localYamlConf, ItemPluginConfig.class);
     counterPlugin.setDataConfig(confPlugin);
 
-    System.out.println("DEBUG counterPlugin.dataConf " + counterPlugin.getDataConfig());
+    assertEquals(confPlugin, counterPlugin.getDataConfig());
 
-    System.out.println("DEBUG Item.of " + Item.of((ItemPluginConfig)counterPlugin.getDataConfig()).asLong());
-    System.out.println("DEBUG Item.of " + Item.of((ItemPluginConfig)counterPlugin.getDataConfig()).asLong());
-    System.out.println("DEBUG Item.of " + Item.of((ItemPluginConfig)counterPlugin.getDataConfig()).asLong());
-
-    // TODO finish this
+    assertEquals(1L, Item.of((ItemPluginConfig)counterPlugin.getDataConfig()).asLong());
+    assertEquals(2L, Item.of((ItemPluginConfig)counterPlugin.getDataConfig()).asLong());
+    assertEquals(3L, Item.of((ItemPluginConfig)counterPlugin.getDataConfig()).asLong());
 
   }
 
