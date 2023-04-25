@@ -120,8 +120,9 @@ public class ItemPluginMill {
 
     // instances get stored directly in config from where they get called
     // this pattern follows pattern used in Item class for the default generator
+    // TODO resolve updateArgs for new null config
     if (pluginDataConfig == null) {
-      plugin.setDataConfig(new ItemPluginConfig(pluginName, pluginName + "Conf", plugin));
+      plugin.setDataConfig(new ItemPluginConfig(ItemPluginMill.getPluginProps(pluginName), pluginName + "Conf", null));
     } else {
       plugin.setDataConfig(pluginDataConfig);
     }

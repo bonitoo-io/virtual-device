@@ -19,10 +19,13 @@ public class PluginProperties {
   private static final String DEFAULT_KEY_TYPE = "plugin.type";
   private static final String DEFAULT_KEY_RTYP = "plugin.resultType";
 
+  private static final String DEFAULT_KEY_LABEL = "plugin.label";
+
 
   // required properties
   private String main;
   private String name;
+  private String label;
   private String description;
   private String version;
 
@@ -60,6 +63,7 @@ public class PluginProperties {
    */
   public PluginProperties(String main,
                           String name,
+                          String label,
                           String description,
                           String version,
                           PluginType type,
@@ -67,6 +71,7 @@ public class PluginProperties {
                           Properties properties) {
     this.main = main;
     this.name = name;
+    this.label = label;
     this.description = description;
     this.version = version;
     this.type = type;
@@ -97,6 +102,11 @@ public class PluginProperties {
       this.properties.setProperty(DEFAULT_KEY_RTYP, String.valueOf(this.resultType));
     }
 
+    if (this.properties.getProperty(DEFAULT_KEY_LABEL) == null) {
+      this.properties.setProperty(DEFAULT_KEY_LABEL, String.valueOf(this.label));
+    }
+
+
   }
 
   /**
@@ -122,6 +132,7 @@ public class PluginProperties {
     this.properties = properties;
     this.main = (String) fetchRequiredProperty(DEFAULT_KEY_MAIN, properties);
     this.name = (String) fetchRequiredProperty(DEFAULT_KEY_NAME, properties);
+    this.label = (String) fetchRequiredProperty(DEFAULT_KEY_LABEL, properties);
     this.description = (String) fetchRequiredProperty(DEFAULT_KEY_DESC, properties);
     this.version = (String) fetchRequiredProperty(DEFAULT_KEY_VERS, properties);
     this.type = PluginType.valueOf((String) fetchRequiredProperty(DEFAULT_KEY_TYPE, properties));

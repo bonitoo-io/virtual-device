@@ -20,6 +20,11 @@ public class CounterItemPlugin extends ItemGenPlugin{
   }
 
   @Override
+  public Long getCurrentVal() {
+    return counter.get();
+  }
+
+  @Override
   public void onLoad() {
     enabled = true;
   }

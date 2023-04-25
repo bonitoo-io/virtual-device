@@ -1,21 +1,27 @@
 package io.bonitoo.qa.data;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.bonitoo.qa.conf.data.*;
+import io.bonitoo.qa.data.generator.NumGenerator;
 import io.bonitoo.qa.plugin.*;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
-import java.util.Properties;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ItemTest {
 
     @Test
-    public void createDoubleItemTest(){
-        ItemConfig conf = new ItemNumConfig("testDouble", ItemType.Double, 0, 10, 4);
+    public void createDoubleItemTest() throws JsonProcessingException {
+        ItemConfig conf = new ItemNumConfig("testDouble", "someVal", ItemType.Double, 0, 10, 4);
         Item item = Item.of(conf);
+
+        ObjectWriter ow = new ObjectMapper(new YAMLFactory()).writer();
 
         assertInstanceOf(Double.class, item.getVal());
         assertTrue(item.asDouble() < ((ItemNumConfig)conf).getMax());
@@ -24,7 +30,7 @@ public class ItemTest {
 
     @Test
     public void createLongItemTest(){
-        ItemConfig conf = new ItemNumConfig("testLong", ItemType.Long, 0, 10, 4);
+        ItemConfig conf = new ItemNumConfig("testLong", "someVal", ItemType.Long, 0, 10, 4);
         Item item = Item.of(conf);
 
         assertInstanceOf(Long.class, item.getVal());
@@ -34,7 +40,7 @@ public class ItemTest {
 
     @Test
     public void createStringItemTest(){
-        ItemConfig conf = new ItemStringConfig("testString", ItemType.String, Arrays.asList("TEST STRING"));
+        ItemConfig conf = new ItemStringConfig("testString", "test", ItemType.String, Arrays.asList("TEST STRING"));
         Item item = Item.of(conf);
 
         assertInstanceOf(String.class, item.getVal());
@@ -43,11 +49,10 @@ public class ItemTest {
 
     @Test
     public void builtInItemTest(){
-        ItemConfig conf = new ItemConfig("testBuiltIn", ItemType.BuiltInTemp);
+        ItemConfig conf = new ItemConfig("testBuiltIn", "temp", ItemType.BuiltInTemp, NumGenerator.class.getName());
         Item item = Item.of(conf);
 
         assertInstanceOf(Double.class, item.getVal());
-        // see utils.Generator.genTemperature()
         assertTrue(item.asDouble() > 0 && item.asDouble() < 40);
     }
 
@@ -73,6 +78,11 @@ public class ItemTest {
         }
 
         @Override
+        public Double getCurrentVal() {
+            return Math.PI;
+        }
+
+        @Override
         public void onLoad() {
             enabled = true;
         }
@@ -94,12 +104,13 @@ public class ItemTest {
         generalProps.put("plugin.version","0.0.1");
         generalProps.put("plugin.type", "Item");
         generalProps.put("plugin.resultType", "Double");
+        generalProps.put("plugin.label", "pi");
 
         PluginProperties props = new PluginProperties(generalProps);
 
         PiItemGenPlugin plugin = new PiItemGenPlugin(props, null, true);
 
-        plugin.setDataConfig(new ItemPluginConfig(props.getName(), props.getName() + "01", plugin));
+        plugin.setDataConfig(new ItemPluginConfig(props,props.getName() + "01", new Vector<>()));
 
         assertEquals(PluginResultType.Double, plugin.getResultType());
         assertEquals(props.getName() + "01", plugin.getDataConfig().getName());
@@ -107,6 +118,73 @@ public class ItemTest {
         Item item = Item.of(plugin.getItemConfig());
 
         assertEquals(Math.PI, item.asDouble());
+
+    }
+
+    @Test
+    public void updateArgsOrderTest(){
+
+        PluginProperties props = new PluginProperties(PiItemGenPlugin.class.getName(),
+          "PiPlugin",
+          "pi",
+          "A simple test plugin",
+          "0.1",
+          PluginType.Item,
+          PluginResultType.Long,
+          new Properties());
+
+        String[] args = { "foo", "bar", "wombat", "apple", "zebra",
+          "couscous", "dodo", "kangaroo", "platypus", "fred"};
+
+        ItemConfig itc = new ItemPluginConfig(props, "piConf",
+          new Vector<>(Arrays.asList(args[0],args[1],args[2],args[3],args[4]
+          ,args[5],args[6],args[7],args[8],args[9])));
+
+        int count = 0;
+        for(String s : itc.getUpdateArgs()){
+            assertEquals(s, args[count++]);
+        }
+    }
+
+    @Test
+    public void pluginItemTestSeparateInstances(){
+        PluginProperties props = new PluginProperties(CounterItemPlugin.class.getName(),
+          "CounterPlugin",
+          "count",
+          "A simple test plugin",
+          "0.1",
+          PluginType.Item,
+          PluginResultType.Long,
+          new Properties());
+
+        ItemConfig conf = new ItemPluginConfig(props, "testPluginConf", new Vector<>());
+
+        CounterItemPlugin plugin1 = new CounterItemPlugin(props, conf, true);
+        CounterItemPlugin plugin2 = new CounterItemPlugin(props, conf, true);
+
+        Item it1 = new Item(conf, 0, plugin1);
+        Item it2 = new Item(conf, 0, plugin2);
+
+        for(int i = 0; i < 5; i++) {
+            it1.update();
+        }
+
+        it2.update();
+        it2.update();
+
+        assertEquals(5L, it1.asLong());
+        assertEquals(2L, it2.asLong());
+    }
+
+    @Test
+    public void numItemTestSeparateInstances(){
+        ItemConfig conf = new ItemNumConfig("testDouble", "someVal", ItemType.Double, 0, 10, 4);
+
+        Item item1 = Item.of(conf);
+        Item item2 = Item.of(conf);
+
+        assertNotEquals(item1.getGenerator(), item2.getGenerator());
+
 
     }
 

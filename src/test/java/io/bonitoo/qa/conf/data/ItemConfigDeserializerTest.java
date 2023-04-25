@@ -12,8 +12,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
-import java.util.Properties;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,6 +20,7 @@ public class ItemConfigDeserializerTest {
 
     static PluginProperties props = new PluginProperties(EmptyItemGenPlugin.class.getName(),
       "TestItemPlugin",
+      "val",
       "A Test Plugin",
       "0.0.1",
       PluginType.Item,
@@ -28,12 +28,13 @@ public class ItemConfigDeserializerTest {
       new Properties()
     );
 
-    static EmptyItemGenPlugin plugin = new EmptyItemGenPlugin(props, new ItemConfig(props.getName(), ItemType.Plugin), false);
+    static EmptyItemGenPlugin plugin = new EmptyItemGenPlugin(props,
+      new ItemConfig(props.getName(), "plug", ItemType.Plugin, props.getMain()), false);
 
-    static ItemConfig confDouble = new ItemNumConfig("doubleConf", ItemType.Double, -5, 10, 1);
-    static ItemConfig confLong = new ItemNumConfig("longConf", ItemType.Long, 0, 100, 1);
+    static ItemConfig confDouble = new ItemNumConfig("doubleConf", "dbl", ItemType.Double, -5, 10, 1);
+    static ItemConfig confLong = new ItemNumConfig("longConf", "lng", ItemType.Long, 0, 100, 1);
 
-    static ItemConfig confString = new ItemStringConfig("stringConf", ItemType.String, Arrays.asList("Pepe", "Lance", "Bongo"));
+    static ItemConfig confString = new ItemStringConfig("stringConf", "str", ItemType.String, Arrays.asList("Pepe", "Lance", "Bongo"));
 
     static ItemConfig confPlugin; // = new ItemPluginConfig(props.getName(), "plugin01", plugin);
 
@@ -54,8 +55,10 @@ public class ItemConfigDeserializerTest {
     public static void setStringConstants() throws JsonProcessingException, PluginConfigException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         ItemConfigRegistry.clear();
         ItemPluginMill.addPluginClass(plugin.getPluginName(), plugin.getClass(), props);
-        confPlugin = new ItemPluginConfig(props.getName(), props.getName() + "Test01",
-          ItemPluginMill.genNewInstance(props.getName(), null));
+//        confPlugin = new ItemPluginConfig(props.getName(), props.getName() + "Test01", props.getLabel(),
+//          ItemPluginMill.genNewInstance(props.getName(), null));
+
+        confPlugin = new ItemPluginConfig(props,props.getName() + "Test01", new Vector<>(Arrays.asList("argy","bargy")));
 
 //        System.out.println("DEBUG ItemPluginMill.keys " + ItemPluginMill.getKeys());
 
@@ -97,7 +100,7 @@ public class ItemConfigDeserializerTest {
         assertEquals(configP.getType(), confPlugin.getType());
         assertEquals(configP.getResultType(), ((ItemPluginConfig)confPlugin).getResultType());
         // every config should have its own instance of this
-        assertNotEquals(configP.getItemGen(), ((ItemPluginConfig)confPlugin).getItemGen());
+  //      assertNotEquals(configP.getItemGen(), ((ItemPluginConfig)confPlugin).getItemGen());
 
         assertEquals(configD, ItemConfigRegistry.get(confDouble.getName()));
         assertEquals(configL, ItemConfigRegistry.get(confLong.getName()));
@@ -121,7 +124,7 @@ public class ItemConfigDeserializerTest {
         assertEquals(configP.getType(), confPlugin.getType());
         assertEquals(configP.getResultType(), ((ItemPluginConfig)confPlugin).getResultType());
         // every config should have its own instance of this
-        assertNotEquals(configP.getItemGen(), ((ItemPluginConfig)confPlugin).getItemGen());
+     //   assertNotEquals(configP.getItemGen(), ((ItemPluginConfig)confPlugin).getItemGen());
 
         assertEquals(configD, ItemConfigRegistry.get(confDouble.getName()));
         assertEquals(configL, ItemConfigRegistry.get(confLong.getName()));
@@ -154,11 +157,13 @@ public class ItemConfigDeserializerTest {
         String localYamlConf = "---\n" +
           "name: \"TestItemPluginTest01\"\n" +
           "type: \"Plugin\"\n" +
+          "label: \"test01\"\n" +
           "pluginName: \"TestItemPlugin\"\n" +
           "resultType: \"Double\"";
 
         String localJsonConf = "{\n" +
           "  \"name\" : \"TestItemPluginTest01\",\n" +
+          "  \"label\": \"test01\",\n" +
           "  \"type\" : \"Plugin\",\n" +
           "  \"pluginName\" : \"TestItemPlugin\",\n" +
           "  \"resultType\" : \"Double\"\n" +

@@ -6,8 +6,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.bonitoo.qa.conf.VirDevConfigException;
 import io.bonitoo.qa.conf.VirDevDeserializer;
 import io.bonitoo.qa.data.ItemType;
+import io.bonitoo.qa.plugin.ItemPluginMill;
 import io.bonitoo.qa.plugin.PluginConfigException;
+import io.bonitoo.qa.plugin.PluginProperties;
 import io.bonitoo.qa.plugin.PluginResultType;
+
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -19,6 +22,9 @@ import java.util.List;
  * an ItemConfig object.
  */
 public class ItemConfigDeserializer extends VirDevDeserializer<ItemConfig> {
+
+  // TODO item label of "timestamp" should be discouraged as it used by samples as a default
+  // TODO item label of "id" should be discouraged as it used by samples as a default
 
   public ItemConfigDeserializer() {
     this(null);
@@ -37,6 +43,7 @@ public class ItemConfigDeserializer extends VirDevDeserializer<ItemConfig> {
 
     ItemType type = ItemType.valueOf(safeGetNode(node, "type").asText());
     String name = safeGetNode(node, "name").asText();
+    String label = safeGetNode(node, "label").asText();
     String plugin;
     Object max;
     Object min;
@@ -48,33 +55,29 @@ public class ItemConfigDeserializer extends VirDevDeserializer<ItemConfig> {
         max = safeGetNode(node, "max").asDouble();
         min = safeGetNode(node, "min").asDouble();
         period = safeGetNode(node, "period").asLong();
-        return new ItemNumConfig(name, type, (Double) min, (Double) max, period);
+        return new ItemNumConfig(name, label, type, (Double) min, (Double) max, period);
       case Long:
         max = safeGetNode(node, "max").asLong();
         min = safeGetNode(node, "min").asLong();
         period = safeGetNode(node, "period").asLong();
-        return new ItemNumConfig(name, type, (Long) min, (Long) max, period);
+        return new ItemNumConfig(name, label, type, (Long) min, (Long) max, period);
       case String:
         vals = new ArrayList<>();
         for (Iterator<JsonNode> it = safeGetNode(node, "values").elements(); it.hasNext(); ) {
           JsonNode elem = it.next();
           vals.add(elem.asText());
         }
-        return new ItemStringConfig(name, type, vals);
+        return new ItemStringConfig(name, label, type, vals);
       case Plugin:
         plugin = safeGetNode(node, "pluginName").asText();
         PluginResultType resultType = PluginResultType
             .valueOf(safeGetNode(node, "resultType").asText());
-        try {
-          return new ItemPluginConfig(plugin, name, resultType);
-        } catch (PluginConfigException | InvocationTargetException
-                 | NoSuchMethodException | InstantiationException
-                 | IllegalAccessException e) {
-          throw new VirDevConfigException(e);
-        }
+        // TODO resolve updateArgs
+        PluginProperties props = ItemPluginMill.getPluginProps(plugin);
+//          return new ItemPluginConfig(plugin, name, label, resultType, null);
+        return new ItemPluginConfig(props, name);
       default:
-        throw new RuntimeException(String.format("Unhandled Item Type %s", type));
+        throw new VirDevConfigException("Cannot instantiate config for type " + type);
     }
-
   }
 }

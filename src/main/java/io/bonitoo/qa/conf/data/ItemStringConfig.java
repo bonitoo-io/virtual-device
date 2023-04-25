@@ -1,7 +1,10 @@
 package io.bonitoo.qa.conf.data;
 
 import io.bonitoo.qa.data.ItemType;
-import java.util.List;
+
+import java.util.*;
+
+import io.bonitoo.qa.data.generator.SimpleStringGenerator;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,8 +30,9 @@ public class ItemStringConfig extends ItemConfig {
    * @param type - type of the item.  Should be ItemType.String.
    * @param values - list of string values to be randomized.
    */
-  public ItemStringConfig(String name, ItemType type, List<String> values) {
-    super(name, type);
+  public ItemStringConfig(String name, String label, ItemType type, List<String> values) {
+    super(name, label, type, SimpleStringGenerator.class.getName(),
+      new Vector<>(Collections.singletonList("values")));
     this.values = values;
     ItemConfigRegistry.add(this.name, this);
   }

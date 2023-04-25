@@ -75,10 +75,10 @@ public class DeviceRunnerTest {
     @Test
     public void runnerConfigReflectionTest() throws JsonProcessingException {
 
-        ItemConfig itemA = new ItemNumConfig("alligator", ItemType.Double, -10, 10, 2);
-        ItemConfig itemB = new ItemNumConfig("baboon", ItemType.Long, -50, 50, 1);
-        ItemConfig itemC = new ItemStringConfig("cockatoo", ItemType.String, Arrays.asList("un", "deux", "trois"));
-        ItemConfig itemD = new ItemNumConfig("dingo", ItemType.Double, 0, 60, 4);
+        ItemConfig itemA = new ItemNumConfig("alligator", "all", ItemType.Double, -10, 10, 2);
+        ItemConfig itemB = new ItemNumConfig("baboon", "bab", ItemType.Long, -50, 50, 1);
+        ItemConfig itemC = new ItemStringConfig("cockatoo", "too", ItemType.String, Arrays.asList("un", "deux", "trois"));
+        ItemConfig itemD = new ItemNumConfig("dingo", "din", ItemType.Double, 0, 60, 4);
 
         SampleConfig sample01 = new SampleConfig("random", "elephant", "test/elephant",
                 Arrays.asList(itemA, itemB, itemC, itemD));

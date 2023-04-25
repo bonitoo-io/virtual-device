@@ -3,11 +3,12 @@ package io.bonitoo.qa.data;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.bonitoo.qa.conf.data.ItemConfig;
-import io.bonitoo.qa.conf.data.ItemNumConfig;
-import io.bonitoo.qa.conf.data.ItemStringConfig;
-import io.bonitoo.qa.conf.data.SampleConfig;
-import io.bonitoo.qa.conf.data.SampleConfigRegistry;
+import io.bonitoo.qa.conf.data.*;
+import io.bonitoo.qa.data.generator.SimpleStringGenerator;
+import io.bonitoo.qa.plugin.CounterItemPlugin;
+import io.bonitoo.qa.plugin.PluginProperties;
+import io.bonitoo.qa.plugin.PluginResultType;
+import io.bonitoo.qa.plugin.PluginType;
 import org.junit.jupiter.api.Test;
 
 import java.time.ZoneOffset;
@@ -23,10 +24,10 @@ public class SampleTest {
     @Test
     public void buildGenericSampleTest() throws JsonProcessingException {
 
-        ItemConfig iConfA = new ItemNumConfig("Testak", ItemType.Double, -40, 60, 10);
-        ItemConfig iConfB = new ItemNumConfig("Betaak", ItemType.Long, 0, 100, 30);
-        ItemConfig builtIn = new ItemConfig("TempAk", ItemType.BuiltInTemp);
-        ItemConfig iConfString = new ItemStringConfig("Stringak", ItemType.String, Arrays.asList("RED","BLUE","GREEN"));
+        ItemConfig iConfA = new ItemNumConfig("Testak", "test", ItemType.Double, -40, 60, 10);
+        ItemConfig iConfB = new ItemNumConfig("Betaak", "beta", ItemType.Long, 0, 100, 30);
+        ItemConfig builtIn = new ItemConfig("TempAk", "temp", ItemType.BuiltInTemp, SimpleStringGenerator.class.getName());
+        ItemConfig iConfString = new ItemStringConfig("Stringak", "colod", ItemType.String, Arrays.asList("RED","BLUE","GREEN"));
         SampleConfig sConf = new SampleConfig("random", "fooSample", "test/items", Arrays.asList(iConfA,iConfB,builtIn,iConfString));
 
        // GenericSample gs = GenericSample.genSample(sConf);
@@ -34,26 +35,26 @@ public class SampleTest {
 
         for(int i = 0; i < 3; i++){
             samples.add(GenericSample.of(sConf));
-            System.out.println(String.format("sample: %s", samples.get(i)));
+            System.out.printf("sample: %s%n", samples.get(i));
             System.out.println(samples.get(i).toJson());
         }
 
         for(GenericSample sample : samples){
             assertEquals(4, sample.getItems().size());
-            assertTrue(sample.getItems().keySet().contains(iConfA.getName()));
-            assertTrue(sample.getItems().keySet().contains(iConfB.getName()));
-            assertTrue(sample.getItems().keySet().contains(iConfString.getName()));
-            assertTrue(sample.getItems().keySet().contains(builtIn.getName()));
-            assertTrue(sample.item("Testak") instanceof Double);
-            assertTrue(sample.item("Betaak") instanceof Long);
-            assertTrue(sample.item("Stringak") instanceof String);
-            assertTrue(sample.item("TempAk") instanceof Double);
+            assertTrue(sample.getItems().containsKey(iConfA.getName()));
+            assertTrue(sample.getItems().containsKey(iConfB.getName()));
+            assertTrue(sample.getItems().containsKey(iConfString.getName()));
+            assertTrue(sample.getItems().containsKey(builtIn.getName()));
+            assertTrue(sample.item("Testak").getVal() instanceof Double);
+            assertTrue(sample.item("Betaak").getVal() instanceof Long);
+            assertTrue(sample.item("Stringak").getVal() instanceof String);
+            assertTrue(sample.item("TempAk").getVal() instanceof Double);
             assertNotEquals("random", sample.getId());
         }
     }
 
     /*
-Example from CNT
+Example from Scientio
 
 {
   "appId": "AIR_QUAL",
@@ -70,9 +71,9 @@ Example from CNT
                 .truncatedTo(ChronoUnit.SECONDS)
                 .format(DateTimeFormatter.ISO_INSTANT);
 
-        ItemConfig dataConf = new ItemNumConfig("data", ItemType.Double, 0, 100, 1);
-        ItemConfig messageTypeConf = new ItemStringConfig("messageType", ItemType.String, Arrays.asList("DATA"));
-        ItemConfig datestampConf = new ItemStringConfig("datestamp", ItemType.String,
+        ItemConfig dataConf = new ItemNumConfig("data", "foo", ItemType.Double, 0, 100, 1);
+        ItemConfig messageTypeConf = new ItemStringConfig("messageType", "data", ItemType.String, Arrays.asList("DATA"));
+        ItemConfig datestampConf = new ItemStringConfig("datestamp", "datestamp", ItemType.String,
                 Arrays.asList(nowString));
 
         SampleConfig sampConf = new SampleConfig("AIR_QUAL", "CNTSample", "test/airqual", Arrays.asList(dataConf, messageTypeConf, datestampConf));
@@ -84,6 +85,7 @@ Example from CNT
         System.out.println(sampleAsJson);
         ObjectMapper mapper = new ObjectMapper();
 
+        // N.B. deserializer creates map keys based on label value not name
         HashMap<String,Object> map = mapper.readValue(sampleAsJson, new TypeReference<HashMap<String,Object>>(){});
 
         Set<String> keys = map.keySet();
@@ -92,18 +94,18 @@ Example from CNT
         assertTrue(keys.contains("timestamp"));
         assertTrue(keys.contains("datestamp"));
         assertTrue(keys.contains("data"));
-        assertTrue(keys.contains("messageType"));
-        assertInstanceOf(Double.class, map.get("data"));
+        assertTrue(keys.contains("foo"));
+        assertInstanceOf(Double.class, map.get("foo"));
         assertInstanceOf(Long.class, map.get("timestamp"));
     }
 
     @Test
     public void noDuplicateFieldNamesTest() throws JsonProcessingException {
-        ItemConfig badTsConf = new ItemStringConfig("timestamp", ItemType.String, Arrays.asList("SHOULD NOT APPEAR"));
-        ItemConfig badTopicConf = new ItemNumConfig("topic", ItemType.Long,0, 0, 1 );
-        ItemConfig badIdConf = new ItemNumConfig("id", ItemType.Long,0, 0, 1 );
+        ItemConfig badTsConf = new ItemStringConfig("timestamp", "timestamp", ItemType.String, Arrays.asList("SHOULD NOT APPEAR"));
+        ItemConfig badTopicConf = new ItemNumConfig("topic", "topic", ItemType.Long,0, 0, 1 );
+        ItemConfig badIdConf = new ItemNumConfig("id", "id", ItemType.Long,0, 0, 1 );
 
-        ItemConfig okConf = new ItemNumConfig("data", ItemType.Double, 0, 100, 1);
+        ItemConfig okConf = new ItemNumConfig("data", "data", ItemType.Double, 0, 100, 1);
 
         SampleConfig sampConf = new SampleConfig("Test Sample", "fooSample", "test/sample",
                 Arrays.asList(badTsConf,badTopicConf,badIdConf,okConf));
@@ -134,17 +136,41 @@ Example from CNT
 
     @Test
     public void copySampleTest(){
-        ItemConfig itemConfA = new ItemNumConfig("size", ItemType.Double, 1, 15, 2);
-        ItemConfig itemConfB = new ItemNumConfig("incidents", ItemType.Long, 0l, 20l, 1);
-        ItemConfig itemConfC = new ItemStringConfig("alert", ItemType.String, Arrays.asList("OK", "INFO", "WARN", "CRIT"));
+        ItemConfig itemConfA = new ItemNumConfig("size", "size", ItemType.Double, 1, 15, 2);
+        ItemConfig itemConfB = new ItemNumConfig("incidents", "inc", ItemType.Long, 0l, 20l, 1);
+        ItemConfig itemConfC = new ItemStringConfig("alert", "alert", ItemType.String, Arrays.asList("OK", "INFO", "WARN", "CRIT"));
 
         SampleConfig origSConf = new SampleConfig("random", "testing", "test/copy",
                 Arrays.asList(itemConfA, itemConfB, itemConfC));
 
         SampleConfig copySConf = new SampleConfig(origSConf);
-        SampleConfig newHandleConf = origSConf;
 
         assertEquals(copySConf, origSConf);
         assertNotEquals(copySConf.hashCode(), origSConf.hashCode());
+    }
+
+    @Test
+    public void samplesReuseItemEachWithOwnGenerator(){
+
+        String itemName = "counter";
+
+        PluginProperties props = new PluginProperties(CounterItemPlugin.class.getName(),
+          "testCounterPlugin", "count", "a counter", "0.0.1", PluginType.Item, PluginResultType.Long,
+          new Properties());
+
+        ItemConfig dataConf = new ItemPluginConfig(props, itemName);
+        SampleConfig conf1 = new SampleConfig("random", "first", "test/first",
+          Collections.singletonList(dataConf));
+        SampleConfig conf2 = new SampleConfig("random", "second", "test/second",
+          Collections.singletonList(dataConf));
+
+        Sample s1 = GenericSample.of(conf1);
+        Sample s2 = GenericSample.of(conf2);
+
+        assertNotEquals(s1.item(itemName).getGenerator(), s2.item(itemName).getGenerator());
+        while (s1.item(itemName).asLong() < 7L){
+            s1.item(itemName).update();
+        }
+        assertNotEquals(s1.item(itemName).asLong(),s2.item(itemName).asLong());
     }
 }

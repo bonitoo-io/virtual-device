@@ -44,7 +44,7 @@ public class DeviceTest {
     @Test
     public void genericDeviceBaseTest() throws InterruptedException {
 
-        ItemConfig iConf = new ItemNumConfig("testItem", ItemType.Double, 0, 100, 1);
+        ItemConfig iConf = new ItemNumConfig("testItem", "item", ItemType.Double, 0, 100, 1);
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -76,7 +76,7 @@ public class DeviceTest {
     @Test
     public void genericDeviceThreeSampleTest() throws InterruptedException {
 
-        ItemConfig iConf = new ItemNumConfig("testItem", ItemType.Double, 0, 100, 1);
+        ItemConfig iConf = new ItemNumConfig("testItem", "item", ItemType.Double, 0, 100, 1);
 
         assertEquals(2, Config.getSampleConfs(0).size());
         Config.sampleConf(0, 0).setTopic("test/sample0");
@@ -118,8 +118,8 @@ public class DeviceTest {
     @Test
     public void runThreeDevicesTest() throws InterruptedException {
 
-        ItemConfig itemA = new ItemNumConfig("widget", ItemType.Double, 0, 100, 1);
-        ItemConfig itemB = new ItemStringConfig("bird", ItemType.String,
+        ItemConfig itemA = new ItemNumConfig("widget", "widget", ItemType.Double, 0, 100, 1);
+        ItemConfig itemB = new ItemStringConfig("bird", "bird", ItemType.String,
                 Arrays.asList("Albatross","Jay","Magpie"));
 
         SampleConfig sampleConfA = new SampleConfig("SampleA","SampleA","test/foo",
@@ -166,11 +166,11 @@ public class DeviceTest {
         MqttClientBlocking mockClientB = mock(MqttClientBlocking.class);
         MqttClientBlocking mockClientC = mock(MqttClientBlocking.class);
 
-        ItemConfig itemAA = new ItemNumConfig("tribble", ItemType.Double, 0, 100, 1);
-        ItemConfig itemAB = new ItemStringConfig("cat", ItemType.String,
+        ItemConfig itemAA = new ItemNumConfig("tribble", "trb", ItemType.Double, 0, 100, 1);
+        ItemConfig itemAB = new ItemStringConfig("cat", "felix", ItemType.String,
                 Arrays.asList("Manx","Siamese","Calico"));
-        ItemConfig itemBA = new ItemNumConfig("whatsit", ItemType.Double, -1, 1, 2);
-        ItemConfig itemBB = new ItemStringConfig("dog", ItemType.String,
+        ItemConfig itemBA = new ItemNumConfig("whatsit", "item", ItemType.Double, -1, 1, 2);
+        ItemConfig itemBB = new ItemStringConfig("dog", "canus", ItemType.String,
                 Arrays.asList("Labrador","Collie","Beagle"));
 
         SampleConfig sampleConfA = new SampleConfig("SampleA","SampleA","test/tricoder",
@@ -220,7 +220,7 @@ public class DeviceTest {
 
     @Test
     public void jitterTest() throws InterruptedException {
-        ItemConfig iConf = new ItemNumConfig("testItem", ItemType.Double, 0, 100, 1);
+        ItemConfig iConf = new ItemNumConfig("testItem", "item", ItemType.Double, 0, 100, 1);
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -251,9 +251,9 @@ public class DeviceTest {
 
     @Test
     public void deviceCopyTest(){
-        ItemConfig itemConfA = new ItemNumConfig("volt", ItemType.Double, 1, 15, 2);
-        ItemConfig itemConfB = new ItemNumConfig("pulses", ItemType.Long, 0l, 20l, 1);
-        ItemConfig itemConfC = new ItemStringConfig("state", ItemType.String, Arrays.asList("OK", "WARN", "CRIT"));
+        ItemConfig itemConfA = new ItemNumConfig("volt", "volt", ItemType.Double, 1, 15, 2);
+        ItemConfig itemConfB = new ItemNumConfig("pulses", "pulse", ItemType.Long, 0l, 20l, 1);
+        ItemConfig itemConfC = new ItemStringConfig("state", "state", ItemType.String, Arrays.asList("OK", "WARN", "CRIT"));
 
         SampleConfig sampConfA = new SampleConfig("random", "testSample", "test/copy",
                 Arrays.asList(itemConfA, itemConfB, itemConfC));

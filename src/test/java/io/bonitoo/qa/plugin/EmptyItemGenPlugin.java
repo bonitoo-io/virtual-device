@@ -14,7 +14,12 @@ public class EmptyItemGenPlugin extends ItemGenPlugin{
       super(props, config, enabled);
     }
 
-    @Override
+  @Override
+  public String getCurrentVal() {
+    return value;
+  }
+
+  @Override
     public void onLoad() {
       value = DEFAULT_VALUE;
     }

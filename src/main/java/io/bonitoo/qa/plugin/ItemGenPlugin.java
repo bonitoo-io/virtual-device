@@ -29,16 +29,23 @@ public abstract class ItemGenPlugin extends DataGenPlugin<ItemConfig> {
   }
 
   /**
+   * Utility method so other plugins can get the value without running a new data calculation.
+   *
+   * @return - implementations should return the current value held by the Item plugin.
+   */
+  public abstract Object getCurrentVal();
+
+  /**
    * Sets the Item data config associated with this Item data generator plugin.
    *
    * <p>Ensures that back references are up-to-date.</p>
    *
    * @param itemPluginConfig - the ItemPluginConfig to be associated with the data generator.
    */
-  public void setPluginConfig(ItemPluginConfig itemPluginConfig) {
+ /* public void setPluginConfig(ItemPluginConfig itemPluginConfig) {
     if (itemPluginConfig.getItemGen() != this) {
       itemPluginConfig.setItemGen(this);
     }
     this.setDataConfig(itemPluginConfig);
-  }
+  } */
 }

@@ -80,13 +80,14 @@ public class ItemGenPluginTest {
   public void createEmptyItemPluginTest(){
     PluginProperties props = new PluginProperties(EmptyItemGenPlugin.class.getName(),
       "Test Item Plugin",
+      "val",
       "A Test Plugin",
       "0.0.1",
       PluginType.Item,
       PluginResultType.Double,
       new Properties()
       );
-    ItemConfig itemConfig = new ItemConfig("TestItemConfig", ItemType.Plugin);
+    ItemConfig itemConfig = new ItemConfig("TestItemConfig", "plug", ItemType.Plugin, props.getMain());
     EmptyItemGenPlugin plugin = new EmptyItemGenPlugin(props, itemConfig, false);
     assertEquals(EmptyItemGenPlugin.class.getName(), plugin.getMain());
     assertEquals(props.getName(), plugin.getPropsName());
@@ -148,6 +149,7 @@ public class ItemGenPluginTest {
     String localYamlConf = "---\n" +
       "name: \"plugin01\"\n" +
       "type: \"Plugin\"\n" +
+      "label: \"ct\"\n" +
       "pluginName: \"" + counterPlugin.getPluginName() + "\"\n" +
       "resultType: \"" + counterPlugin.getResultType() + "\"";
 
@@ -158,9 +160,11 @@ public class ItemGenPluginTest {
 
     assertEquals(confPlugin, counterPlugin.getDataConfig());
 
-    assertEquals(1L, Item.of((ItemPluginConfig)counterPlugin.getDataConfig()).asLong());
-    assertEquals(2L, Item.of((ItemPluginConfig)counterPlugin.getDataConfig()).asLong());
-    assertEquals(3L, Item.of((ItemPluginConfig)counterPlugin.getDataConfig()).asLong());
+    Item it = Item.of((ItemPluginConfig)counterPlugin.getDataConfig());
+
+    assertEquals(1L, it.asLong());
+    assertEquals(2L, it.update().asLong());
+    assertEquals(3L, it.update().asLong());
 
   }
 
