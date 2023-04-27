@@ -22,6 +22,7 @@ import java.util.Properties;
 import java.util.Vector;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ItemSerializerTest {
 
@@ -103,6 +104,27 @@ public class ItemSerializerTest {
     assertEquals("1", result2);
     assertEquals("count", it1.getLabel());
     assertEquals("count", it2.getLabel());
+  }
+
+  @Test
+  public void serializeDoubleWithPrecisionTest() throws JsonProcessingException {
+    // TODO
+    int prec = 3;
+
+    ItemNumConfig configWPrec = new ItemNumConfig("confWPrec", "dbl", ItemType.Double, -5, 10, 1, prec);
+    ItemNumConfig configNoPrec = new ItemNumConfig("confWPrec", "dbl", ItemType.Double, -5, 10, 1);
+
+    Item itPrec = Item.of(configWPrec);
+    Item itNoPrec = Item.of(configNoPrec);
+
+    ObjectWriter ow = new ObjectMapper().writer();
+
+    String valPrec = ow.writeValueAsString(itPrec);
+    String valNoPrec = ow.writeValueAsString(itNoPrec);
+
+
+    assertTrue(valPrec.split("\\.")[1].length() <= prec);
+    assertTrue(valNoPrec.split("\\.")[1].length() > prec);
   }
 
 }

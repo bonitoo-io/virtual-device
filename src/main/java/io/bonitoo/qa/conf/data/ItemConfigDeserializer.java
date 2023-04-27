@@ -10,7 +10,6 @@ import io.bonitoo.qa.plugin.ItemPluginMill;
 import io.bonitoo.qa.plugin.PluginConfigException;
 import io.bonitoo.qa.plugin.PluginProperties;
 import io.bonitoo.qa.plugin.PluginResultType;
-
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -55,7 +54,9 @@ public class ItemConfigDeserializer extends VirDevDeserializer<ItemConfig> {
         max = safeGetNode(node, "max").asDouble();
         min = safeGetNode(node, "min").asDouble();
         period = safeGetNode(node, "period").asLong();
-        return new ItemNumConfig(name, label, type, (Double) min, (Double) max, period);
+        JsonNode precNode = node.get("prec");
+        Integer prec = precNode == null ? null : precNode.asInt();
+        return new ItemNumConfig(name, label, type, (Double) min, (Double) max, period, prec);
       case Long:
         max = safeGetNode(node, "max").asLong();
         min = safeGetNode(node, "min").asLong();
@@ -72,9 +73,8 @@ public class ItemConfigDeserializer extends VirDevDeserializer<ItemConfig> {
         plugin = safeGetNode(node, "pluginName").asText();
         PluginResultType resultType = PluginResultType
             .valueOf(safeGetNode(node, "resultType").asText());
-        // TODO resolve updateArgs
+        // TODO resolve updateArgs - when plugin uses them - only zero args is currently stable
         PluginProperties props = ItemPluginMill.getPluginProps(plugin);
-//          return new ItemPluginConfig(plugin, name, label, resultType, null);
         return new ItemPluginConfig(props, name);
       default:
         throw new VirDevConfigException("Cannot instantiate config for type " + type);

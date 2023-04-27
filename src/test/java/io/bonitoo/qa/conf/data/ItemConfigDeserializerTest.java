@@ -183,5 +183,17 @@ public class ItemConfigDeserializerTest {
 
     }
 
+    @Test
+    public void doubleDeserializedWithPrecision() throws JsonProcessingException {
+        ItemNumConfig configWPrec = new ItemNumConfig("doubleConf", "dbl", ItemType.Double, -5, 10, 1, 3);
+        ObjectWriter yw = new ObjectMapper(new YAMLFactory()).writer().withDefaultPrettyPrinter();
+        String configAsYaml = yw.writeValueAsString(configWPrec);
+        // System.out.println("DEBUG config\n" + configAsYaml);
+        ObjectMapper omy = new ObjectMapper(new YAMLFactory());
+        ItemConfig configParsed = omy.readValue(configAsYaml, ItemConfig.class);
+        // System.out.println("DEBUG configParsed\n" + configParsed);
+        assertEquals(configWPrec.getPrec(), ((ItemNumConfig)configParsed).getPrec());
+    }
+
 
 }

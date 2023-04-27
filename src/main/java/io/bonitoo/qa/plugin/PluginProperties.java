@@ -21,6 +21,8 @@ public class PluginProperties {
 
   private static final String DEFAULT_KEY_LABEL = "plugin.label";
 
+  private static final String DEFAULT_KEY_PREC = "plugin.decimal.prec";
+
 
   // required properties
   private String main;
@@ -32,6 +34,9 @@ public class PluginProperties {
   private PluginType type;
 
   private PluginResultType resultType;
+
+  // N.B. can be null
+  private Integer prec;
 
   private Properties properties;
 
@@ -106,6 +111,10 @@ public class PluginProperties {
       this.properties.setProperty(DEFAULT_KEY_LABEL, String.valueOf(this.label));
     }
 
+    if (this.properties.getProperty(DEFAULT_KEY_PREC) != null) {
+      this.prec = Integer.parseInt(this.properties.getProperty(DEFAULT_KEY_PREC));
+    }
+
 
   }
 
@@ -138,5 +147,8 @@ public class PluginProperties {
     this.type = PluginType.valueOf((String) fetchRequiredProperty(DEFAULT_KEY_TYPE, properties));
     this.resultType = PluginResultType.valueOf(
       (String) fetchRequiredProperty(DEFAULT_KEY_RTYP, properties));
+    if (properties.containsKey(DEFAULT_KEY_PREC)) {
+      this.prec = Integer.parseInt(properties.getProperty(DEFAULT_KEY_PREC));
+    }
   }
 }

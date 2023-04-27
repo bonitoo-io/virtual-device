@@ -65,7 +65,7 @@ public class ItemTest {
     }
 
 
-    public static class PiItemGenPlugin extends ItemGenPlugin {
+/*    public static class PiItemGenPlugin extends ItemGenPlugin {
         public PiItemGenPlugin(PluginProperties props, ItemConfig config, boolean enabled) {
             super(props, config, enabled);
         }
@@ -92,6 +92,8 @@ public class ItemTest {
             return Math.PI;
         }
     }
+
+ */
 
     @Test
     public void pluginItemTest() throws ClassNotFoundException,
@@ -184,8 +186,95 @@ public class ItemTest {
         Item item2 = Item.of(conf);
 
         assertNotEquals(item1.getGenerator(), item2.getGenerator());
+    }
 
+    @Test
+    public void itemConfigCopyTest(){
+        PluginProperties props = new PluginProperties(CounterItemPlugin.class.getName(),
+          "CounterPlugin",
+          "count",
+          "A simple test plugin",
+          "0.1",
+          PluginType.Item,
+          PluginResultType.Long,
+          new Properties());
+
+
+        ItemConfig configNum = new ItemNumConfig("testDouble", "someVal", ItemType.Double, 0, 10, 4);
+        ItemConfig configString = new ItemStringConfig("testString", "lalala", ItemType.String,
+          Arrays.asList("Do", "Re", "Mi", "Fa", "Sol", "La", "Ti"));
+        ItemConfig configPlugin = new ItemPluginConfig(props, "testPluginConf", new Vector<>());
+
+        ItemConfig newConfigNum = new ItemNumConfig((ItemNumConfig) configNum);
+        ItemConfig newConfigString = new ItemStringConfig((ItemStringConfig) configString);
+        ItemConfig newConfigPlugin = new ItemPluginConfig((ItemPluginConfig) configPlugin);
+
+        ((ItemNumConfig)newConfigNum).setMax(1000);
+        ((ItemNumConfig)newConfigNum).setMin(-1000);
+        ((ItemNumConfig)newConfigNum).setPeriod(1);
+        newConfigNum.setLabel("asdf");
+
+        assertNotEquals(configNum.hashCode(), newConfigNum.hashCode());
+        assertNotEquals(configNum.getLabel(), newConfigNum.getLabel());
+        assertNotEquals(((ItemNumConfig)configNum).getMax(), ((ItemNumConfig)newConfigNum).getMax());
+        assertNotEquals(((ItemNumConfig)configNum).getMin(), ((ItemNumConfig)newConfigNum).getMin());
+        assertNotEquals(((ItemNumConfig)configNum).getPeriod(), ((ItemNumConfig)newConfigNum).getPeriod());
+
+        ((ItemStringConfig)newConfigString).getValues().add("BAAA!");
+        ((ItemStringConfig)newConfigString).getValues().set(0, "Cee");
+        newConfigString.setLabel("note");
+
+        assertNotEquals(configString.hashCode(), newConfigString.hashCode());
+        assertNotEquals(configString.getLabel(), newConfigString.getLabel());
+        assertNotEquals(((ItemStringConfig)configString).getValues(), ((ItemStringConfig)newConfigString).getValues());
+
+        newConfigPlugin.setName("localPluginCNF");
+        newConfigPlugin.setLabel("index");
+        assertNotEquals(configPlugin.hashCode(), newConfigPlugin.hashCode());
+        assertNotEquals(configPlugin.getLabel(), newConfigPlugin.getLabel());
 
     }
+
+    @Test
+    public void uniquenessOfItemConfigInItemTest(){
+        PluginProperties props = new PluginProperties(CounterItemPlugin.class.getName(),
+          "CounterPlugin",
+          "count",
+          "A simple test plugin",
+          "0.1",
+          PluginType.Item,
+          PluginResultType.Long,
+          new Properties());
+
+
+        ItemConfig configNum = new ItemNumConfig("testDouble", "someVal", ItemType.Double, 0, 10, 4);
+        ItemConfig configString = new ItemStringConfig("testString", "lalala", ItemType.String,
+          Arrays.asList("Do", "Re", "Mi", "Fa", "Sol", "La", "Ti"));
+        ItemConfig configPlugin = new ItemPluginConfig(props, "testPluginConf", new Vector<>());
+
+        Item itNum = Item.of(configNum);
+        Item itString = Item.of(configString);
+        Item itPlugin = Item.of(configPlugin);
+
+        // master copy in registry is unchanged
+        assertEquals(configNum.hashCode(), ItemConfigRegistry.get(configNum.getName()).hashCode());
+        // item received a copy of master
+        assertNotEquals(ItemConfigRegistry.get(configNum.getName()).hashCode(), itNum.getConfig().hashCode());
+
+        // master copy in registry is unchanged
+        assertEquals(configString.hashCode(), ItemConfigRegistry.get(configString.getName()).hashCode());
+        // item received a copy of master
+        assertNotEquals(ItemConfigRegistry.get(configString.getName()).hashCode(), itString.getConfig().hashCode());
+
+        // master copy in registry is unchanged
+        assertEquals(configPlugin.hashCode(), ItemConfigRegistry.get(configPlugin.getName()).hashCode());
+        // item received a copy of master
+        assertNotEquals(ItemConfigRegistry.get(configPlugin.getName()).hashCode(), itPlugin.getConfig().hashCode());
+
+    }
+
+
+
+
 
 }

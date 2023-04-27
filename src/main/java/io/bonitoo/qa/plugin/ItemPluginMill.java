@@ -30,6 +30,15 @@ public class ItemPluginMill {
     return pluginPackMap.get(key).pluginClass;
   }
 
+  public static Class<? extends ItemGenPlugin> getPluginClassByName(String classname) {
+    for (String key : pluginPackMap.keySet()) {
+      if (pluginPackMap.get(key).pluginClass.getName().equals(classname)) {
+        return pluginPackMap.get(key).pluginClass;
+      }
+    }
+    throw new RuntimeException(String.format("Class %s is not a loaded plugin", classname));
+  }
+
   public static void addPluginClass(String key,
                                     Class<? extends ItemGenPlugin> pluginClass,
                                     PluginProperties props) {
@@ -123,6 +132,9 @@ public class ItemPluginMill {
     // TODO resolve updateArgs for new null config
     if (pluginDataConfig == null) {
       plugin.setDataConfig(new ItemPluginConfig(ItemPluginMill.getPluginProps(pluginName), pluginName + "Conf", null));
+      if (pack.pluginProps.getPrec() != null) {
+        ((ItemPluginConfig) plugin.getDataConfig()).setPrec(pack.pluginProps.getPrec());
+      }
     } else {
       plugin.setDataConfig(pluginDataConfig);
     }
@@ -143,5 +155,16 @@ public class ItemPluginMill {
   public static Set<String> getKeys() {
     return pluginPackMap.keySet();
   }
+
+  public static boolean hasPluginClass(String classname) {
+    for(String key : pluginPackMap.keySet()) {
+      if(pluginPackMap.get(key).pluginClass.getName().equals(classname)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+
 
 }

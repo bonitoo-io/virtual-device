@@ -2,6 +2,10 @@ package io.bonitoo.qa.device;
 
 import io.bonitoo.qa.conf.device.DeviceConfig;
 import java.lang.invoke.MethodHandles;
+import java.util.List;
+
+import io.bonitoo.qa.data.GenericSample;
+import io.bonitoo.qa.data.Sample;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -21,5 +25,7 @@ public abstract class Device extends Thread {
 
   static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   DeviceConfig config;
+
+  List<GenericSample> sampleList;
 
 }

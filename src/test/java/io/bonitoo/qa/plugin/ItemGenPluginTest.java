@@ -1,6 +1,8 @@
 package io.bonitoo.qa.plugin;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.bonitoo.qa.conf.data.ItemConfig;
 import io.bonitoo.qa.conf.data.ItemConfigRegistry;
@@ -17,9 +19,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
+import java.util.Vector;
 import java.util.jar.JarOutputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -165,6 +169,65 @@ public class ItemGenPluginTest {
     assertEquals(1L, it.asLong());
     assertEquals(2L, it.update().asLong());
     assertEquals(3L, it.update().asLong());
+
+  }
+
+  @Test
+  public void itemPluginWithPrecTest() throws JsonProcessingException {
+
+    Properties additional = new Properties();
+    additional.setProperty("plugin.decimal.prec", "3");
+    PluginProperties props = new PluginProperties(PiItemGenPlugin.class.getName(),
+      "PiTestItemPlugin",
+      "val",
+      "A Test Plugin",
+      "0.0.1",
+      PluginType.Item,
+      PluginResultType.Double,
+      additional
+    );
+
+    PiItemGenPlugin plugin = new PiItemGenPlugin(props, null, true);
+    plugin.setDataConfig(new ItemPluginConfig(props,props.getName() + "01", new Vector<>()));
+
+    Item item = Item.of(plugin.getItemConfig());
+
+    ObjectWriter ow = new ObjectMapper().writer();
+
+    String val = ow.writeValueAsString(item);
+
+    assertEquals(3.141, Double.parseDouble(val));
+    assertEquals(Math.PI, item.asDouble());
+
+  }
+
+  @Test
+  public void itemPluginLiteralWithPrecTest() throws IOException, PluginConfigException {
+
+    String pluginPropsStr = "plugin.main=" + PiItemGenPlugin.class.getName() + "\n" +
+      "plugin.name=PiItemPlugin\n" +
+      "plugin.description=A Test plugin return Math.PI\n" +
+      "plugin.version=0.1\n" +
+      "plugin.type=Item\n" +
+      "plugin.label=pi\n" +
+      "plugin.resultType=Double\n" +
+      "plugin.decimal.prec=3";
+
+    Properties rawProps = new Properties();
+    rawProps.load(new StringReader(pluginPropsStr));
+    PluginProperties props = new PluginProperties(rawProps);
+
+    PiItemGenPlugin plugin = new PiItemGenPlugin(props, null, true);
+    plugin.setDataConfig(new ItemPluginConfig(props,props.getName() + "01", new Vector<>()));
+
+    Item item = Item.of((ItemPluginConfig)plugin.getDataConfig());
+
+    ObjectWriter ow = new ObjectMapper().writer();
+
+    String val = ow.writeValueAsString(item);
+
+    assertEquals(3.141, Double.parseDouble(val));
+    assertEquals(Math.PI, item.asDouble());
 
   }
 

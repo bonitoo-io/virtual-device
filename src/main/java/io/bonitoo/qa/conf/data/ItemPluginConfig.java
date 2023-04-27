@@ -1,15 +1,12 @@
 package io.bonitoo.qa.conf.data;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.bonitoo.qa.data.ItemType;
-import io.bonitoo.qa.plugin.*;
-
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeSet;
+import io.bonitoo.qa.plugin.PluginProperties;
+import io.bonitoo.qa.plugin.PluginResultType;
+import io.bonitoo.qa.plugin.PluginType;
 import java.util.Vector;
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,18 +27,20 @@ public class ItemPluginConfig extends ItemConfig {
   @JsonIgnore
   PluginType pluginType;
 
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  Integer prec; // can be null
+
   public ItemPluginConfig(PluginProperties props, String name, Vector<String> updateArgs) {
-    this.type = ItemType.Plugin;
-    this.name = name;
-    this.label = props.getLabel();
-    this.pluginName = props.getName();
-    this.resultType = props.getResultType();
-    this.genClassName = props.getMain();
-    this.pluginType = PluginType.Item;
+    this(props, name);
     this.updateArgs = updateArgs;
-    ItemConfigRegistry.add(this.name, this);
   }
 
+  /**
+   * Base Constructor.
+   *
+   * @param props - properties.
+   * @param name - name of the configuration.
+   */
   public ItemPluginConfig(PluginProperties props, String name) {
     this.type = ItemType.Plugin;
     this.name = name;
@@ -51,12 +50,27 @@ public class ItemPluginConfig extends ItemConfig {
     this.genClassName = props.getMain();
     this.pluginType = PluginType.Item;
     this.updateArgs = new Vector<>(); // create empty update args
+    this.prec = props.getPrec();
     ItemConfigRegistry.add(this.name, this);
+  }
+
+  /**
+   * Copy constructor used primarily in coupling a config to a new item instance.
+   *
+   * @param config - the original config.
+   */
+  public ItemPluginConfig(ItemPluginConfig config) {
+    super(config);
+    this.pluginName = config.pluginName;
+    this.pluginType = config.pluginType;
+    this.resultType = config.resultType;
+    this.prec = config.prec;
   }
 
   @Override
   public String toString() {
-    return String.format("%s,pluginName:%s", super.toString(), pluginName);
+    return String.format("%s,pluginName:%s,pluginType:%s,resultType:%s",
+      super.toString(), pluginName, pluginType, resultType);
   }
 
   @Override

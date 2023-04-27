@@ -1,10 +1,11 @@
 package io.bonitoo.qa.conf.data;
 
 import io.bonitoo.qa.data.ItemType;
-
-import java.util.*;
-
 import io.bonitoo.qa.data.generator.SimpleStringGenerator;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Vector;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,16 +38,21 @@ public class ItemStringConfig extends ItemConfig {
     ItemConfigRegistry.add(this.name, this);
   }
 
+  /**
+   * Copy constructor used primarily in coupling a config to a new item instance.
+   *
+   * @param orig - the original config.
+   */
+  public ItemStringConfig(ItemStringConfig orig) {
+    super(orig);
+    this.values = new ArrayList<>();
+    this.values.addAll(orig.getValues());
+  }
+
   @Override
   public String toString() {
-    StringBuilder result = new StringBuilder(
-        String.format("name:%s,type:%s,values:[", name, type)
-    );
-    for (String val : values) {
-      result.append(String.format("%s,", val));
-    }
-    result.append("]\n");
-    return result.toString();
+    return String.format("name:%s,label:%s,type:%s,values:%s,updateArgs:%s",
+      name, label, type, values, updateArgs);
   }
 
   @Override

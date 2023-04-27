@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import io.bonitoo.qa.conf.VirDevConfigException;
+import io.bonitoo.qa.conf.data.ItemConfig;
+import io.bonitoo.qa.conf.data.ItemNumConfig;
 import io.bonitoo.qa.conf.data.ItemPluginConfig;
 import io.bonitoo.qa.data.Item;
 import org.slf4j.Logger;
@@ -26,21 +28,32 @@ public class ItemSerializer extends StdSerializer<Item> {
   @Override
   public void serialize(Item item, JsonGenerator jsonGen, SerializerProvider serializerProvider) throws IOException {
     switch (item.getConfig().getType()) {
-      case Double:
       case BuiltInTemp:
         jsonGen.writeNumber(item.asDouble());
+        break;
+      case Double:
+        Integer dprec = ((ItemNumConfig)item.getConfig()).getPrec();
+        if (dprec != null) {
+          jsonGen.writeNumber(Item.precision(item.asDouble(), dprec));
+        } else {
+          jsonGen.writeNumber(item.asDouble());
+        }
         break;
       case Long:
         jsonGen.writeNumber(item.asLong());
         break;
       case String:
         jsonGen.writeString(item.asString());
-        //jsonGen.writeRaw(item.asString());
         break;
       case Plugin:
         switch (((ItemPluginConfig) item.getConfig()).getResultType()) {
           case Double:
-            jsonGen.writeNumber(item.asDouble());
+            Integer pprec = ((ItemPluginConfig)item.getConfig()).getPrec();
+            if (pprec != null) {
+              jsonGen.writeNumber(Item.precision(item.asDouble(), pprec));
+            } else {
+              jsonGen.writeNumber(item.asDouble());
+            }
             break;
           case Long:
             jsonGen.writeNumber(item.asLong());

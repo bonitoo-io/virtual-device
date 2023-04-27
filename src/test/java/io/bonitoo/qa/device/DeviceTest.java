@@ -44,7 +44,7 @@ public class DeviceTest {
     @Test
     public void genericDeviceBaseTest() throws InterruptedException {
 
-        ItemConfig iConf = new ItemNumConfig("testItem", "item", ItemType.Double, 0, 100, 1);
+        ItemConfig iConf = new ItemNumConfig("testItem", "anyVal", ItemType.Double, 0, 100, 1);
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -63,6 +63,12 @@ public class DeviceTest {
 
         GenericDevice device = GenericDevice.singleDevice(mockClient, devConf);
 
+     //   System.out.println("DEBUG device " + device.getName());
+     //   System.out.println("DEBUG device.sampleList " + device.getSampleList().size());
+     //   for(GenericSample s : device.getSampleList()){
+     //       System.out.println("   DEBUG sample " + s);
+     //   }
+
         executor.execute(device);
 
         executor.awaitTermination(Config.ttl(), TimeUnit.MILLISECONDS);
@@ -76,7 +82,7 @@ public class DeviceTest {
     @Test
     public void genericDeviceThreeSampleTest() throws InterruptedException {
 
-        ItemConfig iConf = new ItemNumConfig("testItem", "item", ItemType.Double, 0, 100, 1);
+        ItemConfig iConf = new ItemNumConfig("testItem", "anyVal", ItemType.Double, 0, 100, 1);
 
         assertEquals(2, Config.getSampleConfs(0).size());
         Config.sampleConf(0, 0).setTopic("test/sample0");
@@ -118,8 +124,8 @@ public class DeviceTest {
     @Test
     public void runThreeDevicesTest() throws InterruptedException {
 
-        ItemConfig itemA = new ItemNumConfig("widget", "widget", ItemType.Double, 0, 100, 1);
-        ItemConfig itemB = new ItemStringConfig("bird", "bird", ItemType.String,
+        ItemConfig itemA = new ItemNumConfig("widget", "dbl", ItemType.Double, 0, 100, 1);
+        ItemConfig itemB = new ItemStringConfig("bird", "tweeter", ItemType.String,
                 Arrays.asList("Albatross","Jay","Magpie"));
 
         SampleConfig sampleConfA = new SampleConfig("SampleA","SampleA","test/foo",
@@ -169,7 +175,7 @@ public class DeviceTest {
         ItemConfig itemAA = new ItemNumConfig("tribble", "trb", ItemType.Double, 0, 100, 1);
         ItemConfig itemAB = new ItemStringConfig("cat", "felix", ItemType.String,
                 Arrays.asList("Manx","Siamese","Calico"));
-        ItemConfig itemBA = new ItemNumConfig("whatsit", "item", ItemType.Double, -1, 1, 2);
+        ItemConfig itemBA = new ItemNumConfig("whatsit", "double", ItemType.Double, -1, 1, 2);
         ItemConfig itemBB = new ItemStringConfig("dog", "canus", ItemType.String,
                 Arrays.asList("Labrador","Collie","Beagle"));
 
@@ -220,7 +226,7 @@ public class DeviceTest {
 
     @Test
     public void jitterTest() throws InterruptedException {
-        ItemConfig iConf = new ItemNumConfig("testItem", "item", ItemType.Double, 0, 100, 1);
+        ItemConfig iConf = new ItemNumConfig("testItem", "aval", ItemType.Double, 0, 100, 1);
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
 

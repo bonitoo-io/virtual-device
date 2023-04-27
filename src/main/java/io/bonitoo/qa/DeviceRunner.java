@@ -12,8 +12,6 @@ import io.bonitoo.qa.mqtt.client.MqttClientBlocking;
 import io.bonitoo.qa.plugin.ItemGenPlugin;
 import io.bonitoo.qa.plugin.PluginConfigException;
 import io.bonitoo.qa.plugin.PluginLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
@@ -22,6 +20,8 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Core runner for devices.
@@ -60,7 +60,7 @@ public class DeviceRunner {
       }
     }
 
-    System.out.println("DEBUG ItemConfigRegistry keys " + ItemConfigRegistry.keys());
+    logger.debug("ItemConfigRegistry keys " + ItemConfigRegistry.keys());
 
     ExecutorService service = Executors.newFixedThreadPool(devices.size());
 
@@ -76,6 +76,12 @@ public class DeviceRunner {
 
   }
 
+  /**
+   *  General method for loading plugins.
+   *
+   *  <p>Looks for the property <code>plugins.dir</code> and then
+   *  loads ale plugin jar files found within.</p>
+   */
   public static void loadPlugins() {
 
     String pluginsDir = Config.getProp("plugins.dir");
