@@ -7,7 +7,6 @@ import io.bonitoo.qa.conf.device.DeviceConfig;
 import io.bonitoo.qa.data.GenericSample;
 import io.bonitoo.qa.mqtt.client.MqttClientBlocking;
 import io.bonitoo.qa.util.LogHelper;
-
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
@@ -54,11 +53,6 @@ public class GenericDevice extends Device {
    */
   public static GenericDevice numberedDevice(MqttClientBlocking client,
                                              DeviceConfig config, int number) {
-//    GenericDevice device = new GenericDevice();
-//    device.client = client;
-//    device.config = config;
-//    device.number = number;
-//    return device;
     return new GenericDevice(client, config, number);
   }
 

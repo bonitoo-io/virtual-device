@@ -1,7 +1,6 @@
 package io.bonitoo.qa.plugin;
 
 import io.bonitoo.qa.conf.data.ItemConfig;
-import io.bonitoo.qa.conf.data.ItemPluginConfig;
 
 /**
  * Point from which Item Generator Plugins will be created.
@@ -35,17 +34,4 @@ public abstract class ItemGenPlugin extends DataGenPlugin<ItemConfig> {
    */
   public abstract Object getCurrentVal();
 
-  /**
-   * Sets the Item data config associated with this Item data generator plugin.
-   *
-   * <p>Ensures that back references are up-to-date.</p>
-   *
-   * @param itemPluginConfig - the ItemPluginConfig to be associated with the data generator.
-   */
- /* public void setPluginConfig(ItemPluginConfig itemPluginConfig) {
-    if (itemPluginConfig.getItemGen() != this) {
-      itemPluginConfig.setItemGen(this);
-    }
-    this.setDataConfig(itemPluginConfig);
-  } */
 }

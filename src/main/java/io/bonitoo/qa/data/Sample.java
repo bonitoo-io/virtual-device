@@ -39,7 +39,7 @@ public abstract class Sample {
   public Map<String, Item> items;
 
   public abstract Sample update();
-  
+
   public Item item(String name) {
     return items.get(name);
   }

@@ -69,7 +69,7 @@ public class NumGenerator extends DataGenerator {
   @Override
   public Double genData(Object... args) {
     if (args[0] instanceof String) { // use builtin method
-      System.out.println(String.format("Using method %s", args[0]));
+      System.out.printf("Using method %s%n", args[0]);
 
       try {
         Method method = this.getClass().getMethod((String) args[0], long.class);

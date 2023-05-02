@@ -30,6 +30,14 @@ public class ItemPluginMill {
     return pluginPackMap.get(key).pluginClass;
   }
 
+  /**
+   * Return the class matching the sought class name.
+   *
+   * <p>Throws a runtime exception if the class is not registered.</p>
+   *
+   * @param classname - the name of the sought class.
+   * @return - the class stored in the registry.
+   */
   public static Class<? extends ItemGenPlugin> getPluginClassByName(String classname) {
     for (String key : pluginPackMap.keySet()) {
       if (pluginPackMap.get(key).pluginClass.getName().equals(classname)) {
@@ -131,7 +139,9 @@ public class ItemPluginMill {
     // this pattern follows pattern used in Item class for the default generator
     // TODO resolve updateArgs for new null config
     if (pluginDataConfig == null) {
-      plugin.setDataConfig(new ItemPluginConfig(ItemPluginMill.getPluginProps(pluginName), pluginName + "Conf", null));
+      plugin.setDataConfig(new ItemPluginConfig(ItemPluginMill.getPluginProps(pluginName),
+          pluginName + "Conf",
+          null));
       if (pack.pluginProps.getPrec() != null) {
         ((ItemPluginConfig) plugin.getDataConfig()).setPrec(pack.pluginProps.getPrec());
       }
@@ -156,9 +166,15 @@ public class ItemPluginMill {
     return pluginPackMap.keySet();
   }
 
+  /**
+   * Verify that a class of the classname argument exists in the plugin registry.
+   *
+   * @param classname - name of the class to be sought.
+   * @return - true if the entry is found otherwise false.
+   */
   public static boolean hasPluginClass(String classname) {
-    for(String key : pluginPackMap.keySet()) {
-      if(pluginPackMap.get(key).pluginClass.getName().equals(classname)) {
+    for (String key : pluginPackMap.keySet()) {
+      if (pluginPackMap.get(key).pluginClass.getName().equals(classname)) {
         return true;
       }
     }

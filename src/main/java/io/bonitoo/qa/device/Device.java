@@ -1,11 +1,9 @@
 package io.bonitoo.qa.device;
 
 import io.bonitoo.qa.conf.device.DeviceConfig;
+import io.bonitoo.qa.data.GenericSample;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
-
-import io.bonitoo.qa.data.GenericSample;
-import io.bonitoo.qa.data.Sample;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

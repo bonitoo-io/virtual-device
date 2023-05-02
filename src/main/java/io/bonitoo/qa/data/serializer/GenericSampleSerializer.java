@@ -5,17 +5,18 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import io.bonitoo.qa.data.GenericSample;
 import io.bonitoo.qa.data.Item;
-import io.bonitoo.qa.data.Sample;
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.lang.invoke.MethodHandles;
-import java.lang.reflect.Field;
-
+/**
+ * A serializer for samples based on the Generic Sample class.
+ */
 public class GenericSampleSerializer extends StdSerializer<GenericSample> {
 
   static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
   public GenericSampleSerializer() {
     this(null);
   }
