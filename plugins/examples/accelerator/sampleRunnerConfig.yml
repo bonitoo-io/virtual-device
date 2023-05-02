@@ -15,10 +15,11 @@ devices:
     topic: "test/accel"
     items:
     - name: "speed"
+      label: "speed"
       type: "Plugin"
       pluginName: "AcceleratorPlugin"
       resultType: "Double"
   interval: 500
   jitter: 100
-  count: 1
+  count: 3
 ttl: 10000

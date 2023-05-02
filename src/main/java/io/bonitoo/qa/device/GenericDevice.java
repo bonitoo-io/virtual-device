@@ -79,17 +79,9 @@ public class GenericDevice extends Device {
         LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(config.getJitter()));
         for (GenericSample gs : sampleList) {
           String jsonSample = gs.update().toJson();
-          // Todo reset level to debug
-          logger.info(LogHelper.buildMsg(gs.getId(), "Publishing", jsonSample));
+          logger.debug(LogHelper.buildMsg(gs.getId(), "Publishing", jsonSample));
           client.publish(gs.getTopic(), jsonSample);
         }
-        /*for (SampleConfig sampleConf : config.getSamples()) {
-          String jsonSample = GenericSample.of(sampleConf).toJson();
-          logger.debug(LogHelper.buildMsg(config.getId(), "Publishing", jsonSample));
-          client.publish(sampleConf.getTopic(),
-              jsonSample);
-
-        }*/
         LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(config.getInterval()));
       }
       logger.debug(LogHelper.buildMsg(config.getId(),

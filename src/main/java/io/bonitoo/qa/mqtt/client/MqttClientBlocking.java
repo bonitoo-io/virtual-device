@@ -106,7 +106,7 @@ public class MqttClientBlocking extends AbstractMqttClient {
   @Override
   public MqttClientBlocking publish(String topic, String payload) throws InterruptedException {
 
-    logger.info(LogHelper.buildMsg(client.getConfig().getClientIdentifier().get().toString(),
+    logger.debug(LogHelper.buildMsg(client.getConfig().getClientIdentifier().get().toString(),
         "Publishing",
         String.format("[%s] - %s", topic, payload)));
 
