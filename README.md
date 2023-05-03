@@ -2,7 +2,7 @@
 
 ![build workflow](https://github.com/bonitoo-io/virtual-device/actions/workflows/default-build.yml/badge.svg)
 
-This project offers virtual devices for testing IoT frameworks communicating through MQTT.  The device runner can start one or more devices, each of which publishes randomly generated data samples as MQTT messages with a JSON payload.  Data samples are made up of a topic as defined in the MQTT specification, and a payload.  The payload contains at a minimum the sample ID, a timestamp of when the sample was generated, and other configurable items containing randomly generated values.
+This project offers virtual devices for testing IoT frameworks communicating through MQTT.  The device runner can start one or more devices, each of which publishes randomly generated data samples as MQTT messages with a JSON payload.  Data samples are made up of a topic as defined in the MQTT specification, and the payload.  The payload contains at a minimum the sample ID, a timestamp of when the sample was generated, and other configurable items containing randomly generated values.
 
 *Generated payload example.*
 
@@ -10,19 +10,19 @@ This project offers virtual devices for testing IoT frameworks communicating thr
 {
      "id":"4aecb712-5e9a-40f5-8747-4e418af457aa",
      "timestamp":1680090571347,
-     "appLabel":"lumens",
-     "radiance":6.917
+     "appLabel":"radiance",
+     "lumens":691.7
 }
 ```
 
-The project contains two main classes:
+The project is drawn together through the base `DeviceRunner` class.  It also provides a subscriber utility.
 
-* `DeviceRunner` - which sets up and runs a list of devices.
-* `Mqtt5Subscriber` - which is included as a simple utility for subscribing to topics and inspecting MQTT broker messaging.
+* `DeviceRunner` - sets up and runs a list of devices.
+* `Mqtt5Subscriber` - included as a simple utility for subscribing to topics and inspecting MQTT broker messaging.
 
 **Configurability**
 
-Devices are fully configurable using a runner configuration YAML file.  Internally devices can use a standard numeric or string generator to create values for payload fields.  More sophisticated random value generators can be added through the [Item Plugins](plugins/README.md) interface.  
+Devices are fully configurable using a runner configuration YAML file.  Internally devices can use a standard numeric or string generator to create values for primitive payload item fields.  More sophisticated random value generators can be added through the [Item Plugins](plugins/README.md) interface.  
 
 ## System requirements
 
@@ -47,7 +47,7 @@ This will generate a runnable `virtual-device-<version>-<githash>.jar` file.
 
 ## Run the subscriber utility
 
-The MQTT5Subscriber class is a simple utility useful in verifying published messages.  By default, it subscribes to the topic `test/#` but this can be changed with the property `sub.topic`, eg `-Dsub.topic=stoker/co2`.
+The MQTT5Subscriber class is a simple utility useful in verifying published messages.  By default, it seeks to connect to an MQTT broker running at `localhost:1883`.  It then subscribes to the topic `test/#` but this can be changed with the property `sub.topic`, eg `-Dsub.topic=stoker/co2`.  To start a dockerized instance of the Mosquitto broker see the [Mosquitto](#starting-mosquitto-docker) section below. 
 
 MQTT5Subscriber is currently runnable only as a compiled class.  This is most easily done through maven.
 
@@ -65,7 +65,7 @@ Through Maven:
 mvn exec:java
 ```
 
-As a jar:
+As a jar (_e.g._):
 
 ```shell
 java -jar target/virtual-device-0.1-SNAPSHOT-4c6be4c.jar
@@ -73,7 +73,7 @@ java -jar target/virtual-device-0.1-SNAPSHOT-4c6be4c.jar
 
 This uses the default runner configuration yaml declared in `virtualdevice.props`.  
 
-An alternate runner config can be specified in that file or through the JVM property `runner.conf`.  The value of this property can be either a file name on the resource classpath or a path to a file.
+An alternate runner config can be specified in that file or through the JVM property `runner.conf`.  The value of this property can be either a file name on the resource classpath or a path to a file.  For example:
 
 ```shell
 java -Drunner.conf=plugins/examples/accelerator/sampleRunnerConfig.yml -jar target/virtual-device-0.1-SNAPSHOT-3e2b785.jar
@@ -83,7 +83,7 @@ java -Drunner.conf=plugins/examples/accelerator/sampleRunnerConfig.yml -jar targ
 
 The life of the device runner is determined by the configuration value `ttl` in the configuration yaml or if this is not defined by the property `default.ttl` in `virtualdevice.props`.  It determines in milliseconds the length of time that the runner should keep generating values.
 
-1. **Load Plugins** - the first task that the device runner undertakes is to scan the `plugins` directory for any generator plugins to be added to the runtime.  These are jar files whose main classes extend the `DataGenerator` class. 
+1. **Load Plugins** - the first task that the device runner undertakes is to scan the `plugins` directory for any generator plugins and then adds them to the runtime.  These are jar files whose main classes extend the `DataGenerator` class. 
 2. **Read Runner Configuration** - the runner configuration YAML file is then parsed and the items, samples and devices defined within get instantiated and coupled together.
 3. **Generate Samples** - each device is isolated in its own thread.  Devices now generate sample data and send messages to the MQTT broker at millisecond intervals determined by the `interval` configuration property.
 4. **Shutdown** - once the TTL point is reached, the device runner ends all device threads and terminates the run.  
