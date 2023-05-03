@@ -22,11 +22,11 @@ The project contains two main classes:
 
 **Configurability**
 
-Devices are fully configurable using a runner configuration YAML file.  Internally devices can use a standard numerical or string generator to create values for payload fields.  More sophisticated random value generators can be added through the Item Plugins interface.  
+Devices are fully configurable using a runner configuration YAML file.  Internally devices can use a standard numeric or string generator to create values for payload fields.  More sophisticated random value generators can be added through the [Item Plugins](plugins/README.md) interface.  
 
 ## System requirements
 
-This project was built using the following: 
+This project relies upon: 
 
    * Java SE 17
    * Maven 3.5.6
@@ -37,7 +37,7 @@ Support scripts are written in bash to be run on linux.  Bash version 5.1.16 was
 
 ## Build
 
-The build relies on Apache Maven.  To build a snapshot jar run the following.  
+To build a snapshot jar run the following.  
 
 ```shell
 mvn clean package
@@ -75,21 +75,34 @@ This uses the default runner configuration yaml declared in `virtualdevice.props
 
 An alternate runner config can be specified in that file or through the JVM property `runner.conf`.  The value of this property can be either a file name on the resource classpath or a path to a file.
 
+```shell
+java -Drunner.conf=plugins/examples/accelerator/sampleRunnerConfig.yml -jar target/virtual-device-0.1-SNAPSHOT-3e2b785.jar
+```
+
+## Lifecycle
+
+The life of the device runner is determined by the configuration value `ttl` in the configuration yaml or if this is not defined by the property `default.ttl` in `virtualdevice.props`.  It determines in milliseconds the length of time that the runner should keep generating values.
+
+1. **Load Plugins** - the first task that the device runner undertakes is to scan the `plugins` directory for any generator plugins to be added to the runtime.  These are jar files whose main classes extend the `DataGenerator` class. 
+2. **Read Runner Configuration** - the runner configuration YAML file is then parsed and the items, samples and devices defined within get instantiated and coupled together.
+3. **Generate Samples** - each device is isolated in its own thread.  Devices now generate sample data and send messages to the MQTT broker at millisecond intervals determined by the `interval` configuration property.
+4. **Shutdown** - once the TTL point is reached, the device runner ends all device threads and terminates the run.  
+
 ## Configuration
 
-Base configuration of default values and the location of the runner configuration file is currently handled in the file `src/main/resources/virtualdevice.props`.  The most important property to be set in this file is `runner.conf` which defines the YAML file for configuring the device runner.
+Base configuration of default values including the location of the runner configuration file is currently handled in the file `src/main/resources/virtualdevice.props`.  The most important property to be set in this file is `runner.conf` which defines the YAML file for configuring the device runner.
 
 An alternate base property file can be defined through the environment variable `VIRTUAL_DEVICE_CONFIG`.
 
 ## Configuring a Generic Device Runner
 
-The file indicated by the `runner.conf` property must currently be a valid YAML file. It needs to define the following fields.
+The file indicated by the `runner.conf` property must be a valid YAML file. It needs to define the following fields.
 
-* `ttl` - time to live in milliseconds of how long the device runner should run.  
-* `broker` - a configuration for connecting to an MQTT5 broker (see below).
-* `items` - a list of items to be included in a sample.  Item values will be generated randomly (see below).
-* `samples` - a list of samples bound to a topic and including a payload based on an internal item list (see below).
-* `devices` - a list of devices, which will generate the sample messages published to the MQTT5 broker (see below).
+* `ttl` - time to live in milliseconds or how long the device runner should run.  
+* `broker` - a configuration for connecting to an MQTT5 broker (see [below](#broker)).
+* `items` - a list of items to be included in a sample.  Item values will be generated randomly (see [below](#items)).
+* `samples` - a list of samples bound to a topic and including a payload based on an internal item list (see [below](#samples)).
+* `devices` - a list of devices, which will generate the sample messages published to the MQTT5 broker (see [below](#devices)).
 
 ### Broker
 
@@ -103,14 +116,19 @@ The broker represents a connection to an MQTT5 broker. It contains...
 
 ### Items
 
-Items represent the primitive elements in a sample, whose values can be randomly generated.  An item requires a name, a label and a type and then fields for defining value limits based on its type.  Five types are currently supported:
+Items represent the primitive elements in a sample, whose values can be randomly generated.  All items require the following:
 
-* `Double`
-* `Long`
-* `String`
-* `BuiltInTemp` - a builtin temperature generator.
-* `Plugin` - a primitive type, whose value is generated by an Item Plugin.
-* other builtins can be added.
+* `name`
+* `label`
+* `type` - Five types are currently supported:
+  * `Double`
+  * `Long`
+  * `String`
+  * `Plugin` - generates a primitive type from an Item Plugin.
+  * `BuiltInTemp` - a builtin temperature generator.
+  * other builtins can be added.
+
+Specific item types have additional requisite fields.
 
 #### Numerical Items
 
@@ -127,18 +145,19 @@ The `String` types require an array of strings from which one value will be chos
 
 #### Plugin Items
 
-A plugin item type looks for a generator in an Item Plugin, which gets preloaded from the directory `plugins`.  A plugin type requires the following fields. 
+A plugin item type looks for a generator in an Item Plugin preloaded from the directory `plugins`.  From the item configuration perspective the plugin type requires the following fields. 
 
 * `pluginName` - name of the plugin as set in plugin properties.
 * `resultType` - the primitive type the plugin generates: e.g. `Double`,`Long`,`String`.
 
 ### Samples
 
-A sample represents a collection of data items to be published together to the broker under a specific topic.  The following properties are required.
+A sample represents a collection of data items to be published together using a specific topic.  The following properties are required.
 
 * `id` - an identifier for the sample.  The word `random` will result in the internal generation of a random UUID string.
 * `name` - a name for the sample, used primarily for handling and reusing samples in different devices.
-* `items` - this is an array that can include either the names of previously defined items or new inline item definitions as above.
+* `topic` - The MQTT topic under which the sample is published.
+* `items` - an array that can include either the names of previously defined items or new inline item definitions as above.
 
 ### Devices
 
@@ -147,7 +166,7 @@ This penultimate layer of abstraction represents an array of devices to be run. 
 * `id` - an identifier for the device.  Here again the value `random` leads to an internally generated random UUID.
 * `name` - a name for the device.
 * `description` - explanatory note about the device.
-* `interval` - the interval in milliseconds that a device instance will wait when generating and then publishing new samples.
+* `interval` - the interval in milliseconds that a device instance will wait before generating and then publishing new samples.
 * `jitter` - an offset in milliseconds for an additional short wait, useful when publishing samples from more than one device of the same type.
 * `count` - the number of devices of the type being defined to be created.  Default is 1.  If more than one device is run then its id and the id's of its samples will include a serial number suffix.
 * `samples` - an array of samples to be generated by the device.  These can be strings matching names of previously defined samples, or they can be inline definitions as above.
@@ -276,6 +295,8 @@ scripts/broker.sh clean
 ```
 
 ### HiveMQ docker tips
+
+HiveMQ has also been used during development. 
 
 *Start the broker:*
 
