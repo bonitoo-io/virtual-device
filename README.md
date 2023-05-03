@@ -128,6 +128,10 @@ Items represent the primitive elements in a sample, whose values can be randomly
   * `BuiltInTemp` - a builtin temperature generator.
   * other builtins can be added.
 
+Optional fields or fields required with the `Plugin` type:
+
+* `updateArgs` - this is an array of field names.  These fields will be sent as arguments to the `genData()` method.  For builtin Item types such as numerical items and strings this need not be defined, as it gets set internally.  For plugins which use only an empty argument array, this can also be left out.  Note that the order in which the fields are named is important, as it needs to match the order in which the arguments are used in the `genData()` method. 
+
 Specific item types have additional requisite fields.
 
 #### Numerical Items
