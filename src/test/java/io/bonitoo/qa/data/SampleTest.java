@@ -16,6 +16,8 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -172,5 +174,22 @@ Example from Scientio
             s1.item(itemName).update();
         }
         assertNotEquals(s1.item(itemName).asLong(),s2.item(itemName).asLong());
+    }
+
+    @Test
+    public void sampleGenericUpdateTest(){
+        ItemConfig itemConf = new ItemNumConfig("size", "size", ItemType.Double, 1, 15, 2);
+
+        SampleConfig sampleConf = new SampleConfig("random", "testing", "test/copy",
+          Arrays.asList(itemConf));
+
+        GenericSample gs = GenericSample.of(sampleConf);
+        long originalTs = gs.getTimestamp();
+        double originalVal = gs.item("size").asDouble();
+        LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(1000));
+        gs.update();
+        assertNotEquals(originalVal, gs.item("size").asDouble());
+        assertTrue(originalVal < gs.getTimestamp());
+
     }
 }

@@ -36,6 +36,7 @@ public class GenericSample extends Sample {
     for (String itemName : items.keySet()) {
       items.get(itemName).update();
     }
+    this.timestamp = System.currentTimeMillis();
     return this;
   }
 }
