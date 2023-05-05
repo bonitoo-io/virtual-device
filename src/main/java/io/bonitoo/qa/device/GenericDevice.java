@@ -7,6 +7,7 @@ import io.bonitoo.qa.conf.device.DeviceConfig;
 import io.bonitoo.qa.data.GenericSample;
 import io.bonitoo.qa.mqtt.client.MqttClientBlocking;
 import io.bonitoo.qa.util.LogHelper;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 import lombok.AllArgsConstructor;
@@ -27,6 +28,16 @@ public class GenericDevice extends Device {
 
   MqttClientBlocking client;
 
+  protected GenericDevice(MqttClientBlocking client, DeviceConfig config, int number) {
+    this.config = config;
+    this.sampleList = new ArrayList<GenericSample>();
+    this.client = client;
+    this.number = number;
+    for (SampleConfig sc : config.getSamples()) {
+      this.sampleList.add(GenericSample.of(sc));
+    }
+  }
+
   public static GenericDevice singleDevice(MqttClientBlocking client, DeviceConfig config) {
     return numberedDevice(client, config, 1);
   }
@@ -42,11 +53,7 @@ public class GenericDevice extends Device {
    */
   public static GenericDevice numberedDevice(MqttClientBlocking client,
                                              DeviceConfig config, int number) {
-    GenericDevice device = new GenericDevice();
-    device.client = client;
-    device.config = config;
-    device.number = number;
-    return device;
+    return new GenericDevice(client, config, number);
   }
 
   @Override
@@ -70,12 +77,10 @@ public class GenericDevice extends Device {
             "Wait to publish",
             Long.toString((ttl - System.currentTimeMillis()))));
         LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(config.getJitter()));
-        for (SampleConfig sampleConf : config.getSamples()) {
-          String jsonSample = GenericSample.of(sampleConf).toJson();
-          logger.debug(LogHelper.buildMsg(config.getId(), "Publishing", jsonSample));
-          client.publish(sampleConf.getTopic(),
-              jsonSample);
-
+        for (GenericSample gs : sampleList) {
+          String jsonSample = gs.update().toJson();
+          logger.debug(LogHelper.buildMsg(gs.getId(), "Publishing", jsonSample));
+          client.publish(gs.getTopic(), jsonSample);
         }
         LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(config.getInterval()));
       }

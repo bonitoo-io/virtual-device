@@ -16,10 +16,10 @@ import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
 public class SampleConfigDeserializerTest {
 
-    static ItemConfig confDouble = new ItemNumConfig("doubleConf", ItemType.Double, -5, 10, 1);
-    static ItemConfig confLong = new ItemNumConfig("longConf", ItemType.Long, 0, 100, 1);
+    static ItemConfig confDouble = new ItemNumConfig("doubleConf", "foo",  ItemType.Double, -5, 10, 1);
+    static ItemConfig confLong = new ItemNumConfig("longConf", "bar", ItemType.Long, 0, 100, 1);
 
-    static ItemConfig confString = new ItemStringConfig("stringConf", ItemType.String, Arrays.asList("Pepe", "Lance", "Bongo"));
+    static ItemConfig confString = new ItemStringConfig("stringConf", "wumpus", ItemType.String, Arrays.asList("Pepe", "Lance", "Bongo"));
 
     static SampleConfig confSample = new SampleConfig("ffffffff", "sampleConf", "test/sample",
             Arrays.asList(confDouble, confLong, confString));

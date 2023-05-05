@@ -1,12 +1,15 @@
 package io.bonitoo.qa.data.generator;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 /**
  * Generates random numerical values based on a sinusoidal attractor.
  *
  * <p>The core method is genDoubleVal().  Other methods simply call
  * this method with reasonable bounding and frequency values.
  */
-public class NumGenerator {
+public class NumGenerator extends DataGenerator {
 
   private static final long DAY_MILLIS = 24 * 60 * 60 * 1000;
   private static final long MONTH_MILLIS = DAY_MILLIS * 30;
@@ -61,5 +64,26 @@ public class NumGenerator {
 
   public static double precision(double val, double prec) {
     return (long) (val * prec) / prec;
+  }
+
+  @Override
+  public Double genData(Object... args) {
+    if (args[0] instanceof String) { // use builtin method
+      System.out.printf("Using method %s%n", args[0]);
+
+      try {
+        Method method = this.getClass().getMethod((String) args[0], long.class);
+        return (Double) method.invoke(this, System.currentTimeMillis());
+      } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+        throw new RuntimeException(e);
+      }
+    } else {
+      Long period = (Long) args[0];
+      Double min = (Double) args[1];
+      Double max = (Double) args[2];
+      Long time = (Long) args[3];
+      return genDoubleVal(period, min, max, time);
+    }
+
   }
 }

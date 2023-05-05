@@ -9,6 +9,7 @@ broker:
 items:
   - name: "messageType"
     type: "String"
+    label: "messageType"
     values:
       - "DATA"
 #  - name: "FLIP"
@@ -22,11 +23,13 @@ samples:
     items:
       - "messageType"
       - name: "data"
+        label: "data"
         type: Double
         max: 100.0
         min: 0.0
         period: 2
       - name: "appId"
+        label: "appId"
         type: String
         values:
           - "HUMID"
@@ -36,11 +39,13 @@ samples:
     items:
       - "messageType"
       - name: "data"
+        label: "data"
         type: Double
         max: 30.0
         min: 5.0
         period: 1
       - name: "appId"
+        label: "appId"
         type: String
         values:
           - "TEMP"
@@ -50,11 +55,13 @@ samples:
     items:
       - "messageType"
       - name: "data"
+        label: "data"
         type: Double
         max: 1100.0
         min: 900.0
         period: 1
       - name: "appId"
+        label: "appId"
         type: String
         values:
           - "AIR_PRESS"
@@ -64,11 +71,13 @@ samples:
     items:
       - "messageType"
       - name: "data"
+        label: "data"
         type: Long
         max: 1.0
         min: 0.0
         period: 20
       - name: "appId"
+        label: "appId"
         type: String
         values:
           - "BUTTON"

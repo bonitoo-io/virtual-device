@@ -13,6 +13,7 @@ import java.util.List;
  */
 public class SampleConfigDeserializer extends VirDevDeserializer<SampleConfig> {
 
+
   public SampleConfigDeserializer() {
     this(null);
   }

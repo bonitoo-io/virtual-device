@@ -1,9 +1,18 @@
 package io.bonitoo.qa.data;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.bonitoo.qa.conf.VirDevConfigException;
+import io.bonitoo.qa.conf.data.DataConfig;
 import io.bonitoo.qa.conf.data.ItemConfig;
 import io.bonitoo.qa.conf.data.ItemNumConfig;
+import io.bonitoo.qa.conf.data.ItemPluginConfig;
 import io.bonitoo.qa.conf.data.ItemStringConfig;
+import io.bonitoo.qa.data.generator.DataGenerator;
 import io.bonitoo.qa.data.generator.NumGenerator;
+import io.bonitoo.qa.data.generator.SimpleStringGenerator;
+import io.bonitoo.qa.data.serializer.ItemSerializer;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,59 +25,205 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
+@JsonSerialize(using = ItemSerializer.class)
 public class Item {
 
-  static double precision = 1e3;
   Object val;
 
-  public static double setPrecision(double prec) {
-    precision = prec;
-    return precision;
-  }
+  ItemConfig config;
 
-  public static double getPrecision() {
-    return precision;
+  String label;
+
+  DataGenerator<? extends DataConfig> generator;
+
+  /**
+   * Basic constructor.
+   *
+   * <p>Note this leaves the data generator null.
+   * It needs to be set before <code>update()</code> is called.</p>
+   *
+   * @param config - configuration for the item.
+   * @param init - initial value.
+   */
+  public Item(ItemConfig config, Object init) {
+    this.val = init;
+    this.config = config;
+    this.label = config.getLabel();
+    this.generator = null;
   }
 
   /**
-   * Generates a new Item instance based on an ItemConfig.
+   * Base constructor that assigns a DataGenerator to the item.
    *
-   * @param config - the ItemConfig.
-   * @return - an Item instance.
+   * @param config - the config.
+   * @param init - an initial value.
+   * @param generator - the DataGenerator.
    */
+  public Item(ItemConfig config, Object init, DataGenerator<? extends DataConfig> generator) {
+    this(config, init);
+    this.generator = generator;
+  }
 
+  public ItemType getType() {
+    return config.getType();
+  }
+
+  /**
+   * Generates a new Item based on the ItemConfig.
+   *
+   * @param config - the config.
+   * @return - an Item.
+   */
   public static Item of(ItemConfig config) {
-
     Item it;
-
     switch (config.getType()) {
       case BuiltInTemp:
-        it = new Item(NumGenerator.genTemperature(System.currentTimeMillis()));
+        NumGenerator builtInNg = (NumGenerator) DataGenerator.create(NumGenerator.class.getName());
+        // ensure each new item has its own copy of config so changes impact only this item
+        it = new Item(new ItemConfig(config), 0.0, builtInNg);
+        it.update("genTemperature", System.currentTimeMillis());
         break;
       case Double:
-        it = new Item(NumGenerator.precision(NumGenerator.genDoubleVal(
-          ((ItemNumConfig) config).getPeriod(),
-          ((ItemNumConfig) config).getMin(),
-          ((ItemNumConfig) config).getMax(),
-          System.currentTimeMillis()), precision));
-        break;
       case Long:
-        it = new Item((long) NumGenerator.genDoubleVal(
-          ((ItemNumConfig) config).getPeriod(),
-          ((ItemNumConfig) config).getMin(),
-          ((ItemNumConfig) config).getMax(),
-          System.currentTimeMillis()));
+        NumGenerator ng = (NumGenerator) DataGenerator.create(config.getGenClassName());
+        // ensure each new item has its own copy of config so changes impact only this item
+        it = new Item(new ItemNumConfig((ItemNumConfig) config), 0.0, ng);
+        it.update(
+            ((ItemNumConfig) config).getPeriod(),
+            ((ItemNumConfig) config).getMin(),
+            ((ItemNumConfig) config).getMax(),
+            System.currentTimeMillis()
+        );
         break;
       case String:
-        List<String> values = ((ItemStringConfig) config).getValues();
-        String value = values.get((int) Math.floor(Math.random() * values.size()));
-        it = new Item(value);
+        SimpleStringGenerator sg =
+            (SimpleStringGenerator) DataGenerator.create(config.getGenClassName());
+        // ensure each new item has its own copy of config so changes impact only this item
+        it = new Item(new ItemStringConfig((ItemStringConfig) config), "", sg);
+        it.update(((ItemStringConfig) config).getValues());
+        break;
+      case Plugin:
+        DataGenerator<? extends DataConfig> dg = DataGenerator.create(config.getGenClassName());
+        // ensure each new item has its own copy of config so changes impact only this item
+        it = new Item(new ItemPluginConfig((ItemPluginConfig) config), null, dg);
+        it.update();
         break;
       default:
-        throw new RuntimeException("Unsupported Type " + config.getType());
+        throw new VirDevConfigException(String.format("Unknown Item Type: %s",
+          config.getType()));
+
+    }
+    return it;
+  }
+
+  private static Long ensureLong(Object obj) {
+    if (obj instanceof Long) {
+      return (long) obj;
+    } else if (obj instanceof Double) {
+      return (long) ((Double) obj).doubleValue();
+    } else if (obj instanceof String) {
+      return Long.parseLong(obj.toString());
+    }
+    throw new VirDevConfigException("Cannot get Long from unknown type " + obj);
+  }
+
+  private static Double ensureDouble(Object obj) {
+    if (obj instanceof Long) {
+      return (double) (Long) obj;
+    } else if (obj instanceof Double) {
+      return (double) obj;
+    } else if (obj instanceof String) {
+      return Double.parseDouble(obj.toString());
+    }
+    throw new VirDevConfigException("Cannot get Double from unknown type " + obj);
+
+  }
+
+  /**
+   * Updates the internal value of an item.
+   *
+   * <p>Checks <code>updateArgs</code> of the config and then
+   * makes a call to <code>update(List)</code></p>
+   *
+   * @return - returns the item after updating its internal value.
+   */
+  public Item update() {
+    // TODO review - should this not be a Vector?
+    List<Object> args = new ArrayList<>();
+    for (String arg : this.getConfig().getUpdateArgs()) {
+      if (! arg.equalsIgnoreCase("time")) {
+        try {
+          Object obj = ItemConfig.getFieldVal(this.getConfig(), arg);
+          // expand container args directly to method args
+          if (obj instanceof Collection) {
+            args.addAll((Collection<?>) obj);
+          } else {
+            args.add(ItemConfig.getFieldVal(this.getConfig(), arg));
+          }
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+          throw new VirDevConfigException(
+            String.format("Mismatched or missing argument \"%s\" for update method.\n%s", arg, e)
+          );
+        }
+      } else {
+        args.add(System.currentTimeMillis());
+      }
     }
 
-    return it;
+    update(args);
+    return this;
+  }
+
+  /**
+   * Helper method for updating the internal value of the item.
+   *
+   * @param args - names of args to be passed to <code>generator.genData()</code>.
+   * @return - the item with an updated value.
+   */
+  public Item update(List<?> args) {
+    return update(args.toArray());
+  }
+
+  /**
+   * Updates the internal value of the item.
+   *
+   * @param args - names of args from the config to be passed to
+   *             <code>generator.gendData()</code>.
+   * @return - the updated item.
+   */
+  public Item update(Object... args) {
+    Object obj = generator.genData(args);
+    switch (config.getType()) {
+      case Long:
+        val = ensureLong(obj);
+        break;
+      case Double:
+      case BuiltInTemp:
+        val = ensureDouble(obj);
+        break;
+      case String:
+        val = obj.toString();
+        break;
+      case Plugin:
+        switch (((ItemPluginConfig) config).getResultType()) {
+          case Long:
+            val = ensureLong(obj);
+            break;
+          case Double:
+            val = ensureDouble(obj);
+            break;
+          case String:
+            val = obj.toString();
+            break;
+          default:
+            throw new VirDevConfigException("Unknown plugin result type "
+              + ((ItemPluginConfig) config).getResultType());
+        }
+        break;
+      default:
+        throw new VirDevConfigException("Unknown type " + config.getType());
+    }
+    return this;
   }
 
   /**
@@ -107,5 +262,23 @@ public class Item {
     return null;
   }
 
+  /**
+   * Helper method for establishing the decimal precision of the value of a Double item.
+   *
+   * <p>Intended to be used primarily during serialization.</p>
+   *
+   * @param val - the value to be modified.
+   * @param prec - the decimal point precision to be respected.
+   * @return - a double truncated to the desired precision.
+   */
+  public static double precision(double val, int prec) {
+    double p;
+    if (prec < 0) {  // treat negative values as positive.
+      p = Double.parseDouble("1e" + prec) * -1;
+    } else {
+      p = Double.parseDouble("1e" + prec);
+    }
+    return (long) (val * p) / p;
+  }
 
 }

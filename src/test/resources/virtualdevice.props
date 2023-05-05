@@ -5,4 +5,5 @@ default.broker.port=1883
 default.device.interval=3000
 default.device.jitter=0
 default.device.count=1
+plugins.dir=plugins
 runner.conf=testRunnerConfig.yml

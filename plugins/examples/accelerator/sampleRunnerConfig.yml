@@ -1,0 +1,25 @@
+---
+broker:
+  host: "localhost"
+  port: 1883
+  auth:
+    username: "fred"
+    password: "changeit"
+devices:
+- id: "random"
+  name: "accelTestDevice"
+  description: "testing accelerator plugin"
+  samples:
+  - name: "accelTestSample"
+    id: "random"
+    topic: "test/accel"
+    items:
+    - name: "speed"
+      label: "speed"
+      type: "Plugin"
+      pluginName: "AcceleratorPlugin"
+      resultType: "Double"
+  interval: 500
+  jitter: 100
+  count: 3
+ttl: 10000

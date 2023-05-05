@@ -22,9 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class DeviceConfigDeserializerTest {
 
     static SampleConfig testSampConfig = new SampleConfig("abcd","testSample","test/parsing",
-            Arrays.asList(new ItemNumConfig("tension", ItemType.Double, -1, 2, 1),
-                    new ItemNumConfig("nuts", ItemType.Long, 1, 100, 1),
-                    new ItemStringConfig("label", ItemType.String, Arrays.asList("Salted","unsalted","smoked"))));
+            Arrays.asList(new ItemNumConfig("tension", "tns", ItemType.Double, -1, 2, 1),
+                    new ItemNumConfig("nuts", "nuts", ItemType.Long, 1, 100, 1),
+                    new ItemStringConfig("label", "lbl", ItemType.String, Arrays.asList("Salted","unsalted","smoked"))));
     static DeviceConfig testDevConfig = new DeviceConfig("1234",
                             "Test Device",
                             "A device for testing",
@@ -67,11 +67,11 @@ public class DeviceConfigDeserializerTest {
     @Test
     public void yamlTestWithKeyStrings() throws JsonProcessingException {
 
-        ItemConfig ic1 = new ItemNumConfig("alpha", ItemType.Double, -100, 100, 1);
-        ItemConfig ic2 = new ItemNumConfig("beta", ItemType.Long, 0, 1000, 2);
-        ItemConfig ic3 = new ItemStringConfig("gamma", ItemType.String, Arrays.asList("Sirius", "Canopus", "Arcturus"));
-        ItemConfig ic4 = new ItemStringConfig("delta", ItemType.String, Arrays.asList("Everest", "K2", "Kangchenjunga"));
-        ItemConfig ic5 = new ItemNumConfig("epsilon", ItemType.Double, -1, 10000, 3);
+        ItemConfig ic1 = new ItemNumConfig("alpha", "alpha", ItemType.Double, -100, 100, 1);
+        ItemConfig ic2 = new ItemNumConfig("beta", "beta", ItemType.Long, 0, 1000, 2);
+        ItemConfig ic3 = new ItemStringConfig("gamma", "gamma", ItemType.String, Arrays.asList("Sirius", "Canopus", "Arcturus"));
+        ItemConfig ic4 = new ItemStringConfig("delta", "delta", ItemType.String, Arrays.asList("Everest", "K2", "Kangchenjunga"));
+        ItemConfig ic5 = new ItemNumConfig("epsilon", "epsl", ItemType.Double, -1, 10000, 3);
 
         SampleConfig sc1 = new SampleConfig("random", "first", "testing/first" , new String[]{ ic1.getName(), ic3.getName() });
         SampleConfig sc2 = new SampleConfig("random", "second", "testing/second", Arrays.asList(ic2, ic4));
@@ -116,8 +116,8 @@ public class DeviceConfigDeserializerTest {
     @Test
     public void yamlTestMissingValues() throws JsonProcessingException {
 
-        ItemConfig ic1 = new ItemNumConfig("alpha", ItemType.Double, -100, 100, 1);
-        ItemConfig ic2 = new ItemNumConfig("beta", ItemType.Long, 0, 1000, 2);
+        ItemConfig ic1 = new ItemNumConfig("alpha", "alpha", ItemType.Double, -100, 100, 1);
+        ItemConfig ic2 = new ItemNumConfig("beta", "beta", ItemType.Long, 0, 1000, 2);
 
         SampleConfig sc1 = new SampleConfig("random", "first", "testing/first" , new String[]{ ic1.getName(), ic2.getName() });
 

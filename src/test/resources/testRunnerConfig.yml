@@ -9,16 +9,19 @@ broker:
 items:
   - name: "tension"
     type: "Double"
+    label: "bar"
     max: 2.0
     min: -1.0
     period: 1
   - name: "nuts"
     type: "Long"
+    label: "nutcount"
     max: 100.0
     min: 1.0
     period: 1
   - name: "label"
     type: "String"
+    label: "label"
     values:
       - "Salted"
       - "unsalted"
@@ -36,6 +39,7 @@ samples:
     items:
       - "label"
       - name: "flowRate"
+        label: "cmps"
         type: Double
         max: 30
         min: 5
@@ -64,10 +68,12 @@ devices:
         items:
           - name: "radiance"
             type: "Double"
+            label: "lumens"
             max: 27
             min: 0.1
             period: 2
           - name: "appLabel"
             type: "String"
+            label: "app"
             values:
-              - "lumens"
+              - "luminescence"

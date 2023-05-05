@@ -9,16 +9,19 @@ broker:
 items:
   - name: "tension"
     type: "Double"
+    label: "bar"
     max: 2.0
     min: -1.0
     period: 1
   - name: "nuts"
     type: "Long"
+    label: "nutcount"
     max: 100.0
     min: 1.0
     period: 1
   - name: "label"
     type: "String"
+    label: "label"
     values:
       - "Salted"
       - "unsalted"
@@ -36,6 +39,7 @@ samples:
     items:
       - "label"
       - name: "flowRate"
+        label: "cmps"
         type: Double
         max: 30
         min: 5
@@ -45,15 +49,16 @@ devices:
     name: "Test Device 01"
     description: "testing device configuration"
     interval: 1000
-    jitter: 200
-    count: 3
+    jitter: 0
+    count: 1
     samples:
       - "alpha"
+      - "beta"
   - id: "random"
     name: "Test Device 02"
     description: "test device configuration"
     interval: 3000
-    jitter: 0
+    jitter: 500
     count: 1
     samples:
       - beta
@@ -63,10 +68,12 @@ devices:
         items:
           - name: "radiance"
             type: "Double"
+            label: "lumens"
             max: 27
             min: 0.1
             period: 2
           - name: "appLabel"
             type: "String"
+            label: "app"
             values:
-              - "lumens"
+              - "luminescence"

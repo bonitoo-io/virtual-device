@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,16 +13,16 @@ import lombok.Setter;
 /**
  * Represents a SampleConfiguration to be used to create a Sample instance.
  */
-@Builder
+@AllArgsConstructor
 @Getter
 @Setter
 @NoArgsConstructor
 @JsonDeserialize(using = SampleConfigDeserializer.class)
-public class SampleConfig {
+public class SampleConfig extends DataConfig {
 
   String id;
 
-  String name;
+  //String name;
 
   String topic;
 

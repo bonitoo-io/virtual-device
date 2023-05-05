@@ -5,12 +5,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A Sample holds any number of items the values of which can be randomly generated.
@@ -22,6 +25,8 @@ import lombok.Setter;
 @Getter
 public abstract class Sample {
 
+  static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
   public String id;
 
   @JsonIgnore //should not be part of payload
@@ -31,10 +36,16 @@ public abstract class Sample {
 
   @JsonIgnore // use only flattened values
   @JsonAnyGetter // flatten values
-  public Map<String, Object> items;
+  public Map<String, Item> items;
 
-  public Object item(String name) {
+  public abstract Sample update();
+
+  public Item item(String name) {
     return items.get(name);
+  }
+
+  public Object itemVal(String name) {
+    return items.get(name).getVal();
   }
 
   @Override
@@ -44,12 +55,12 @@ public abstract class Sample {
         String.format("id=%s,timestamp=%d,items=[", id, timestamp)
     );
     for (String key : items.keySet()) {
-      if (items.get(key) instanceof Double) {
-        result.append(String.format("name:%s,val:%.2f,", key, (Double) items.get(key)));
-      } else if (items.get(key) instanceof String) {
+      if (items.get(key).getVal() instanceof Double) {
+        result.append(String.format("name:%s,val:%.2f,", key, items.get(key).asDouble()));
+      } else if (items.get(key).getVal() instanceof String) {
         result.append(String.format("name:%s,val:%s,", key, items.get(key)));
       } else {
-        result.append(String.format("name:%s,val:%d,", key, (Long) items.get(key)));
+        result.append(String.format("name:%s,val:%d,", key, items.get(key).asLong()));
       }
     }
     return result.append("]\n").toString();
@@ -68,9 +79,9 @@ public abstract class Sample {
     }
 
     for (String key : toRemove) {
-      System.out.printf(
-          "WARNING: Item field name %s not allowed, item removed from sample list%n", key
-      );
+      logger.warn(String
+          .format("Item field name %s not allowed, item removed from sample list.",
+            key));
       items.remove(key);
     }
   }
@@ -84,7 +95,7 @@ public abstract class Sample {
   public String toJson() throws JsonProcessingException {
     checkNameClash();
     // todo add pretty print option.
-    ObjectWriter objectWriter = new ObjectMapper().writer(); //.withDefaultPrettyPrinter();
+    ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
     return objectWriter.writeValueAsString(this);
   }
 }
