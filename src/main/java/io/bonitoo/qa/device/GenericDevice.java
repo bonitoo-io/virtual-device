@@ -5,6 +5,7 @@ import io.bonitoo.qa.conf.Config;
 import io.bonitoo.qa.conf.data.SampleConfig;
 import io.bonitoo.qa.conf.device.DeviceConfig;
 import io.bonitoo.qa.data.GenericSample;
+import io.bonitoo.qa.data.Sample;
 import io.bonitoo.qa.mqtt.client.MqttClientBlocking;
 import io.bonitoo.qa.util.LogHelper;
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class GenericDevice extends Device {
 
   protected GenericDevice(MqttClientBlocking client, DeviceConfig config, int number) {
     this.config = config;
-    this.sampleList = new ArrayList<GenericSample>();
+    this.sampleList = new ArrayList<>();
     this.client = client;
     this.number = number;
     for (SampleConfig sc : config.getSamples()) {
@@ -77,10 +78,10 @@ public class GenericDevice extends Device {
             "Wait to publish",
             Long.toString((ttl - System.currentTimeMillis()))));
         LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(config.getJitter()));
-        for (GenericSample gs : sampleList) {
-          String jsonSample = gs.update().toJson();
-          logger.debug(LogHelper.buildMsg(gs.getId(), "Publishing", jsonSample));
-          client.publish(gs.getTopic(), jsonSample);
+        for (Sample sample : sampleList) {
+          String jsonSample = sample.update().toJson();
+          logger.debug(LogHelper.buildMsg(sample.getId(), "Publishing", jsonSample));
+          client.publish(sample.getTopic(), jsonSample);
         }
         LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(config.getInterval()));
       }

@@ -21,7 +21,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Setter
 @Getter
-public abstract class DataGenPlugin<T extends DataConfig> extends DataGenerator {
+public abstract class DataGenPlugin<T extends DataConfig> extends DataGenerator implements Plugin {
 
   protected PluginProperties props;
 
