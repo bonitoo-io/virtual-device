@@ -1,5 +1,7 @@
 package io.bonitoo.qa.plugin;
 
+import io.bonitoo.qa.conf.Config;
+import io.bonitoo.qa.conf.VirDevConfigException;
 import io.bonitoo.qa.conf.data.ItemPluginConfig;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
@@ -101,7 +103,21 @@ public class ItemPluginMill {
 
   }
 
+
+  protected static void checkKey(String key) {
+    if (! pluginPackMap.containsKey(key)) {
+      throw new VirDevConfigException(
+        String.format("Plugin key: %s unknown.  Is it in the %s/ directory?",
+          key,
+          Config.getProp("plugins.dir")
+        )
+      );
+
+    }
+  }
+
   public static PluginProperties getPluginProps(String key) {
+    checkKey(key);
     return pluginPackMap.get(key).pluginProps;
   }
 
