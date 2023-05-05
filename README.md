@@ -73,10 +73,14 @@ java -jar target/virtual-device-0.1-SNAPSHOT-4c6be4c.jar
 
 This uses the default runner configuration yaml declared in `virtualdevice.props`.  
 
-An alternate runner config can be specified in that file or through the JVM property `runner.conf`.  The value of this property can be either a file name on the resource classpath or a path to a file.  For example:
+An alternate runner config can be specified in that file or through the JVM property `runner.conf`.  The value of this property can be either a file name on the resource classpath or a path to a file.  
+
+For example:
 
 ```shell
-java -Drunner.conf=plugins/examples/accelerator/sampleRunnerConfig.yml -jar target/virtual-device-0.1-SNAPSHOT-3e2b785.jar
+cp plugins/examples/accelerator/accelerator-0.1-SNAPSHOT.jar plugins; \
+java -Drunner.conf=plugins/examples/accelerator/sampleRunnerConfig.yml -jar target/virtual-device-0.1-SNAPSHOT-b012863.jar; \
+rm plugins/accelerator-0.1-SNAPSHOT.jar
 ```
 
 ## Lifecycle
