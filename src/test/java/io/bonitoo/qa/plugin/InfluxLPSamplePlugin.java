@@ -44,12 +44,18 @@ public class InfluxLPSamplePlugin extends SamplePlugin {
     this.tags = tags;
   }
 
+  public InfluxLPSamplePlugin(PluginProperties props, SampleConfig config, Object... args){
+    super(props, config);
+    this.measurement = (String)args[0];
+    this.tags = (Map<String, String>) args[1];
+  }
+
   @Override
   public Sample update() {
+    super.update();
     for(String itemName : this.getItems().keySet()){
       this.getItems().get(itemName).update();
     }
-    this.timestamp = System.currentTimeMillis();
     return this;
   }
 

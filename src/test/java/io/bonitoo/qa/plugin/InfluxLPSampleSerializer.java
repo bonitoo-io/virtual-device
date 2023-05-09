@@ -7,9 +7,19 @@ import io.bonitoo.qa.data.GenericSample;
 import io.bonitoo.qa.data.Item;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 public class InfluxLPSampleSerializer extends StdSerializer<InfluxLPSamplePlugin> {
+
+  static DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
+
+  static {
+    df.setTimeZone(TimeZone.getTimeZone("UTC"));
+  }
+
   protected InfluxLPSampleSerializer(Class<InfluxLPSamplePlugin> t) {
     super(t);
   }
@@ -38,7 +48,7 @@ public class InfluxLPSampleSerializer extends StdSerializer<InfluxLPSamplePlugin
       serProvider.defaultSerializeField(it.getLabel(), it, jsonGen);
     }
     jsonGen.writeEndObject();
-    jsonGen.writeNumberField("timestamp", influxPlugin.getTimestamp());
+    jsonGen.writeStringField("timestamp", df.format(new Date(influxPlugin.getTimestamp())));
     jsonGen.writeEndObject();
 
   }

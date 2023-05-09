@@ -69,7 +69,7 @@ public class PluginLoader {
    * @throws PluginConfigException - when the plugin.props file
    *                               of the plugin is illegal or incomplete.
    */
-  public static Class<? extends DataGenPlugin<?>> loadPlugin(File file) throws IOException,
+  public static Class<? extends Plugin> loadPlugin(File file) throws IOException,
       PluginConfigException, ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     if (!file.exists()) {
       logger.warn(String.format("Failed to open plugin file %s", file.getName()));
@@ -91,9 +91,11 @@ public class PluginLoader {
     // add plugin class to registry and instantiate later as needed
     if (props.getType() == PluginType.Item) {
       ItemPluginMill.addPluginClass(props.getName(), props, ucl);
-      return ItemPluginMill.getPluginClass(props.getName());
+      return (Class<Plugin>) ItemPluginMill.getPluginClass(props.getName());
     } else if (props.getType() == PluginType.Sample) {
-      throw new RuntimeException("Sample Plugin handling not yet implemented - TODO");
+      // throw new RuntimeException("Sample Plugin handling not yet implemented - TODO");
+      SamplePluginMill.addPluginClass(props.getName(), props, ucl);
+      return (Class<Plugin>) SamplePluginMill.getPluginClass(props.getName());
     } else {
       throw new PluginConfigException("Plugin must have a type of either Item or Sample");
     }

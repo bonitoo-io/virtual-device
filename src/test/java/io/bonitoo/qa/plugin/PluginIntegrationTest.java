@@ -23,12 +23,14 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
 
@@ -48,15 +50,20 @@ public class PluginIntegrationTest {
   @Test
   public void pluginLoad() throws JsonProcessingException, InterruptedException {
 
+    final String accelClassName = "io.bonitoo.virdev.plugin.AcceleratorPlugin";
+
     File[] pluginFiles = new File("plugins/examples/accelerator").listFiles((dir, name) ->
       name.toLowerCase().endsWith(".jar")
     );
-    System.out.println("DEBUG pluginFiles.length " + pluginFiles.length);
+    assertNotNull(pluginFiles);
+    assertEquals(1, pluginFiles.length);
     for(File f : pluginFiles){
-      System.out.println("DEBUG file " + f.getName());
+      assertEquals("accelerator-0.1-SNAPSHOT.jar", f.getName());
       try {
+        @SuppressWarnings("unchecked")
         Class<ItemGenPlugin> clazz = (Class<ItemGenPlugin>) PluginLoader.loadPlugin(f);
-        System.out.println("DEBUG clazz " + clazz.getName());
+        assertNotNull(clazz);
+        assertEquals(accelClassName, clazz.getName());
       } catch (IOException | PluginConfigException |
                ClassNotFoundException | NoSuchFieldException |
                IllegalAccessException e) {
@@ -64,39 +71,38 @@ public class PluginIntegrationTest {
       }
     }
 
-    System.out.println("DEBUG ItemPluginMill keys " + ItemPluginMill.getKeys());
+    assertTrue(ItemPluginMill.getKeys().contains("AcceleratorPlugin"));
 
     ItemConfig itemConfig;
 
-    // TODO add asserts
-
-    //      itemConfig = new ItemPluginConfig("AcceleratorPlugin", "AcceleratorTest", "speed",
-//        PluginResultType.Double, new HashSet<>());
     itemConfig = new ItemPluginConfig(ItemPluginMill.getPluginProps("AcceleratorPlugin"),
       "AcceleratorTest", new Vector<>());
 
-    System.out.println("DEBUG itemConfig itemGen " + ((ItemPluginConfig)itemConfig).getGenClassName());
-//      System.out.println("DEBUG itemConfig itemGen currentVal " + ((ItemPluginConfig)itemConfig).getItemGen().getCurrentVal());
+  //  System.out.println("DEBUG itemConfig itemGen " + ((ItemPluginConfig)itemConfig).getGenClassName());
+    assertEquals(accelClassName, itemConfig.getGenClassName());
+    assertEquals("AcceleratorTest", itemConfig.getName());
+    assertEquals("speed", itemConfig.getLabel());
+    assertEquals(new Vector<>(), itemConfig.getUpdateArgs());
 
     SampleConfig sConf = new SampleConfig("random", "accelTestSample", "test/accel", Arrays.asList(itemConfig));
 
     DeviceConfig devConf = new DeviceConfig( "random",
       "accelTestDevice",
       "testing accelerator plugin",
-      Arrays.asList(sConf),
+      Collections.singletonList(sConf),
       500L,
       0L,
       1);
 
     ObjectWriter yamlWriter = new ObjectMapper(new YAMLFactory()).writer().withDefaultPrettyPrinter();
 
-    System.out.println("DEBUG deviceConfig\n" + yamlWriter.writeValueAsString(devConf));
+  //  System.out.println("DEBUG deviceConfig\n" + yamlWriter.writeValueAsString(devConf));
 
     ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    Config.getRunnerConfig().setDevices(Arrays.asList(devConf));
+    Config.getRunnerConfig().setDevices(Collections.singletonList(devConf));
 
-    System.out.println("DEBUG Config.runnerConfig\n" + yamlWriter.writeValueAsString(Config.getRunnerConfig()));
+ //   System.out.println("DEBUG Config.runnerConfig\n" + yamlWriter.writeValueAsString(Config.getRunnerConfig()));
 
     GenericDevice accelDevice = GenericDevice.singleDevice(mockClient, Config.deviceConf(0));
 
@@ -105,14 +111,12 @@ public class PluginIntegrationTest {
     executor.awaitTermination(Config.ttl(), TimeUnit.MILLISECONDS);
 
     executor.shutdown();
-/*
+
     verify(mockClient, times(1)).connect();
 
     for (SampleConfig sampConf : Config.getSampleConfs(0)) {
       verify(mockClient, times(20)).publish(eq(sampConf.getTopic()), anyString());
     }
-
-   */
 
   }
 }

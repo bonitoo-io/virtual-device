@@ -171,10 +171,10 @@ public class ItemConfigDeserializerTest {
 
         ItemPluginConfig configPj = (ItemPluginConfig) omj.readValue(localJsonConf, ItemConfig.class);
         ItemPluginConfig configPy = (ItemPluginConfig) omy.readValue(localYamlConf, ItemConfig.class);
-        @SuppressWarnings("unchecked")
-        Class<ItemGenPlugin> IGPj = (Class<ItemGenPlugin>) ItemPluginMill.getPluginClass(configPj.getPluginName());
-        @SuppressWarnings("unchecked")
-        Class<ItemGenPlugin> IGPy = (Class<ItemGenPlugin>) ItemPluginMill.getPluginClass(configPy.getPluginName());
+
+        Class<? extends Plugin> IGPj = ItemPluginMill.getPluginClass(configPj.getPluginName());
+
+        Class<? extends Plugin> IGPy = ItemPluginMill.getPluginClass(configPy.getPluginName());
 
         assertEquals(EmptyItemGenPlugin.class.getName(), IGPj.getName());
         assertEquals(EmptyItemGenPlugin.class.getName(), IGPy.getName());

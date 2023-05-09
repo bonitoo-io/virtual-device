@@ -6,17 +6,17 @@ import io.bonitoo.qa.conf.data.ItemConfig;
 import io.bonitoo.qa.conf.data.SampleConfig;
 import io.bonitoo.qa.data.Item;
 import io.bonitoo.qa.data.Sample;
-import lombok.AllArgsConstructor;
+import java.util.HashMap;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
+/**
+ * The basis for Sample Plugins.
+ */
 
 @Setter
 @Getter
-public class SamplePlugin extends Sample implements Plugin {
+public abstract class SamplePlugin extends Sample implements Plugin {
 
   @JsonIgnore
   protected PluginProperties props;
@@ -24,7 +24,13 @@ public class SamplePlugin extends Sample implements Plugin {
   @JsonIgnore
   protected boolean enabled = false;
 
-  public SamplePlugin(PluginProperties props, SampleConfig config){
+  /**
+   * Constructs a Sample Plugin.
+   *
+   * @param props - plugin properties.
+   * @param config - configuration for the generated sample.
+   */
+  public SamplePlugin(PluginProperties props, SampleConfig config) {
     this.props = props;
     this.id = config.getId();
     this.topic = config.getTopic();
@@ -34,21 +40,6 @@ public class SamplePlugin extends Sample implements Plugin {
     }
     this.timestamp = System.currentTimeMillis();
   }
-
-
-/*  public static SamplePlugin of(PluginProperties props, SampleConfig config){
-    SamplePlugin sp = new SamplePlugin();
-    sp.setProps(props);
-    sp.setId(config.getId());
-    sp.setTopic(config.getTopic());
-    sp.setTimestamp(System.currentTimeMillis());
-    sp.items = new HashMap<>();
-    for (ItemConfig itemConfig : config.getItems()) {
-      sp.getItems().put(itemConfig.getName(), Item.of(itemConfig));
-    }
-
-    return sp;
-  } */
 
   @Override
   public void onLoad() {
@@ -65,11 +56,12 @@ public class SamplePlugin extends Sample implements Plugin {
 
   @Override
   public Sample update() {
+    this.timestamp = System.currentTimeMillis();
     return this;
   }
 
   @Override
-  public String toJson() throws JsonProcessingException {
+  public abstract String toJson() throws JsonProcessingException; /* {
     return null;
-  }
+  } */
 }

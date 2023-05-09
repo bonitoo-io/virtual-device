@@ -118,8 +118,7 @@ public class ItemGenPluginTest {
     File pluginFile = new File(testJarName);
 
     try {
-      @SuppressWarnings("unchecked")
-      Class<ItemGenPlugin> clazz = (Class<ItemGenPlugin>) PluginLoader.loadPlugin(pluginFile);
+      Class<? extends Plugin> clazz = PluginLoader.loadPlugin(pluginFile);
       assertTrue(ItemPluginMill.pluginPackMap.containsKey("CounterItemPlugin"));
       CounterItemPlugin counterPlugin = (CounterItemPlugin) ItemPluginMill.genNewInstance("CounterItemPlugin", null);
       assertEquals("CounterItemPlugin", counterPlugin.getPropsName());
@@ -144,8 +143,7 @@ public class ItemGenPluginTest {
     IllegalAccessException, NoSuchFieldException {
 
     File pluginFile = new File(testJarName);
-    @SuppressWarnings("unchecked")
-    Class<ItemGenPlugin> clazz = (Class<ItemGenPlugin>) PluginLoader.loadPlugin(pluginFile);
+    Class<? extends Plugin> clazz = PluginLoader.loadPlugin(pluginFile);
     assertTrue(ItemPluginMill.pluginPackMap.containsKey("CounterItemPlugin"));
     CounterItemPlugin counterPlugin = (CounterItemPlugin) ItemPluginMill.genNewInstance("CounterItemPlugin", null);
     assertEquals("CounterItemPlugin", counterPlugin.getPropsName());
