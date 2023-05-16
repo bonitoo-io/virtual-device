@@ -7,7 +7,12 @@ import io.bonitoo.qa.conf.device.DeviceConfig;
 import io.bonitoo.qa.data.GenericSample;
 import io.bonitoo.qa.data.Sample;
 import io.bonitoo.qa.mqtt.client.MqttClientBlocking;
+import io.bonitoo.qa.plugin.PluginConfigException;
+import io.bonitoo.qa.plugin.SamplePlugin;
+import io.bonitoo.qa.plugin.SamplePluginConfig;
+import io.bonitoo.qa.plugin.SamplePluginMill;
 import io.bonitoo.qa.util.LogHelper;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
@@ -35,7 +40,16 @@ public class GenericDevice extends Device {
     this.client = client;
     this.number = number;
     for (SampleConfig sc : config.getSamples()) {
-      this.sampleList.add(GenericSample.of(sc));
+      if (sc instanceof SamplePluginConfig) { // add a plugin
+        try {
+          this.sampleList.add(SamplePluginMill.genNewInstance((SamplePluginConfig) sc));
+        } catch (PluginConfigException | InvocationTargetException | NoSuchMethodException
+                 | InstantiationException | IllegalAccessException e) {
+          throw new RuntimeException(e);
+        }
+      } else {
+        this.sampleList.add(GenericSample.of(sc));
+      }
     }
   }
 
@@ -80,7 +94,7 @@ public class GenericDevice extends Device {
         LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(config.getJitter()));
         for (Sample sample : sampleList) {
           String jsonSample = sample.update().toJson();
-          logger.debug(LogHelper.buildMsg(sample.getId(), "Publishing", jsonSample));
+          logger.info(LogHelper.buildMsg(sample.getId(), "Publishing", jsonSample));
           client.publish(sample.getTopic(), jsonSample);
         }
         LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(config.getInterval()));

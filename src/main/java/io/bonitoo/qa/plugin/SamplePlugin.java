@@ -6,7 +6,11 @@ import io.bonitoo.qa.conf.data.ItemConfig;
 import io.bonitoo.qa.conf.data.SampleConfig;
 import io.bonitoo.qa.data.Item;
 import io.bonitoo.qa.data.Sample;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.Properties;
+import java.util.function.Function;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,6 +29,48 @@ public abstract class SamplePlugin extends Sample implements Plugin {
   protected boolean enabled = false;
 
   /**
+   * Factory style method for instantiating SamplePlugins.
+   *
+   * <p>N.B. - experimental.  The SamplePluginMill generator uses the version
+   * of this method that takes a <code>Method</code> argument instead of
+   * <code>Function</code>.</p>
+   *
+   * @param init - A lambda style function that returns a new SamplePlugin.
+   * @param config - The sample configuration used.
+   * @param props - Plugin Properties.
+   * @return - The result of the lambda style function.
+   */
+  public static SamplePlugin of(Function<SamplePluginConfig, SamplePlugin> init, //+
+                                SamplePluginConfig config,
+                                PluginProperties props) {
+    SamplePlugin sp = init.apply(config);
+    sp.props = props;
+    sp.applyProps(props);
+    return sp;
+  }
+
+  /**
+   * Factory style method for instantiating SamplePlugin.
+   *
+   * @param init - A static Java reflection method the instantiates a plugin from a config.
+   * @param config - the sample config.
+   * @param props - the plugin properties.
+   * @return - the result of the init method.
+   */
+  public static SamplePlugin of(Method init, SamplePluginConfig config, PluginProperties props) {
+    try {
+      SamplePlugin sp = (SamplePlugin) init.invoke(null, config);
+      sp.onLoad();
+      sp.props = props;
+      sp.applyProps(props);
+      return sp;
+    } catch (IllegalAccessException | InvocationTargetException e) {
+      throw new RuntimeException(e);
+    }
+
+  }
+
+  /**
    * Constructs a Sample Plugin.
    *
    * @param props - plugin properties.
@@ -40,6 +86,7 @@ public abstract class SamplePlugin extends Sample implements Plugin {
     }
     this.timestamp = System.currentTimeMillis();
   }
+
 
   @Override
   public void onLoad() {
@@ -61,7 +108,30 @@ public abstract class SamplePlugin extends Sample implements Plugin {
   }
 
   @Override
-  public abstract String toJson() throws JsonProcessingException; /* {
-    return null;
-  } */
+  public abstract String toJson() throws JsonProcessingException;
+
+  @JsonIgnore
+  public String getName() {
+    return this.props.getName();
+  }
+
+  @JsonIgnore
+  public String getMain() {
+    return this.props.getMain();
+  }
+
+  @JsonIgnore
+  public String getDescription() {
+    return this.props.getDescription();
+  }
+
+  @JsonIgnore
+  public Properties getProperties() {
+    return this.props.getProperties();
+  }
+
+  @JsonIgnore
+  public Object getProp(String key) {
+    return this.props.getProperties().get(key);
+  }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.bonitoo.qa.conf.VirDevDeserializer;
+import io.bonitoo.qa.data.GenericSample;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,10 @@ public class SampleConfigDeserializer extends VirDevDeserializer<SampleConfig> {
 
     JsonNode node = jsonParser.getCodec().readTree(jsonParser);
     String name = safeGetNode(node, "name").asText();
+    JsonNode pluginNode = node.get("plugin");
+    String pluginName = pluginNode == null
+        ? GenericSample.class.getName() :
+        node.get("plugin").asText();
     String id = safeGetNode(node, "id").asText();
     String topic = safeGetNode(node, "topic").asText();
     JsonNode itemsNode = safeGetNode(node, "items");
@@ -42,6 +47,6 @@ public class SampleConfigDeserializer extends VirDevDeserializer<SampleConfig> {
       }
     }
 
-    return new SampleConfig(id, name, topic, items);
+    return new SampleConfig(id, name, topic, items, pluginName);
   }
 }

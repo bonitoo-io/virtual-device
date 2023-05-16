@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.bonitoo.qa.conf.data.*;
 import io.bonitoo.qa.data.generator.SimpleStringGenerator;
-import io.bonitoo.qa.plugin.CounterItemPlugin;
+import io.bonitoo.qa.plugin.eg.CounterItemPlugin;
 import io.bonitoo.qa.plugin.PluginProperties;
 import io.bonitoo.qa.plugin.PluginResultType;
 import io.bonitoo.qa.plugin.PluginType;

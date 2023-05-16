@@ -1,0 +1,7 @@
+plugin.main=io.bonitoo.qa.plugin.eg.InfluxLPSamplePlugin
+plugin.name=InfluxLPSamplePlugin
+plugin.description=A Test plugin generating InfluxLP data
+plugin.version=0.1
+plugin.type=Sample
+plugin.label=lineProtocol
+plugin.resultType=Json

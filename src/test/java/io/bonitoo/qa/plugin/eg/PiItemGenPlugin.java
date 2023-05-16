@@ -1,6 +1,8 @@
-package io.bonitoo.qa.plugin;
+package io.bonitoo.qa.plugin.eg;
 
 import io.bonitoo.qa.conf.data.ItemConfig;
+import io.bonitoo.qa.plugin.ItemGenPlugin;
+import io.bonitoo.qa.plugin.PluginProperties;
 
 public class PiItemGenPlugin extends ItemGenPlugin {
         public PiItemGenPlugin(PluginProperties props, ItemConfig config, boolean enabled) {
@@ -24,7 +26,12 @@ public class PiItemGenPlugin extends ItemGenPlugin {
             enabled = true;
         }
 
-        @Override
+  @Override
+  public void applyProps(PluginProperties props) {
+     // holder
+  }
+
+  @Override
         public Object genData(Object... args) {
             return Math.PI;
         }

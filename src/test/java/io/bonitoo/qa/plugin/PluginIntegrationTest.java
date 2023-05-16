@@ -13,7 +13,6 @@ import io.bonitoo.qa.conf.device.DeviceConfig;
 import io.bonitoo.qa.device.GenericDevice;
 import io.bonitoo.qa.mqtt.client.MqttClientBlocking;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -21,10 +20,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -48,7 +45,7 @@ public class PluginIntegrationTest {
   }
 
   @Test
-  public void pluginLoad() throws JsonProcessingException, InterruptedException {
+  public void loadItemPlugin() throws JsonProcessingException, InterruptedException {
 
     final String accelClassName = "io.bonitoo.virdev.plugin.AcceleratorPlugin";
 

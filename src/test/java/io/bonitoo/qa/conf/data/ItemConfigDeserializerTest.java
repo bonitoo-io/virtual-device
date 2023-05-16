@@ -7,6 +7,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.bonitoo.qa.conf.VirDevConfigException;
 import io.bonitoo.qa.data.ItemType;
 import io.bonitoo.qa.plugin.*;
+import io.bonitoo.qa.plugin.eg.EmptyItemGenPlugin;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

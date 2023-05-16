@@ -13,7 +13,7 @@ import lombok.Setter;
 /**
  * Represents a SampleConfiguration to be used to create a Sample instance.
  */
-@AllArgsConstructor
+//@AllArgsConstructor
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,11 +22,14 @@ public class SampleConfig extends DataConfig {
 
   String id;
 
-  //String name;
-
   String topic;
 
   List<ItemConfig> items;
+
+  // optional - if set plugin will be used to generated samples
+  String plugin;
+  //String name;
+
 
   /**
    * Basic all arguments constructor.
@@ -37,8 +40,28 @@ public class SampleConfig extends DataConfig {
    * @param topic - MQTT topic under which randomly generated samples will be published.
    * @param items - List of ItemConfigs representing the contents of the sample.
    */
+  public SampleConfig(String id, String name, String topic, List<ItemConfig> items, String plugin) {
+    this.id = resolveId(id);
+    this.plugin = plugin;
+    this.name = name;
+    this.topic = topic;
+    this.items = items;
+    SampleConfigRegistry.add(this.name, this);
+  }
+
+  /**
+   * Constructor - sets plugin value to null.  Intended for use with internal, legacy
+   * and non-plugin samples.
+   *
+   * @param id - id for this sample config.
+   * @param name - name for this sample config, so it can be retrieved.
+   * @param topic - MQTT topic under which the sample will be published.
+   * @param items - items list.
+   */
+
   public SampleConfig(String id, String name, String topic, List<ItemConfig> items) {
     this.id = resolveId(id);
+    this.plugin = null;
     this.name = name;
     this.topic = topic;
     this.items = items;
@@ -57,8 +80,33 @@ public class SampleConfig extends DataConfig {
    * @param topic - MQTT topic under which the generated samples will be published.
    * @param itemNames - names of ItemConfigs, already in the ItemConfigRegistry.
    */
-  public SampleConfig(String id, String name, String topic, String[] itemNames) {
+  public SampleConfig(String id, String name, String topic, String[] itemNames, String plugin) {
     this.id = resolveId(id);
+    this.plugin = plugin;
+    this.name = name;
+    this.topic = topic;
+    items = new ArrayList<>();
+    if (itemNames != null) {
+      for (String itemName : itemNames) {
+        items.add(ItemConfigRegistry.get(itemName));
+      }
+    }
+    SampleConfigRegistry.add(this.name, this);
+  }
+
+  /**
+   * Constructor - sets plugin value to null.  Intended for use with internal,
+   * legacy or non-plugin samples.
+   *
+   * @param id - id for the new sample
+   * @param name - name for the new sample
+   * @param topic - MQTT topic under which this sample will be published.
+   * @param itemNames - names for items as a String array.  They should already be loaded
+   *                 exist into the ItemConfigRegistry, from where they will be retrieved.
+   */
+  public SampleConfig(String id, String name, String topic,  String[] itemNames) {
+    this.id = resolveId(id);
+    this.plugin = null;
     this.name = name;
     this.topic = topic;
     items = new ArrayList<>();
@@ -78,6 +126,7 @@ public class SampleConfig extends DataConfig {
    */
   public SampleConfig(SampleConfig sampleConfig) {
     this.id = sampleConfig.getId();
+    this.plugin = sampleConfig.getPlugin();
     this.name = sampleConfig.getName();
     this.topic = sampleConfig.getTopic();
     this.items = sampleConfig.getItems();

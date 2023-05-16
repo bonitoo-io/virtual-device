@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DeviceConfigDeserializerTest {
 
-    static SampleConfig testSampConfig = new SampleConfig("abcd","testSample","test/parsing",
+    static SampleConfig testSampConfig = new SampleConfig("abcd", "testSample","test/parsing",
             Arrays.asList(new ItemNumConfig("tension", "tns", ItemType.Double, -1, 2, 1),
                     new ItemNumConfig("nuts", "nuts", ItemType.Long, 1, 100, 1),
                     new ItemStringConfig("label", "lbl", ItemType.String, Arrays.asList("Salted","unsalted","smoked"))));
@@ -73,9 +73,10 @@ public class DeviceConfigDeserializerTest {
         ItemConfig ic4 = new ItemStringConfig("delta", "delta", ItemType.String, Arrays.asList("Everest", "K2", "Kangchenjunga"));
         ItemConfig ic5 = new ItemNumConfig("epsilon", "epsl", ItemType.Double, -1, 10000, 3);
 
-        SampleConfig sc1 = new SampleConfig("random", "first", "testing/first" , new String[]{ ic1.getName(), ic3.getName() });
+        SampleConfig sc1 = new SampleConfig("random", "first", "testing/first" ,
+          new String[]{ ic1.getName(), ic3.getName() });
         SampleConfig sc2 = new SampleConfig("random", "second", "testing/second", Arrays.asList(ic2, ic4));
-        SampleConfig sc3 = new SampleConfig("random","third", "testing/third", Arrays.asList(ic5));
+        SampleConfig sc3 = new SampleConfig("random", "third", "testing/third", Arrays.asList(ic5));
 
         String id = "1234";
         String name = "TestDevice";

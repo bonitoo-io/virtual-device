@@ -10,14 +10,13 @@ import io.bonitoo.qa.conf.data.ItemStringConfig;
 import io.bonitoo.qa.data.generator.DataGenerator;
 import io.bonitoo.qa.data.generator.NumGenerator;
 import io.bonitoo.qa.data.generator.SimpleStringGenerator;
-import io.bonitoo.qa.plugin.CounterItemPlugin;
+import io.bonitoo.qa.plugin.eg.CounterItemPlugin;
 import io.bonitoo.qa.plugin.PluginProperties;
 import io.bonitoo.qa.plugin.PluginResultType;
 import io.bonitoo.qa.plugin.PluginType;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Properties;
 import java.util.Vector;
 

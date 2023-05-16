@@ -1,10 +1,12 @@
-package io.bonitoo.qa.plugin;
+package io.bonitoo.qa.plugin.eg;
 
 import io.bonitoo.qa.conf.data.ItemConfig;
+import io.bonitoo.qa.plugin.ItemGenPlugin;
+import io.bonitoo.qa.plugin.PluginProperties;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class EmptyItemGenPlugin extends ItemGenPlugin{
+public class EmptyItemGenPlugin extends ItemGenPlugin {
 
   private static final String DEFAULT_VALUE = "Foo";
 
@@ -24,7 +26,12 @@ public class EmptyItemGenPlugin extends ItemGenPlugin{
       value = DEFAULT_VALUE;
     }
 
-    @Override
+  @Override
+  public void applyProps(PluginProperties props) {
+     // Holder
+  }
+
+  @Override
     public String genData(Object... args) {
       StringBuilder sb = new StringBuilder();
       for(Object obj: args){

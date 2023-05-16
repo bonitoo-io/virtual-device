@@ -104,8 +104,6 @@ public class AcceleratorPlugin extends ItemGenPlugin {
     this.accel = props.getProperties().getProperty("initial.accel") == null ?
       INITIAL_ACCEL : Double.parseDouble(props.getProperties().getProperty("initial.accel"));
 
-    System.out.println("DEBUG initial.speed " + this.speed);
-    System.out.println("DEBUG initial.accel " + this.accel);
     this.enabled = true;
   }
 
@@ -154,4 +152,10 @@ initial.accel=0.5
 
 #### Sample plugins
 
-TBD
+A Sample Plugin requires the extension and implementation of four basic classes. 
+
+  * The sample plugin itself - extends `SamplePlugin` - e.g. `InfluxLpSamplePlugin`.  This handles the core work of updating and generating data. 
+  * The serializer for the sample plugin - extends a Jackson `StdSerializer` - e.g. `InfluxLPSampleSerializer`.  This converts that data to a JSON string. 
+  * The configuration for the plugin - extends `SamplePluginConf` - e.g. `InfluxLPSamplePluginConf`.  This adds extra parameters to the configuration, if necessary, and is passed to factory methods, whenever a new instance of the SamplePlugin is needed. 
+  * The configuration deserializer - extends `SampleConfigDeserializer` - e.g. `InfluxLPSamplePluginConfDeserializer`.  This is necessary to generate the above configuration file from a YAML representation. 
+

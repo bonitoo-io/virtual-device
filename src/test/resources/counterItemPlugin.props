@@ -1,4 +1,4 @@
-plugin.main=io.bonitoo.qa.plugin.CounterItemPlugin
+plugin.main=io.bonitoo.qa.plugin.eg.CounterItemPlugin
 plugin.name=CounterItemPlugin
 plugin.description=A Test plugin with a simple counter
 plugin.version=0.1

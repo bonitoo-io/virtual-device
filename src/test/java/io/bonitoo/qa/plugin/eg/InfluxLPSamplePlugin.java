@@ -1,17 +1,20 @@
-package io.bonitoo.qa.plugin;
+package io.bonitoo.qa.plugin.eg;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.bonitoo.qa.conf.data.SampleConfig;
-import io.bonitoo.qa.data.Item;
 import io.bonitoo.qa.data.Sample;
-import io.bonitoo.qa.data.serializer.GenericSampleSerializer;
+import io.bonitoo.qa.plugin.PluginProperties;
+import io.bonitoo.qa.plugin.SamplePlugin;
+import io.bonitoo.qa.plugin.SamplePluginConfig;
 import lombok.Getter;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Date;
+import java.lang.invoke.MethodHandles;
 import java.util.Map;
 
 /*
@@ -33,18 +36,27 @@ import java.util.Map;
 @JsonSerialize(using = InfluxLPSampleSerializer.class)
 public class InfluxLPSamplePlugin extends SamplePlugin {
 
+  static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   String measurement;
 
   Map<String, String> tags;
 
+  public static InfluxLPSamplePlugin create(SamplePluginConfig conf){
+
+    return new InfluxLPSamplePlugin(null,
+      conf,
+      ((InfluxLPSamplePluginConf)conf).getMeasurement(),
+      ((InfluxLPSamplePluginConf)conf).getTags());
+  }
+
   // N.B. use items from parent sample for fields
-  public InfluxLPSamplePlugin(PluginProperties props, SampleConfig config, String measurement, Map<String,String> tags) {
+  public InfluxLPSamplePlugin(PluginProperties props, SamplePluginConfig config, String measurement, Map<String,String> tags) {
     super(props, config);
     this.measurement = measurement;
     this.tags = tags;
   }
 
-  public InfluxLPSamplePlugin(PluginProperties props, SampleConfig config, Object... args){
+  public InfluxLPSamplePlugin(PluginProperties props, SamplePluginConfig config, Object... args){
     super(props, config);
     this.measurement = (String)args[0];
     this.tags = (Map<String, String>) args[1];
@@ -65,9 +77,18 @@ public class InfluxLPSamplePlugin extends SamplePlugin {
   }
 
   @Override
+  public void applyProps(PluginProperties props) {
+    // holder
+    logger.info("applyProps called " + props.getMain());
+  }
+
+  @Override
   public String toJson() throws JsonProcessingException {
     ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
     return ow.writeValueAsString(this);
   }
 
+  public static InfluxLPSamplePlugin create(SampleConfig sampleConfig) {
+    return null;
+  }
 }

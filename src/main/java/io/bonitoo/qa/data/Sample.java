@@ -3,11 +3,13 @@ package io.bonitoo.qa.data;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.bonitoo.qa.conf.data.SampleConfig;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
@@ -37,6 +39,10 @@ public abstract class Sample {
   public Map<String, Item> items;
 
   public abstract Sample update();
+
+  public static Sample of(Function<SampleConfig, Sample> init, SampleConfig config) {
+    return init.apply(config);
+  }
 
   public Item item(String name) {
     return items.get(name);
