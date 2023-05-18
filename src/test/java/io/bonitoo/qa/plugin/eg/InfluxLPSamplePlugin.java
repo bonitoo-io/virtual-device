@@ -9,6 +9,7 @@ import io.bonitoo.qa.data.Sample;
 import io.bonitoo.qa.plugin.PluginProperties;
 import io.bonitoo.qa.plugin.SamplePlugin;
 import io.bonitoo.qa.plugin.SamplePluginConfig;
+import io.bonitoo.qa.plugin.SamplePluginConfigClass;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
@@ -33,6 +34,7 @@ import java.util.Map;
  */
 @Getter
 @Setter
+@SamplePluginConfigClass(conf = InfluxLPSamplePluginConf.class)
 @JsonSerialize(using = InfluxLPSampleSerializer.class)
 public class InfluxLPSamplePlugin extends SamplePlugin {
 

@@ -91,11 +91,10 @@ public class PluginLoader {
     // add plugin class to registry and instantiate later as needed
     if (props.getType() == PluginType.Item) {
       ItemPluginMill.addPluginClass(props.getName(), props, ucl);
-      return (Class<Plugin>) ItemPluginMill.getPluginClass(props.getName());
+      return ItemPluginMill.getPluginClass(props.getName());
     } else if (props.getType() == PluginType.Sample) {
-      // throw new RuntimeException("Sample Plugin handling not yet implemented - TODO");
       SamplePluginMill.addPluginClass(props.getName(), props, ucl);
-      return (Class<Plugin>) SamplePluginMill.getPluginClass(props.getName());
+      return SamplePluginMill.getPluginClass(props.getName());
     } else {
       throw new PluginConfigException("Plugin must have a type of either Item or Sample");
     }

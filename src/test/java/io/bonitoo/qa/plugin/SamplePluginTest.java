@@ -7,10 +7,10 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.bonitoo.qa.conf.data.SampleConfig;
 import io.bonitoo.qa.data.Sample;
 import org.junit.jupiter.api.Test;
-
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Properties;
-import java.util.function.Function;
+
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -218,6 +218,60 @@ public class SamplePluginTest {
     assertEquals(defaultProps.getDescription(), fsp.getDescription());
     assertEquals(defaultProps.getProperties(), fsp.getProperties());
     assertEquals(defaultProps.getProperties().get("some.val"), fsp.getProp("some.val"));
+  }
+
+  static class EmptySamplePluginConf extends SamplePluginConfig {
+
+    public EmptySamplePluginConf() {
+      super();
+      this.setItems(new ArrayList<>());
+    }
+  }
+
+  @SamplePluginConfigClass( conf = EmptySamplePluginConf.class)
+  static class EmptySamplePlugin extends SamplePlugin {
+
+    /**
+     * Constructs a Sample Plugin.
+     *
+     * @param props  - plugin properties.
+     * @param config - configuration for the generated sample.
+     */
+    public EmptySamplePlugin(PluginProperties props, SampleConfig config) {
+      super(props, config);
+    }
+
+    @Override
+    public void applyProps(PluginProperties props) {
+      //holder
+    }
+
+    @Override
+    public String toJson() throws JsonProcessingException {
+      return null;
+    }
+  }
+
+  @Test
+  public void samplePluginConfAnnotationTest(){
+
+    PluginProperties emProps = new PluginProperties(
+      EmptySamplePlugin.class.getName(),
+      "EmptyTestPlugin",
+      "msg",
+      "A test sample plugin",
+      "0.1",
+      PluginType.Sample,
+      PluginResultType.Json,
+      new Properties(){{ put("some.val", "PropertyVal"); }}
+    );
+
+    Annotation[] annotations = EmptySamplePlugin.class.getAnnotations();
+
+    assertEquals(1, annotations.length);
+    assertEquals(EmptySamplePluginConf.class.getName(),
+      ((SamplePluginConfigClass) annotations[0]).conf().getName());
+
   }
 
 }

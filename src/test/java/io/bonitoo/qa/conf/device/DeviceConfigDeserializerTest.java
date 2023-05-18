@@ -148,5 +148,6 @@ public class DeviceConfigDeserializerTest {
         assertEquals(DeviceConfigDeserializer.defaultCount, conf.getCount());
     }
 
+    // N.B. for device deserialization with SamplePlugin see SamplePluginIntegrationTest
 
 }

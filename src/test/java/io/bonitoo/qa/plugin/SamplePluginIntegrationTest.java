@@ -1,6 +1,9 @@
 package io.bonitoo.qa.plugin;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.bonitoo.qa.conf.Config;
 import io.bonitoo.qa.conf.data.ItemNumConfig;
 import io.bonitoo.qa.conf.device.DeviceConfig;
@@ -23,6 +26,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -112,12 +116,12 @@ public class SamplePluginIntegrationTest {
     SamplePluginMill.clear();
   }
 
-  @AfterAll
+/*  @AfterAll
   public static void cleanup(){
     File pluginFile = new File(testJarName);
     pluginFile.deleteOnExit();
     pluginDir.deleteOnExit();
-  }
+  } */
 
   @Getter
   static class Tags {
@@ -260,6 +264,98 @@ public class SamplePluginIntegrationTest {
     verify(mockClient, times(1)).connect();
 
     verify(mockClient, times(10)).publish(eq(conf.getTopic()), anyString());
+
+  }
+
+  @Test
+  public void deviceConfigWithSamplePluginDeserializeTest() throws JsonProcessingException, InterruptedException {
+
+    ItemNumConfig iConfigTemp = new ItemNumConfig("temp", "temperature", ItemType.Double, 10, 40, 1, 4);
+    ItemNumConfig iConfigPress = new ItemNumConfig("press", "pressure", ItemType.Double, 26, 32, 1, 4);
+
+    File pluginFile = new File(testJarName);
+
+    try {
+      Class<? extends Plugin> clazz = PluginLoader.loadPlugin(pluginFile);
+      assertEquals(clazz, SamplePluginMill.getPluginClass("InfluxLPSamplePlugin"));
+    } catch (PluginConfigException | ClassNotFoundException | NoSuchFieldException | IllegalAccessException |
+             IOException e) {
+      throw new RuntimeException(e);
+    }
+
+    assertEquals(1, SamplePluginMill.size());
+
+    Map<String,String> tags = new HashMap<String,String>(){{put("foo", "foodie"); put("bar", "barfly");}};
+
+    PluginProperties props = SamplePluginMill.getPluginProps("InfluxLPSamplePlugin");
+    InfluxLPSamplePluginConf sampleConf = new InfluxLPSamplePluginConf("random",
+      props.getName() + "Conf", "test/foo",
+      Arrays.asList(iConfigTemp, iConfigPress), "testing",
+      tags,
+      props.getName());
+
+    DeviceConfig devConf = new DeviceConfig("random",
+      "testDev",
+      "testing",
+      Arrays.asList(sampleConf),
+      1000L,
+      0L,
+      1);
+
+    ObjectMapper omy = new ObjectMapper(new YAMLFactory());
+    ObjectMapper omj = new ObjectMapper();
+
+    ObjectWriter ow = omj.writer();
+
+    InfluxLPSamplePluginConfDeserializer ilpdcd = new InfluxLPSamplePluginConfDeserializer();
+
+    String devConfYAML = ow.writeValueAsString(devConf);
+
+    DeviceConfig parsedConfig = omj.readValue(devConfYAML, DeviceConfig.class);
+
+    assertEquals(devConf, parsedConfig);
+
+    // N.B. using mockClient for convenience -
+    // in this test deviceRunner is not needed so MQTTClient is not called
+    GenericDevice dev = GenericDevice.singleDevice(mockClient, parsedConfig);
+
+    assertEquals(sampleConf.getMeasurement(),
+      ((InfluxLPSamplePlugin)dev.getSampleList().get(0)).getMeasurement());
+
+    assertEquals(tags, ((InfluxLPSamplePlugin)dev.getSampleList().get(0)).getTags());
+
+    double temp1 = dev.getSampleList().get(0).getItems().get("temp").asDouble();
+    double press1 = dev.getSampleList().get(0).getItems().get("press").asDouble();
+
+    assertTrue(temp1 >= iConfigTemp.getMin() && temp1 <= iConfigTemp.getMax());
+    assertTrue(press1 >= iConfigPress.getMin() && press1 <= iConfigPress.getMax());
+
+    LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(1000));
+
+    double temp2 = dev.getSampleList().get(0).getItems().get("temp").asDouble();
+    double press2 = dev.getSampleList().get(0).getItems().get("press").asDouble();
+
+    assertTrue(temp2 >= iConfigTemp.getMin() && temp2 <= iConfigTemp.getMax());
+    assertTrue(press2 >= iConfigPress.getMin() && temp2 <= iConfigPress.getMax());
+
+  }
+
+  @Test
+  public void InfluxLPSamplePluginConfDeserializerTest() throws JsonProcessingException {
+
+    String sampleConfigJSON = "{\"name\":\"InfluxLPSamplePluginConf\",\"id\":\"random\",\"topic\":\"test/foo\",\"items\":[{\"name\":\"temp\",\"label\":\"temperature\",\"type\":\"Double\",\"genClassName\":\"io.bonitoo.qa.data.generator.NumGenerator\",\"updateArgs\":[\"period\",\"min\",\"max\",\"time\"],\"max\":40.0,\"min\":10.0,\"period\":1,\"prec\":4},{\"name\":\"press\",\"label\":\"pressure\",\"type\":\"Double\",\"genClassName\":\"io.bonitoo.qa.data.generator.NumGenerator\",\"updateArgs\":[\"period\",\"min\",\"max\",\"time\"],\"max\":32.0,\"min\":26.0,\"period\":1,\"prec\":4}],\"plugin\":\"InfluxLPSamplePlugin\",\"measurement\":\"testing\",\"tags\":{\"bar\":\"barfly\",\"foo\":\"foodie\"}}";
+
+    ObjectMapper om = new ObjectMapper();
+
+    InfluxLPSamplePluginConf ilpspconf = om.readValue(sampleConfigJSON, InfluxLPSamplePluginConf.class);
+
+    assertEquals("testing", ilpspconf.getMeasurement());
+    assertEquals("test/foo", ilpspconf.getTopic());
+
+    assertTrue(ilpspconf.getTags().containsKey("foo"));
+    assertTrue(ilpspconf.getTags().containsKey("bar"));
+    assertTrue(ilpspconf.getTags().containsValue("foodie"));
+    assertTrue(ilpspconf.getTags().containsValue("barfly"));
 
   }
 

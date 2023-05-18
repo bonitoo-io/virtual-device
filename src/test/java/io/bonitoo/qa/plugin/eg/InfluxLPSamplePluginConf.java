@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.bonitoo.qa.conf.data.ItemConfig;
 import io.bonitoo.qa.plugin.SamplePluginConfig;
 import lombok.Getter;
-
 import java.util.List;
 import java.util.Map;
 
