@@ -1,15 +1,14 @@
 package io.bonitoo.qa.plugin;
 
 import io.bonitoo.qa.VirDevRuntimeException;
-import io.bonitoo.qa.conf.data.SampleConfig;
 import java.lang.invoke.MethodHandles;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +26,7 @@ public class SamplePluginMill {
     PluginProperties pluginProps;
   }
 
-  static Map<String, SamplePluginMill.PluginPack> pluginPackMap = new HashMap<>();
+  static Map<String, PluginPack> pluginPackMap = new HashMap<>();
 
   /**
    * Returns the plugin class from the registry matching the key.
@@ -167,16 +166,18 @@ public class SamplePluginMill {
 
     @SuppressWarnings("unchecked")
     Class<SamplePlugin> clazz = (Class<SamplePlugin>) getPluginClass(pluginName);
+    //    System.out.println("DEBUG conforms " + getCreateMethod(clazz));
 
     try {
-      Method m = clazz.getDeclaredMethod("create", SamplePluginConfig.class);
+      /* Method m = clazz.getDeclaredMethod("create", SamplePluginConfig.class);
       // todo check return type of m is correct
       if (! Modifier.isStatic(m.getModifiers())) {
         throw new PluginConfigException(
           String.format("The plugin class %s "
               + "must implement a static method \"create\" with parameter %s",
             clazz.getName(), SamplePluginConfig.class.getName()));
-      }
+      } */
+      Method m = getCreateMethod(clazz);
       return SamplePlugin.of(m, spConfig, getPluginProps(pluginName));
     } catch (NoSuchMethodException e) {
       throw new PluginConfigException(String.format("Cannot instantiate pluginClass %s. "
@@ -211,8 +212,34 @@ public class SamplePluginMill {
     return pluginPackMap.size();
   }
 
+  public static Set<String> getKeys() {
+    return pluginPackMap.keySet();
+  }
+
   protected static void clear() {
     pluginPackMap.clear();
+  }
+
+  protected static Method getCreateMethod(Class<?> clazz) throws NoSuchMethodException {
+    Method[] methods = clazz.getDeclaredMethods();
+    for (Method m : methods) {
+      if (m.getName().equals("create")) {
+        Class<?>[] paramTypes = m.getParameterTypes();
+        // todo check return type of m is correct
+        if (paramTypes.length == 1
+            && SamplePluginConfig.class.isAssignableFrom(paramTypes[0])
+            && Modifier.isStatic(m.getModifiers())) {
+          Class<?> returnType = m.getReturnType();
+          if (SamplePlugin.class.isAssignableFrom(returnType)) {
+            return m;
+          }
+        }
+      }
+    }
+    throw new NoSuchMethodException(
+      String.format("%s does not contain required static method create(SamplePluginConfig)",
+        clazz.getName())
+    );
   }
 
 

@@ -48,7 +48,6 @@ public class DeviceConfigDeserializer extends VirDevDeserializer<DeviceConfig> {
                                   DeserializationContext ctx)
       throws IOException {
     JsonNode node = jsonParser.getCodec().readTree(jsonParser);
-    System.out.println("DEBUG base node " + node);
     String id = safeGetNode(node, "id").asText();
     String name = safeGetNode(node, "name").asText();
     String description = safeGetNode(node, "description").asText();

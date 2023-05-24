@@ -1,0 +1,34 @@
+windgen,turbine=R20WT01,group=VRCH03,unit=A02 windspeed=9.9,direction=89.87,kw=192.810 1664979258570
+windgen,turbine=R24WT01,group=HRBN02,unit=F12 windspeed=11.1,direction=80.2,kw=391.340 1664979318570
+windgen,turbine=R17WTX4,group=VRCH09,unit=C07 windspeed=9.5,direction=89.82,kw=95.833 1664979378570
+windgen,turbine=R20WT01,group=VRCH03,unit=A02 windspeed=9.8,direction=89.80,kw=187.026 1664979438570
+windgen,turbine=R24WT01,group=HRBN02,unit=F12 windspeed=11.3,direction=79.9,kw=412.877 1664979498570
+windgen,turbine=R17WTX4,group=VRCH09,unit=C07 windspeed=9.3,direction=89.3,kw=89.907 1664979558570
+windgen,turbine=R20WT01,group=VRCH03,unit=A02 windspeed=9.7,direction=88.75,kw=181.443 1664979618570
+windgen,turbine=R24WT01,group=HRBN02,unit=F12 windspeed=11.4,direction=78.80,kw=423.991 1664979678570
+windgen,turbine=R17WTX4,group=VRCH09,unit=C07 windspeed=9.2,direction=88.23.1,kw=87.038 1664979738570
+windgen,turbine=R20WT01,group=VRCH03,unit=A02 windspeed=9.7,direction=88.59,kw=181.359 1664979798570
+windgen,turbine=R24WT01,group=HRBN02,unit=F12 windspeed=11.6,direction=78.21,kw=446.642 1664979858570
+windgen,turbine=R17WTX4,group=VRCH09,unit=C07 windspeed=9.3,direction=88.05,kw=90.001 1664979918570
+windgen,turbine=R20WT01,group=VRCH03,unit=A02 windspeed=9.8,direction=88.73,kw=186.987 1664979978570
+windgen,turbine=R24WT01,group=HRBN02,unit=F12 windspeed=11.6,direction=78.03,kw=445.987 1664980038570
+windgen,turbine=R17WTX4,group=VRCH09,unit=C07 windspeed=9.4,direction=87.81,kw=92.389 1664980098570
+windgen,turbine=R20WT01,group=VRCH03,unit=A02 windspeed=10.0,direction=88.05,kw=198.711 1664980158570
+windgen,turbine=R24WT01,group=HRBN02,unit=F12 windspeed=11.7,direction=77.89,kw=458.293 1664980218570
+windgen,turbine=R17WTX4,group=VRCH09,unit=C07 windspeed=9.5,direction=89.13,kw=95.833 1664980278570
+windgen,turbine=R20WT01,group=VRCH03,unit=A02 windspeed=10.2,direction=88.37,kw=210.847 1664980338570
+windgen,turbine=R24WT01,group=HRBN02,unit=F12 windspeed=11.8,direction=77.91,kw=470.145 1664980398570
+windgen,turbine=R17WTX4,group=VRCH09,unit=C07 windspeed=9.5,direction=88.92,kw=96.144 1664980458570
+windgen,turbine=R20WT01,group=VRCH03,unit=A02 windspeed=10.3,direction=87.77,kw=217.137 1664980518570
+windgen,turbine=R24WT01,group=HRBN02,unit=F12 windspeed=11.9,direction=77.71,kw=482.199 1664980578570
+windgen,turbine=R17WTX4,group=VRCH09,unit=C07 windspeed=9.6,direction=88.00,kw=98.892 1664980638570
+
+windgen,turbine=R20WT01,group=VRCH03,unit=A02 windspeed=10.3,direction=87.25,kw=218.322 1664980158570
+windgen,turbine=R24WT01,group=HRBN02,unit=F12 windspeed=12.0,direction=77.28,kw=494.458 1664980218570
+windgen,turbine=R17WTX4,group=VRCH09,unit=C07 windspeed=9.5,direction=88.12,kw=97.045 1664980278570
+windgen,turbine=R20WT01,group=VRCH03,unit=A02 windspeed=10.2,direction=87.32,kw=211.507 1664980338570
+windgen,turbine=R24WT01,group=HRBN02,unit=F12 windspeed=12.1,direction=76.92,kw=506.922 1664980398570
+windgen,turbine=R17WTX4,group=VRCH09,unit=C07 windspeed=9.4,direction=88.22,kw=93.333 1664980458570
+windgen,turbine=R20WT01,group=VRCH03,unit=A02 windspeed=10.3,direction=87.74,kw=216.890 1664980518570
+windgen,turbine=R24WT01,group=HRBN02,unit=F12 windspeed=12.2,direction=76.71,kw=519.595 1664980578570
+

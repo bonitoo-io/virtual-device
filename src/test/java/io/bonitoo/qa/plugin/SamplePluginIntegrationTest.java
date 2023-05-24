@@ -58,8 +58,6 @@ public class SamplePluginIntegrationTest {
     defaultProps.load(SamplePluginIntegrationTest.class.getClassLoader()
       .getResourceAsStream("influxLPSamplePlugin.props"));
 
-    System.out.println("DEBUG defaultProps " + defaultProps);
-
     if(!pluginDir.exists()){
       if(!pluginDir.mkdirs()){
         throw new RuntimeException("Failed to make dir " + pluginDir);
@@ -116,12 +114,12 @@ public class SamplePluginIntegrationTest {
     SamplePluginMill.clear();
   }
 
-/*  @AfterAll
+  @AfterAll
   public static void cleanup(){
     File pluginFile = new File(testJarName);
     pluginFile.deleteOnExit();
     pluginDir.deleteOnExit();
-  } */
+  }
 
   @Getter
   static class Tags {
@@ -163,12 +161,9 @@ public class SamplePluginIntegrationTest {
       throw new RuntimeException(e);
     }
 
-    System.out.println("DEBUG SamplePluginMill.count " + SamplePluginMill.getMap().size());
     assertEquals(1, SamplePluginMill.size());
 
     PluginProperties props = SamplePluginMill.getPluginProps("InfluxLPSamplePlugin");
-    System.out.println("DEBUG SamplePluginMill props " + props.getName());
-    System.out.println("DEBUG props.getProperties() " + props.getProperties());
     assertEquals(defaultProps, props.getProperties());
     assertEquals(defaultProps.get("plugin.main"), props.getMain());
     assertEquals(defaultProps.get("plugin.name"), props.getName());
@@ -204,7 +199,6 @@ public class SamplePluginIntegrationTest {
 
     InfluxLPTestSample ts2 = om.readValue(sp.update().toJson(), InfluxLPTestSample.class);
 
-    System.out.println("DEBUG ts1.timestamp " + ts1.timestamp + " ts2.timestamp " + ts2.timestamp);
     assertNotEquals(ts1.timestamp, ts2.timestamp);
     assertEquals(ts1.measurement, ts2.measurement);
     assertEquals(ts1.tags.foo, ts2.tags.foo);
@@ -230,7 +224,6 @@ public class SamplePluginIntegrationTest {
       throw new RuntimeException(e);
     }
 
-    System.out.println("DEBUG SamplePluginMill.count " + SamplePluginMill.getMap().size());
     assertEquals(1, SamplePluginMill.size());
 
     PluginProperties props = SamplePluginMill.getPluginProps("InfluxLPSamplePlugin");
