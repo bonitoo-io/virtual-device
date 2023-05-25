@@ -1,13 +1,9 @@
 package io.bonitoo.qa.plugin.eg;
 
-import io.bonitoo.qa.conf.data.DataConfig;
 import io.bonitoo.qa.conf.data.ItemConfig;
-import io.bonitoo.qa.plugin.ItemGenPlugin;
+import io.bonitoo.qa.plugin.item.ItemGenPlugin;
 import io.bonitoo.qa.plugin.PluginProperties;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class CounterItemPlugin extends ItemGenPlugin {

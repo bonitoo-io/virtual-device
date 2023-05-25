@@ -9,7 +9,6 @@ import io.bonitoo.qa.conf.mqtt.broker.BrokerConfig;
 import io.bonitoo.qa.device.Device;
 import io.bonitoo.qa.device.GenericDevice;
 import io.bonitoo.qa.mqtt.client.MqttClientBlocking;
-import io.bonitoo.qa.plugin.ItemGenPlugin;
 import io.bonitoo.qa.plugin.Plugin;
 import io.bonitoo.qa.plugin.PluginConfigException;
 import io.bonitoo.qa.plugin.PluginLoader;

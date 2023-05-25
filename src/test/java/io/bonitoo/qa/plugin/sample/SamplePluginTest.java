@@ -1,4 +1,4 @@
-package io.bonitoo.qa.plugin;
+package io.bonitoo.qa.plugin.sample;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -6,6 +6,12 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.bonitoo.qa.conf.data.SampleConfig;
 import io.bonitoo.qa.data.Sample;
+import io.bonitoo.qa.plugin.PluginProperties;
+import io.bonitoo.qa.plugin.PluginResultType;
+import io.bonitoo.qa.plugin.PluginType;
+import io.bonitoo.qa.plugin.sample.SamplePlugin;
+import io.bonitoo.qa.plugin.sample.SamplePluginConfig;
+import io.bonitoo.qa.plugin.sample.SamplePluginConfigClass;
 import org.junit.jupiter.api.Test;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;

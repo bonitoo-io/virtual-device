@@ -1,9 +1,14 @@
-package io.bonitoo.qa.plugin;
+package io.bonitoo.qa.plugin.sample;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.bonitoo.qa.VirDevRuntimeException;
 import io.bonitoo.qa.conf.data.SampleConfig;
+import io.bonitoo.qa.plugin.PluginConfigException;
+import io.bonitoo.qa.plugin.PluginProperties;
+import io.bonitoo.qa.plugin.PluginResultType;
+import io.bonitoo.qa.plugin.PluginType;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -12,9 +17,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -39,7 +42,7 @@ public class SamplePluginMillTest {
     ClassNotFoundException, IllegalAccessException {
     String userDir = System.getProperty("user.dir");
 
-    File file = Objects.requireNonNull(new File(userDir + "/target/test-classes/io/bonitoo/qa/plugin/")
+    File file = Objects.requireNonNull(new File(userDir + "/target/test-classes/io/bonitoo/qa/plugin/sample/")
       .listFiles((dir, name) -> name.equals("SamplePluginTest$FooSamplePlugin.class")))[0];
 
     URL fileURL = new URL("file://" + file.getPath());
@@ -68,7 +71,7 @@ public class SamplePluginMillTest {
 
     PluginProperties props = SamplePluginMill.getPluginProps(defaultKey);
 
-    assertEquals(SamplePluginTest.defaultProps, props);
+    Assertions.assertEquals(SamplePluginTest.defaultProps, props);
 
   }
 
@@ -86,7 +89,7 @@ public class SamplePluginMillTest {
     Class<SamplePluginTest.FooSamplePlugin> clazz = (Class<SamplePluginTest.FooSamplePlugin>) SamplePluginMill.getPluginClass(defaultKey);
 
     assertEquals("FooSamplePlugin", clazz.getSimpleName());
-    assertEquals(SamplePluginTest.defaultProps, SamplePluginMill.getPluginProps(defaultKey));
+    Assertions.assertEquals(SamplePluginTest.defaultProps, SamplePluginMill.getPluginProps(defaultKey));
   }
 
   @Test
@@ -205,9 +208,9 @@ public class SamplePluginMillTest {
     assertThrowsExactly(PluginConfigException.class,
       () -> SamplePluginMill.genNewInstance(barConf),
       "Cannot instantiate pluginClass " +
-        "io.bonitoo.qa.plugin.SamplePluginMillTest$BarSamplePlugin.  " +
+        "io.bonitoo.qa.plugin.sample.SamplePluginMillTest$BarSamplePlugin.  " +
         "It Must have a static \"create\" method with parameter: " +
-        "io.bonitoo.qa.plugin.SamplePluginConfig");
+        "io.bonitoo.qa.plugin.sample.SamplePluginConfig");
   }
 
   @Test

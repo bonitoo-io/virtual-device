@@ -5,9 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.bonitoo.qa.conf.VirDevConfigException;
-import io.bonitoo.qa.data.GenericSample;
 import io.bonitoo.qa.data.ItemType;
-import io.bonitoo.qa.plugin.SamplePluginConfig;
+import io.bonitoo.qa.plugin.sample.SamplePluginConfig;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 

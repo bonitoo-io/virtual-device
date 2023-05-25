@@ -2,7 +2,7 @@ package io.bonitoo.qa.data.generator;
 
 import io.bonitoo.qa.conf.VirDevConfigException;
 import io.bonitoo.qa.conf.data.DataConfig;
-import io.bonitoo.qa.plugin.ItemPluginMill;
+import io.bonitoo.qa.plugin.item.ItemPluginMill;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
 import org.slf4j.Logger;

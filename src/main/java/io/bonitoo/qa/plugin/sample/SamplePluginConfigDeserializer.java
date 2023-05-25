@@ -1,4 +1,4 @@
-package io.bonitoo.qa.plugin;
+package io.bonitoo.qa.plugin.sample;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.TreeNode;

@@ -1,4 +1,4 @@
-package io.bonitoo.qa.plugin;
+package io.bonitoo.qa.plugin.sample;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

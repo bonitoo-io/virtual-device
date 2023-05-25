@@ -1,7 +1,7 @@
 package io.bonitoo.qa.plugin;
 
-import io.bonitoo.qa.conf.Config;
 import io.bonitoo.qa.conf.VirDevConfigException;
+import io.bonitoo.qa.plugin.item.ItemPluginMill;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;

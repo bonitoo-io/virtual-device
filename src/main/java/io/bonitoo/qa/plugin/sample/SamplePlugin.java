@@ -1,4 +1,4 @@
-package io.bonitoo.qa.plugin;
+package io.bonitoo.qa.plugin.sample;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -11,6 +11,9 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.function.Function;
+
+import io.bonitoo.qa.plugin.Plugin;
+import io.bonitoo.qa.plugin.PluginProperties;
 import lombok.Getter;
 import lombok.Setter;
 

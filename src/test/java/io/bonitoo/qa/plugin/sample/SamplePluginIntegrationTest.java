@@ -1,4 +1,4 @@
-package io.bonitoo.qa.plugin;
+package io.bonitoo.qa.plugin.sample;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,6 +10,7 @@ import io.bonitoo.qa.conf.device.DeviceConfig;
 import io.bonitoo.qa.data.ItemType;
 import io.bonitoo.qa.device.GenericDevice;
 import io.bonitoo.qa.mqtt.client.MqttClientBlocking;
+import io.bonitoo.qa.plugin.*;
 import io.bonitoo.qa.plugin.eg.*;
 import io.bonitoo.qa.plugin.util.JarTool;
 import lombok.Getter;
@@ -170,7 +171,7 @@ public class SamplePluginIntegrationTest {
     assertEquals(defaultProps.get("plugin.version"), props.getVersion());
     assertEquals(defaultProps.get("plugin.description"), props.getDescription());
     assertEquals(defaultProps.get("plugin.resultType"), props.getResultType().toString());
-    assertEquals(PluginType.Sample, props.getType());
+    Assertions.assertEquals(PluginType.Sample, props.getType());
     assertEquals(defaultProps.get("plugin.label"), props.getLabel()); // N.B. label is ignored for Samples
 
     InfluxLPSamplePluginConf conf = new InfluxLPSamplePluginConf("random",
@@ -208,6 +209,7 @@ public class SamplePluginIntegrationTest {
 
   }
 
+//  @Disabled("for some reason not working now in maven")
   @Test
   public void runSamplePlugin() throws InterruptedException {
 

@@ -1,4 +1,4 @@
-package io.bonitoo.qa.plugin;
+package io.bonitoo.qa.plugin.sample;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.bonitoo.qa.conf.data.ItemConfig;

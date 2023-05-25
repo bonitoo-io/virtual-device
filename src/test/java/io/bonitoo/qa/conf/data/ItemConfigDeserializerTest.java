@@ -8,6 +8,7 @@ import io.bonitoo.qa.conf.VirDevConfigException;
 import io.bonitoo.qa.data.ItemType;
 import io.bonitoo.qa.plugin.*;
 import io.bonitoo.qa.plugin.eg.EmptyItemGenPlugin;
+import io.bonitoo.qa.plugin.item.ItemPluginMill;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

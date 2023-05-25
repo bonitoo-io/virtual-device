@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.bonitoo.qa.conf.data.SampleConfigDeserializer;
-import io.bonitoo.qa.plugin.SamplePluginConfig;
+import io.bonitoo.qa.plugin.sample.SamplePluginConfig;
 
 import java.io.IOException;
 import java.util.HashMap;

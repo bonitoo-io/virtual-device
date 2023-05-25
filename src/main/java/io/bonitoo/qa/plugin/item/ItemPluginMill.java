@@ -1,4 +1,4 @@
-package io.bonitoo.qa.plugin;
+package io.bonitoo.qa.plugin.item;
 
 import io.bonitoo.qa.conf.Config;
 import io.bonitoo.qa.conf.VirDevConfigException;
@@ -9,6 +9,10 @@ import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import io.bonitoo.qa.plugin.Plugin;
+import io.bonitoo.qa.plugin.PluginConfigException;
+import io.bonitoo.qa.plugin.PluginProperties;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

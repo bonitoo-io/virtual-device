@@ -12,11 +12,16 @@ import io.bonitoo.qa.conf.data.SampleConfig;
 import io.bonitoo.qa.conf.device.DeviceConfig;
 import io.bonitoo.qa.device.GenericDevice;
 import io.bonitoo.qa.mqtt.client.MqttClientBlocking;
+import io.bonitoo.qa.plugin.item.ItemGenPlugin;
+import io.bonitoo.qa.plugin.item.ItemPluginMill;
+import io.bonitoo.qa.plugin.sample.SamplePlugin;
+import io.bonitoo.qa.plugin.sample.SamplePluginMill;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -35,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
+
 
 @ExtendWith(MockitoExtension.class)
 public class PluginIntegrationTest {

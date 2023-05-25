@@ -11,6 +11,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Properties;
+
+import io.bonitoo.qa.plugin.item.ItemPluginMill;
+import io.bonitoo.qa.plugin.sample.SamplePluginMill;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
