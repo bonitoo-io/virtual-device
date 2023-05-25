@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import io.bonitoo.qa.conf.data.SampleConfig;
 import io.bonitoo.qa.data.Sample;
 import io.bonitoo.qa.plugin.PluginProperties;
 import io.bonitoo.qa.plugin.SamplePlugin;
@@ -14,24 +13,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.lang.invoke.MethodHandles;
 import java.util.Map;
 
-/*
-{
-        "measurement": "temperature",
-        "tags": {
-            "sensor": "TMP36",
-            "location": "3CR2+CJ"
-        },
-        "fields": {
-            "temperature": 18.6,
-            "pressure": 28.3
-        },
-        "timestamp": "2023-01-13T12:30:00Z"
-    },
- */
 @Getter
 @Setter
 @SamplePluginConfigClass(conf = InfluxLPSamplePluginConf.class)
@@ -90,7 +74,4 @@ public class InfluxLPSamplePlugin extends SamplePlugin {
     return ow.writeValueAsString(this);
   }
 
-  public static InfluxLPSamplePlugin create(SampleConfig sampleConfig) {
-    return null;
-  }
 }

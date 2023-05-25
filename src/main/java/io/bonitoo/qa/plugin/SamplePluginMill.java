@@ -169,14 +169,6 @@ public class SamplePluginMill {
     //    System.out.println("DEBUG conforms " + getCreateMethod(clazz));
 
     try {
-      /* Method m = clazz.getDeclaredMethod("create", SamplePluginConfig.class);
-      // todo check return type of m is correct
-      if (! Modifier.isStatic(m.getModifiers())) {
-        throw new PluginConfigException(
-          String.format("The plugin class %s "
-              + "must implement a static method \"create\" with parameter %s",
-            clazz.getName(), SamplePluginConfig.class.getName()));
-      } */
       Method m = getCreateMethod(clazz);
       return SamplePlugin.of(m, spConfig, getPluginProps(pluginName));
     } catch (NoSuchMethodException e) {
