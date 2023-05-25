@@ -2,8 +2,8 @@
 
 Two types of plugins can be added to the Virtual Device runner:
 
-   * Item Plugins - for generating primitive values.  Item plugins need to extend the `ItemGenPlugin` class. 
-   * Sample Plugins - for generating complete sample payloads including their primitive item values.
+   * Item Plugins - for generating primitive values.  
+   * Sample Plugins - for generating complete sample payloads including their primitive item values.  
 
 Plugins are jar files with a main class extending one of two classes:
    * `ItemGenPlugin` for Item plugins. The key method from this class that a plugin must override is:
@@ -26,7 +26,7 @@ Plugins must also contain a `plugin.props` file.  At a minimum this file needs t
       * `Double`,
       * `Long`, 
       * `String`.  
-   * `plugin.label` - default label to be used when serializing the results of an Item Plugin as part of a sample.  
+   * `plugin.label` - default label to be used when serializing the results of an Item Plugin as part of a sample.  This value can be overridden on YAML configuration files. 
 
 For primitive results of type `Double` a precision property `plugin.dec.prec` of type integer can be added, to specify the floating point decimal precision of a value to be used during serialization. (Note see issue [6](https://github.com/bonitoo-io/virtual-device/issues/6)).
 
@@ -37,14 +37,14 @@ Additional properties can be defined for use in specific plugins.
 When the default device runner starts it scans the `plugins/` directory for any jar files and attempts to load them into the environment.  Subdirectories will not be scanned.  They are therefore an ideal location for storing examples, that can be activated by being copied into the `plugins/` directory before starting the runner.  The copies can also be removed from the directory to remove them from the environment on a subsequent device runner load and run.  
 
 When first loaded the plugin class is generated and saved into a registry.  Later, new instances get generated and bound to samples or items based on their YAML configurations.  During the remainder of runtime the plugin needs to generate one of the following.  
-   * ItemPlugin - primitive data to be used in sample payload fields.  This is done through the overloaded `genData()` method gets called.  It must generate and return a value of the type specified by the property `plugin.resultType`.
+   * ItemPlugin - primitive data to be used in sample payload fields.  This is done through the overloaded `genData()` method.  It must generate and return a value of the type specified by the property `plugin.resultType`.
    * SamplePlugin - a complete JSON sample payload.  This is done through the overloaded `update()` method.
 
 These methods will be repeatedly called based on the `interval` property of the device to which they are attached. 
 
 Plugin instances last until they and the items or samples to which they are bound get garbage collected.  Generally this means for the life of the device runner.  Class references in the registry last for the life of the device runner.  
 
-#### Item plugins
+### Item plugins
 
 Once an Item Plugin is loaded it can be referenced in an Item configuration.  
 
@@ -65,7 +65,7 @@ The abstract class `ItemGenPlugin`, which extends `DataGenPlugin`, provides the 
    * `onLoad()` -  intended to be used to set up any background or global values needed by a plugin instance.  For example, it is a good place to set the `enabled` property to `true`.
    * `genData()` - returns an object and accepts a variable array of object arguments.  The return value needs to be of the type defined in `plugin.resultType`.
 
-**An Example Plugin**
+**An Example Item Plugin**
 
 _AcceleratorPlugin.java_
 ```java
@@ -163,8 +163,16 @@ plugin.label=speed
 initial.speed=3.0
 initial.accel=0.5
 ```
+_A configuration using the plugin_
+```yaml
+    - name: "speed"
+      label: "speed"
+      type: "Plugin"
+      pluginName: "AcceleratorPlugin"
+      resultType: "Double"
+```
 
-#### Sample plugins
+### Sample plugins
 
 A Sample Plugin requires the extension of the following class:
 
@@ -188,67 +196,119 @@ The class referred to by the plugin property `plugin.main` needs to override or 
    * `public void applyProps(PluginProperties props)` - needed to set any special values defined in the `plugin.props` file. 
    * `public String toJson()` - needed to serialize the current state of the plugin to a JSON payload. 
 
+**An Example Sample Plugin**
+
 _SamplePlugin example_
 ```java
 @Getter
-@Setter
-@SamplePluginConfigClass(conf = InfluxLPSamplePluginConf.class)
-@JsonSerialize(using = InfluxLPSampleSerializer.class)
-public class InfluxLPSamplePlugin extends SamplePlugin {
+@SamplePluginConfigClass(conf = LPFileReaderPluginConf.class)
+@JsonSerialize(using = LPFileReaderPluginSerializer.class)
+public class LPFileReaderPlugin extends SamplePlugin {
 
-  static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-  String measurement;
+     String lpFile;
 
-  Map<String, String> tags;
+     List<LineProtocol> lines;
 
-  public static InfluxLPSamplePlugin create(SamplePluginConfig conf){
+     int index;
+     public static LPFileReaderPlugin create(LPFileReaderPluginConf conf){
 
-    return new InfluxLPSamplePlugin(null,
-      conf,
-      ((InfluxLPSamplePluginConf)conf).getMeasurement(),
-      ((InfluxLPSamplePluginConf)conf).getTags());
-  }
+          // should have been loaded into SamplePluginMill by PluginLoader
+          return new LPFileReaderPlugin(SamplePluginMill.getPluginProps(conf.getPlugin()), conf);
 
-  // N.B. use items from parent sample for fields
-  public InfluxLPSamplePlugin(PluginProperties props, SamplePluginConfig config, String measurement, Map<String,String> tags) {
-    super(props, config);
-    this.measurement = measurement;
-    this.tags = tags;
-  }
+     }
 
-  public InfluxLPSamplePlugin(PluginProperties props, SamplePluginConfig config, Object... args){
-    super(props, config);
-    this.measurement = (String)args[0];
-    this.tags = (Map<String, String>) args[1];
-  }
+     public LPFileReaderPlugin(PluginProperties props, LPFileReaderPluginConf conf) {
+          super(props, conf);
+          lines = new ArrayList<>();
+          lpFile = conf.getSource() != null ? conf.getSource() : (String) props.getProperties().get("default.lp.file");
+          index = 0;
+     }
 
-  @Override
-  public Sample update() {
-    super.update();
-    for(String itemName : this.getItems().keySet()){
-      this.getItems().get(itemName).update();
-    }
-    return this;
-  }
+     @Override
+     public LPFileReaderPlugin update(){
+          index++;
+          if(index >= lines.size()){
+               index = 0;
+          }
+          lines.get(index).setTimestamp(System.currentTimeMillis());
+          return this;
+     }
 
-  @Override
-  public void onLoad() {
-    enabled = true;
-  }
+     @Override
+     public String toJson() throws JsonProcessingException {
+          ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+          return ow.writeValueAsString(this);
+     }
 
-  @Override
-  public void applyProps(PluginProperties props) {
-    // holder
-    logger.info("applyProps called " + props.getMain());
-  }
+     protected File resolveSourceFile() throws URISyntaxException {
+          ClassLoader loader = Thread.currentThread().getContextClassLoader();
+          URL fileUrl = loader.getResource(lpFile);
+          File result;
+          if( fileUrl != null){ // located as resource
+               return new File(Objects.requireNonNull(loader.getResource(lpFile)).toURI());
+          }
 
-  @Override
-  public String toJson() throws JsonProcessingException {
-    ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-    return ow.writeValueAsString(this);
-  }
+          return new File(lpFile);
+     }
+
+     @Override
+     public void onLoad(){
+          super.onLoad();
+
+          try {
+               File inputFile = resolveSourceFile();
+               try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
+                    String line;
+                    while((line = br.readLine()) != null){
+                         LineProtocol lp = LineProtocol.parseLP(line);
+                         if(lp != null) {
+                              lines.add(LineProtocol.parseLP(line));
+                         }
+                    }
+               } catch (IOException e) {
+                    throw new LPFileReaderPluginException(e);
+               }
+          } catch (URISyntaxException e) {
+               throw new LPFileReaderPluginException(e);
+          }
+
+     }
+
+     @Override
+     public void applyProps(PluginProperties pluginProperties) {
+          // holder
+     }
+
+     public LineProtocol get(int ndx){
+          return lines.get(ndx);
+     }
+
+     public LineProtocol getCurrent(){
+          return get(this.index);
+     }
 
 }
+```
 
+_plugin.props for the above_
+
+```properties
+plugin.main=io.bonitoo.virdev.plugin.LPFileReaderPlugin
+plugin.name=LPFileReader
+plugin.description=Reads Line Protocol files and sends to MQTT
+plugin.version=0.1
+plugin.type=Sample
+plugin.resultType=Json
+plugin.label=lp
+default.lp.file=test.lp
+```
+_A Sample configuration using the above_
+```yaml
+  - id: "random"
+    name: "LPFileReaderConf"
+    topic: "test/linep"
+    items: [ ]
+    plugin: "LPFileReader"
+    source: "./plugins/examples/lpFileReader/data/myTestLP.lp"
 ```
 
