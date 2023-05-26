@@ -44,7 +44,7 @@ For a quick peek at what this project does and how it works, try  `scripts/quick
    1. start the built-in listener. 
    1. copy plugins to the `plugins` directory, if required by the scenario. 
    1. run the publisher for a few seconds. 
-   1. read the listener log for comparison with the publisher log.
+   1. read the subscriber log for comparison with the publisher log.
    1. remove any copied plugins. 
    1. tear down the listener and broker.
 
@@ -70,7 +70,9 @@ RUNNING BASIC EXAMPLE
 ...
 ```
 
-## Build
+## Basic Tasks
+
+### Build
 
 To build a snapshot jar run the following.  
 
@@ -80,7 +82,7 @@ mvn clean package
 
 This will generate a runnable `virtual-device-<version>-<githash>.jar` file.
 
-## Run the subscriber utility
+### Run the subscriber utility
 
 The MQTT5Subscriber class is a simple utility useful in verifying published messages.  By default, it seeks to connect to an MQTT broker running at `localhost:1883`.  It then subscribes to the topic `test/#` but this can be changed with the property `sub.topic`, eg `-Dsub.topic=stoker/co2`.  To start a dockerized instance of the Mosquitto broker see the [Mosquitto](#starting-mosquitto-docker) section below. 
 
@@ -90,7 +92,7 @@ MQTT5Subscriber is currently runnable only as a compiled class.  This is most ea
 mvn exec:java -Dmain.class="io.bonitoo.qa.Mqtt5Subscriber" 
 ```
 
-## Run Default Publisher
+### Run Default Publisher
 
 After building the package through maven, the publisher can be run either directly as a class with Maven, or through the packaged jar.
 
