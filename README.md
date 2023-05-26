@@ -21,6 +21,16 @@ The project is drawn together through the base `DeviceRunner` class.  It also pr
 * `DeviceRunner` - sets up and runs a list of devices.
 * `Mqtt5Subscriber` - included as a simple utility for subscribing to topics and inspecting MQTT broker messaging.
 
+**Basic Structure**
+
+When working with virtual devices in this project keep in mind that the following class structure, from the bottom up, is used:
+
+   * _Data Generator_ - generates primitive values of type Long, Double or String.
+   * _Item_ - encapsulates the results of a Data Generator adding to them a label and a name, so that the item can be handled elsewhere. 
+   * _Sample_ - encapsulates a set of Items adding with them an MQTT topic and a timestamp of when they were generated.
+   * _Device_ - encapsulates a set of Samples, times the value updates and handles communication with the MQTT broker. 
+   * _DeviceRunner_ - encapsulates a set of Devices, manages their threads and sets up the broker client.  
+
 **Configurability**
 
 Devices are fully configurable using a runner configuration YAML file.  Internally devices can use a standard numeric or string generator to create values for primitive payload item fields.  More sophisticated random value generators can be added through the [Item Plugins](plugins/README.md#Item-plugins) interface.  
@@ -129,13 +139,13 @@ The life of the device runner is determined by the configuration value `ttl` in 
 3. **Generate Samples** - each device is isolated in its own thread.  Devices then generate sample data and send messages to the MQTT broker at millisecond intervals determined by the `interval` configuration property.
 4. **Shutdown** - once the TTL point is reached, the device runner ends all device threads and terminates the run.  
 
-## Configuration
+## System Configuration
 
 Base configuration of default values including the location of the runner configuration file is currently handled in the file `src/main/resources/virtualdevice.props`.  The most important property to be set in this file is `runner.conf` which defines the YAML file for configuring the device runner.
 
 An alternate base property file can be defined through the environment variable `VIRTUAL_DEVICE_CONFIG`.
 
-## Configuring a Generic Device Runner
+## Configuring the Generic Device Runner
 
 The file indicated by the `runner.conf` property must be a valid YAML file. It needs to define the following fields.
 
