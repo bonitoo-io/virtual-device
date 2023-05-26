@@ -48,9 +48,10 @@ For a quick peek at what this project does and how it works, try  `scripts/quick
    1. remove any copied plugins. 
    1. tear down the listener and broker.
 
-It offers three simple scenarios. 
+It offers four simple scenarios. 
 
    * `no args` - runs a simple scenario without plugins.
+   * `nrf9160` - runs with the `runner.conf` file set to `examples/nrf9160/thingy91.yml`
    * `itemPlugin` - runs a scenario with the accelerator item plugin. 
    * `samplePlugin` - runs a scenario with the lpFileReader sample plugin. 
 

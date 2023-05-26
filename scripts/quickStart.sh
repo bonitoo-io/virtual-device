@@ -36,6 +36,7 @@ function help(){
   echo "$MY_NAME              - runs the basic configuration without plugins"
   echo "$MY_NAME itemPlugin   - runs a configuration with an item plugin"
   echo "$MY_NAME samplePlugin - runs a confguration with a sample plugin"
+  echo "$MY_NAME nrf9160      - runs without plugins but with example runner.conf"
   echo "$MY_NAME help         - returns this message"
 }
 
@@ -178,6 +179,22 @@ function sample_plugin_example(){
 
 }
 
+function sample_nrf9160(){
+  setup
+  printf "\n\nRUNNING NRF9160 THINGY EXAMPLE\n"
+  printf "=======================\n"
+
+  java -Drunner.conf=examples/nrf9160/thingy91.yml -jar target/${VIRDEV_JAR};
+
+  printf "\n\nDONE PUBLISHING NRF9160 THINGY EXAMPLE\n"
+  printf "=============================\n"
+
+  read_log
+  shutdown
+}
+
+# TODO use case with special runner config only
+
 case $1 in
   "itemPlugin")
      item_plugin_example
@@ -185,12 +202,15 @@ case $1 in
   "samplePlugin")
      sample_plugin_example
      ;;
-   "")
-    base_example
-    ;;
+  "nrf9160")
+     sample_nrf9160
+     ;;
+  "")
+     base_example
+     ;;
   *)
-    help;
-    ;;
+     help;
+     ;;
 esac
 
 cd ${START_DIR} || exit
