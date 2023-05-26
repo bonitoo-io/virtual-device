@@ -33,7 +33,7 @@ When working with virtual devices in this project keep in mind that the followin
 
 **Configurability**
 
-Devices are fully configurable using a runner configuration YAML file.  Internally devices can use a standard numeric or string generator to create values for primitive payload item fields.  More sophisticated random value generators can be added through the [Item Plugins](plugins/README.md#Item-plugins) API. The [Sample Plugins](plugins/README#Sample-plugins) API permits the creation of more sophisticated sample payloads.   
+Devices are fully configurable using a runner configuration YAML file.  Internally devices can use a standard numeric or string generator to create values for primitive payload item fields.  More sophisticated random value generators can be added through the [Item Plugins](plugins/README.md#Item-plugins) API. The [Sample Plugins](plugins/README.md#Sample-plugins) API permits the creation of more sophisticated sample payloads.   
 
 ## System requirements
 
