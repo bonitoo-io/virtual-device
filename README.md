@@ -36,6 +36,39 @@ For best results it should be built with these versions or higher of these platf
 
 Support scripts are written in bash to be run on linux.  Bash version 5.1.16 was used. 
 
+## Quick Start
+
+For a quick peek at what this project does and how it works, try  `scripts/quickStart.sh`.  This will
+   1. quick build the project, if not already built. 
+   1. start a Mosquitto MQTT5 broker container on `localhost`, if not already running. 
+   1. start the built-in listener. 
+   1. copy plugins to the `plugins` directory, if required by the scenario. 
+   1. run the publisher for a few seconds. 
+   1. read the listener log for comparison with the publisher log.
+   1. remove any copied plugins. 
+   1. tear down the listener and broker.
+
+It offers three simple scenarios. 
+
+   * `no args` - runs a simple scenario without plugins.
+   * `itemPlugin` - runs a scenario with the accelerator item plugin. 
+   * `samplePlugin` - runs a scenario with the lpFileReader sample plugin. 
+
+For example: 
+
+```bash
+$ scripts/quickStart.sh 
+Connection to 127.0.0.1 1883 port [tcp/*] succeeded!
+Found Mosquitto at 1883
+Mqtt5Subscriber started with PID 37103.  Output piped to scripts/mqtt5subscriber.log
+
+
+RUNNING BASIC EXAMPLE
+=======================
+2023-05-26T14:59:07.698+0200 [main] INFO Config - config: Reading base config - virtualdevice.props
+...
+```
+
 ## Build
 
 To build a snapshot jar run the following.  

@@ -178,9 +178,6 @@ function sample_plugin_example(){
 
 }
 
-echo "DEBUG VIRDEV_JAR $VIRDEV_JAR"
-echo "DEBUG PWD $PWD"
-
 case $1 in
   "itemPlugin")
      item_plugin_example
