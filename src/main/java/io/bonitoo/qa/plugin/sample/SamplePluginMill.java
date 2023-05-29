@@ -1,6 +1,6 @@
 package io.bonitoo.qa.plugin.sample;
 
-import io.bonitoo.qa.VirDevRuntimeException;
+import io.bonitoo.qa.VirtualDeviceRuntimeException;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -42,7 +42,7 @@ public class SamplePluginMill {
     if (pluginPackMap.containsKey(key)) {
       return pluginPackMap.get(key).pluginClass;
     }
-    throw new VirDevRuntimeException(String.format("No class found for key %s", key));
+    throw new VirtualDeviceRuntimeException(String.format("No class found for key %s", key));
   }
 
   public static void addPluginClass(String key,
@@ -84,7 +84,7 @@ public class SamplePluginMill {
     if (pluginPackMap.containsKey(key)) {
       return pluginPackMap.get(key).pluginProps;
     }
-    throw new VirDevRuntimeException(String.format("No properties found for key %s", key));
+    throw new VirtualDeviceRuntimeException(String.format("No properties found for key %s", key));
   }
 
   /**

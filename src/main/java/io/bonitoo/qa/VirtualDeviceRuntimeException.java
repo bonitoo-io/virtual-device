@@ -3,8 +3,8 @@ package io.bonitoo.qa;
 /**
  * Encapsulates Virtual Device exceptions that occur during runtime.
  */
-public class VirDevRuntimeException extends RuntimeException {
-  public VirDevRuntimeException(String s) {
+public class VirtualDeviceRuntimeException extends RuntimeException {
+  public VirtualDeviceRuntimeException(String s) {
     super(s);
   }
 }

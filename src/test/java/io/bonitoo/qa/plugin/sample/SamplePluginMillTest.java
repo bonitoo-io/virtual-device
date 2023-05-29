@@ -1,7 +1,7 @@
 package io.bonitoo.qa.plugin.sample;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.bonitoo.qa.VirDevRuntimeException;
+import io.bonitoo.qa.VirtualDeviceRuntimeException;
 import io.bonitoo.qa.conf.data.SampleConfig;
 import io.bonitoo.qa.plugin.PluginConfigException;
 import io.bonitoo.qa.plugin.PluginProperties;
@@ -216,14 +216,14 @@ public class SamplePluginMillTest {
   @Test
   public void getPluginClassInexistant(){
     final String testKey = "ABCD1234";
-    assertThrowsExactly(VirDevRuntimeException.class, () -> SamplePluginMill.getPluginClass(testKey),
+    assertThrowsExactly(VirtualDeviceRuntimeException.class, () -> SamplePluginMill.getPluginClass(testKey),
       String.format(" No class found for key %s", testKey));
   }
 
   @Test
   public void getPluginPropsInexistant(){
     final String testKey = "ABCD1234";
-    assertThrowsExactly(VirDevRuntimeException.class, () -> SamplePluginMill.getPluginProps(testKey),
+    assertThrowsExactly(VirtualDeviceRuntimeException.class, () -> SamplePluginMill.getPluginProps(testKey),
       String.format(" No properties found for key %s", testKey));
   }
 }
