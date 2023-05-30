@@ -76,15 +76,9 @@ public class ItemConfigDeserializer extends VirDevDeserializer<ItemConfig> {
         ItemPluginConfig result = new ItemPluginConfig(props, name);
         if (prNode != null) {
           int precision = prNode.asInt();
-          System.out.println("DEBUG precision " + precision);
           result.setPrec(precision);
-         // return new ItemPluginConfig(props, name, precision);
-        } else {
-          System.out.println("DEBUG precision NOT DEFIINED");
-          //return new ItemPluginConfig(props, name);
         }
         // TODO resolve updateArgs - when plugin uses them - only zero args is currently stable
-       // PluginProperties props = ItemPluginMill.getPluginProps(plugin);
        return result;
       default:
         throw new VirDevConfigException("Cannot instantiate config for type " + type);
