@@ -2,6 +2,8 @@ package io.bonitoo.qa.plugin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import io.bonitoo.qa.plugin.item.ItemPluginMill;
+import io.bonitoo.qa.plugin.sample.SamplePluginMill;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,9 +13,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Properties;
-
-import io.bonitoo.qa.plugin.item.ItemPluginMill;
-import io.bonitoo.qa.plugin.sample.SamplePluginMill;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
