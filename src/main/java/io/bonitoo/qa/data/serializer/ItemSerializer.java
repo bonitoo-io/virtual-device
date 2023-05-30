@@ -67,8 +67,10 @@ public class ItemSerializer extends StdSerializer<Item> {
           case Double:
             Integer pprec = ((ItemPluginConfig) item.getConfig()).getPrec();
             if (pprec != null) {
+              System.out.println("DEBUG pprec " + pprec);
               jsonGen.writeNumber(Item.precision(item.asDouble(), pprec));
             } else {
+              System.out.println("DEBUG pprec is null");
               jsonGen.writeNumber(item.asDouble());
             }
             break;

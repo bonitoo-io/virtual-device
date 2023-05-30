@@ -19,6 +19,7 @@ devices:
       type: "Plugin"
       pluginName: "AcceleratorPlugin"
       resultType: "Double"
+      prec: 3
   interval: 500
   jitter: 100
   count: 3

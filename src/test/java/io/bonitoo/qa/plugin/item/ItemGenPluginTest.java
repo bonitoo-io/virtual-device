@@ -176,7 +176,7 @@ public class ItemGenPluginTest {
   }
 
   @Test
-  public void itemPluginWithPrecTest() throws JsonProcessingException {
+  public void itemPluginWithPrecPropTest() throws JsonProcessingException {
 
     Properties additional = new Properties();
     additional.setProperty("plugin.decimal.prec", "3");
@@ -203,6 +203,39 @@ public class ItemGenPluginTest {
     assertEquals(Math.PI, item.asDouble());
 
   }
+
+  // verify that prec from config file has precedence
+  @Test
+  public void itemPluginWithPrecConfTest() throws JsonProcessingException {
+
+    Properties additional = new Properties();
+    additional.setProperty("plugin.decimal.prec", "2");
+    PluginProperties props = new PluginProperties(PiItemGenPlugin.class.getName(),
+      "PiTestItemPlugin",
+      "val",
+      "A Test Plugin",
+      "0.0.1",
+      PluginType.Item,
+      PluginResultType.Double,
+      additional
+    );
+
+    PiItemGenPlugin plugin = new PiItemGenPlugin(props, null, true);
+    ItemPluginConfig conf = new ItemPluginConfig(props, props.getName() + "01", new Vector<>());
+    conf.setPrec(4);
+    plugin.setDataConfig(conf);
+
+    Item item = Item.of(plugin.getItemConfig());
+
+    ObjectWriter ow = new ObjectMapper().writer();
+
+    String val = ow.writeValueAsString(item);
+
+    assertEquals(3.1415, Double.parseDouble(val));
+    assertEquals(Math.PI, item.asDouble());
+
+  }
+
 
   @Test
   public void itemPluginLiteralWithPrecTest() throws IOException, PluginConfigException {
