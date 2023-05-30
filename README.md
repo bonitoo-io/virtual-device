@@ -2,9 +2,9 @@
 
 ![build workflow](https://github.com/bonitoo-io/virtual-device/actions/workflows/default-build.yml/badge.svg)
 
-This project offers virtual devices for testing IoT frameworks communicating through MQTT.  The device runner can start one or more devices, each of which publishes randomly generated data samples as MQTT messages with a JSON payload.  Data samples are made up of a topic as defined in the MQTT specification, and the payload.  The payload contains at a minimum the sample ID, a timestamp of when the sample was generated, and other configurable items containing randomly generated values.
+This project offers virtual devices for testing IoT frameworks communicating through MQTT.  The device runner can start one or more devices, each of which publishes randomly generated data samples as MQTT messages with a JSON payload.  Data samples are made up of a topic as defined in the MQTT specification, and the payload.  The default payload contains at a minimum the sample ID, a timestamp of when the sample was generated, and other configurable items containing randomly generated values.
 
-*Generated payload example.*
+*Generated default payload example.*
 
 ```json
 {
@@ -14,15 +14,26 @@ This project offers virtual devices for testing IoT frameworks communicating thr
      "lumens":691.7
 }
 ```
+The project is designed to be extensible through plugins.  With an Item plugin it is possible to use custom data generators for values in payload fields.  With a Sample plugin it is possible to design all together custom payloads, that need not conform to the default structure.
 
 The project is drawn together through the base `DeviceRunner` class.  It also provides a subscriber utility.
 
 * `DeviceRunner` - sets up and runs a list of devices.
 * `Mqtt5Subscriber` - included as a simple utility for subscribing to topics and inspecting MQTT broker messaging.
 
+**Basic Structure**
+
+When working with virtual devices in this project keep in mind that the following class structure, from the bottom up, is used:
+
+   * _Data Generator_ - generates primitive values of type Long, Double or String.
+   * _Item_ - encapsulates the results of a Data Generator adding to them a label and a name, so that the item can be handled elsewhere. 
+   * _Sample_ - encapsulates a set of Items adding with them an MQTT topic and a timestamp of when they were generated.
+   * _Device_ - encapsulates a set of Samples, times the value updates and handles communication with the MQTT broker. 
+   * _DeviceRunner_ - encapsulates a set of Devices, manages their threads and sets up the broker client.  
+
 **Configurability**
 
-Devices are fully configurable using a runner configuration YAML file.  Internally devices can use a standard numeric or string generator to create values for primitive payload item fields.  More sophisticated random value generators can be added through the [Item Plugins](plugins/README.md) interface.  
+Devices are fully configurable using a runner configuration YAML file.  Internally devices can use a standard numeric or string generator to create values for primitive payload item fields.  More sophisticated random value generators can be added through the [Item Plugins](plugins/README.md#Item-plugins) API. The [Sample Plugins](plugins/README.md#Sample-plugins) API permits the creation of more sophisticated sample payloads.   
 
 ## System requirements
 
@@ -35,7 +46,43 @@ For best results it should be built with these versions or higher of these platf
 
 Support scripts are written in bash to be run on linux.  Bash version 5.1.16 was used. 
 
-## Build
+## Quick Start
+
+For a quick peek at what this project does and how it works, try  `scripts/quickStart.sh`.  This will
+   1. quick build the project, if not already built. 
+   1. start a Mosquitto MQTT5 broker container on `localhost`, if not already running. 
+   1. start the built-in listener. 
+   1. copy plugins to the `plugins` directory, if required by the scenario. 
+   1. run the publisher for a few seconds. 
+   1. read the subscriber log for comparison with the publisher log.
+   1. remove any copied plugins. 
+   1. tear down the listener and broker.
+
+It offers four simple scenarios. 
+
+   * `no args` - runs a simple scenario without plugins.
+   * `nrf9160` - runs with the `runner.conf` file set to `examples/nrf9160/thingy91.yml`
+   * `itemPlugin` - runs a scenario with the accelerator item plugin. 
+   * `samplePlugin` - runs a scenario with the lpFileReader sample plugin. 
+
+For example: 
+
+```bash
+$ scripts/quickStart.sh 
+Connection to 127.0.0.1 1883 port [tcp/*] succeeded!
+Found Mosquitto at 1883
+Mqtt5Subscriber started with PID 37103.  Output piped to scripts/mqtt5subscriber.log
+
+
+RUNNING BASIC EXAMPLE
+=======================
+2023-05-26T14:59:07.698+0200 [main] INFO Config - config: Reading base config - virtualdevice.props
+...
+```
+
+## Basic Tasks
+
+### Build
 
 To build a snapshot jar run the following.  
 
@@ -45,7 +92,7 @@ mvn clean package
 
 This will generate a runnable `virtual-device-<version>-<githash>.jar` file.
 
-## Run the subscriber utility
+### Run the subscriber utility
 
 The MQTT5Subscriber class is a simple utility useful in verifying published messages.  By default, it seeks to connect to an MQTT broker running at `localhost:1883`.  It then subscribes to the topic `test/#` but this can be changed with the property `sub.topic`, eg `-Dsub.topic=stoker/co2`.  To start a dockerized instance of the Mosquitto broker see the [Mosquitto](#starting-mosquitto-docker) section below. 
 
@@ -55,7 +102,7 @@ MQTT5Subscriber is currently runnable only as a compiled class.  This is most ea
 mvn exec:java -Dmain.class="io.bonitoo.qa.Mqtt5Subscriber" 
 ```
 
-## Run Default Publisher
+### Run Default Publisher
 
 After building the package through maven, the publisher can be run either directly as a class with Maven, or through the packaged jar.
 
@@ -85,20 +132,20 @@ rm plugins/accelerator-0.1-SNAPSHOT.jar
 
 ## Lifecycle
 
-The life of the device runner is determined by the configuration value `ttl` in the configuration yaml or if this is not defined by the property `default.ttl` in `virtualdevice.props`.  It determines in milliseconds the length of time that the runner should keep generating values.
+The life of the device runner is determined by the configuration value `ttl` in the configuration yaml or, if this is not defined, by the property `default.ttl` in `virtualdevice.props`.  It determines in milliseconds the length of time that the runner should keep generating values.  The overall lifecycle consists of four basic phases.
 
 1. **Load Plugins** - the first task that the device runner undertakes is to scan the `plugins` directory for any generator plugins and then adds them to the runtime.  These are jar files whose main classes extend the `DataGenerator` class. 
 2. **Read Runner Configuration** - the runner configuration YAML file is then parsed and the items, samples and devices defined within get instantiated and coupled together.
-3. **Generate Samples** - each device is isolated in its own thread.  Devices now generate sample data and send messages to the MQTT broker at millisecond intervals determined by the `interval` configuration property.
+3. **Generate Samples** - each device is isolated in its own thread.  Devices then generate sample data and send messages to the MQTT broker at millisecond intervals determined by the `interval` configuration property.
 4. **Shutdown** - once the TTL point is reached, the device runner ends all device threads and terminates the run.  
 
-## Configuration
+## System Configuration
 
 Base configuration of default values including the location of the runner configuration file is currently handled in the file `src/main/resources/virtualdevice.props`.  The most important property to be set in this file is `runner.conf` which defines the YAML file for configuring the device runner.
 
 An alternate base property file can be defined through the environment variable `VIRTUAL_DEVICE_CONFIG`.
 
-## Configuring a Generic Device Runner
+## Configuring the Generic Device Runner
 
 The file indicated by the `runner.conf` property must be a valid YAML file. It needs to define the following fields.
 
@@ -132,11 +179,9 @@ Items represent the primitive elements in a sample, whose values can be randomly
   * `BuiltInTemp` - a builtin temperature generator.
   * other builtins can be added.
 
-Optional fields or fields required with the `Plugin` type:
+Fields associated with the `Plugin` type:
 
-* `updateArgs` - this is an array of field names taken from the configuration.  The values of these fields will be sent as arguments to the `genData()` method.  For builtin Item types such as numerical items and strings this need not be defined, as it gets set internally.  For plugins which use only an empty argument array, this can also be left out.  Note that the order in which the fields are named is important, as it needs to match the order in which the arguments are used in the `genData()` method. 
-
-Specific item types have additional requisite fields.
+* `updateArgs` - _required_ - this is an array of field names taken from the configuration.  The values of these fields will be sent as arguments to the item plugin's `genData()` method.  For plugins which use only an empty argument array, this can also be left out.  Note that the order in which the fields are named is important, as it needs to match the order in which the arguments are used in the `genData()` method. 
 
 #### Numerical Items
 
@@ -147,9 +192,28 @@ Specific item types have additional requisite fields.
 * `period` - a sinusoid period to regulate the range of generated values.  A value of 0 will generate no random values and will return either 0 or the mid-range of the max and min values if the spread does not include the value 0.
 * Constants - to set a constant value set max and min to the same value and the period to 0.
 
+_Double Item configuration example_
+```yaml
+  - name: "tension"
+    type: "Double"
+    label: "bar"
+    max: 2.0
+    min: -1.0
+    period: 1
+```
+
 #### String Items
 
 The `String` types require an array of strings from which one value will be chosen randomly whenever a new value gets generated.
+
+_Item as String constant example_
+```yaml
+  - name: "appLabel"
+    type: "String"
+    label: "app"
+    values:
+      - "luminescence"
+```
 
 #### Plugin Items
 
@@ -157,6 +221,15 @@ A plugin item type looks for a generator in an Item Plugin preloaded from the di
 
 * `pluginName` - name of the plugin as set in plugin properties.
 * `resultType` - the primitive type the plugin generates: e.g. `Double`,`Long`,`String`.
+
+_Item Plugin example_
+```yaml
+    - name: "speed"
+      label: "speed"
+      type: "Plugin"
+      pluginName: "AcceleratorPlugin"
+      resultType: "Double"
+```
 
 ### Samples
 
@@ -167,9 +240,19 @@ A sample represents a collection of data items to be published together using a 
 * `topic` - The MQTT topic under which the sample is published.
 * `items` - an array that can include either the names of previously defined items or new inline item definitions as above.
 
+_Basic Sample configuration example_
+```yaml
+  - id: "random"
+    name: "alpha"
+    topic: "test/alpha"
+    items:
+      - "tension"
+      - "nuts"
+```
+
 ### Devices
 
-This penultimate layer of abstraction represents an array of devices to be run.  Each device requires the following properties.
+This penultimate layer represents an array of devices to be run.  Each device requires the following properties.
 
 * `id` - an identifier for the device.  Here again the value `random` leads to an internally generated random UUID.
 * `name` - a name for the device.
@@ -178,6 +261,22 @@ This penultimate layer of abstraction represents an array of devices to be run. 
 * `jitter` - an offset in milliseconds for an additional short wait, useful when publishing samples from more than one device of the same type.
 * `count` - the number of devices of the type being defined to be created.  Default is 1.  If more than one device is run then its id and the id's of its samples will include a serial number suffix.
 * `samples` - an array of samples to be generated by the device.  These can be strings matching names of previously defined samples, or they can be inline definitions as above.
+
+_Basic Generic Device configuration example_
+```yaml
+  - id: "random"
+    name: "Test Device 01"
+    description: "testing device configuration"
+    interval: 1000
+    jitter: 0
+    count: 1
+    samples:
+      - "alpha"
+      - "beta"
+```
+### Runner
+
+Devices are then drawn together in the runner config, along with fields for configuring the broker connection.
 
 A sample runner config:
 
@@ -193,16 +292,19 @@ broker:
 items:
   - name: "tension"
     type: "Double"
+    label: "bar"
     max: 2.0
     min: -1.0
     period: 1
   - name: "nuts"
     type: "Long"
+    label: "nutcount"
     max: 100.0
     min: 1.0
     period: 1
   - name: "label"
     type: "String"
+    label: "label"
     values:
       - "Salted"
       - "unsalted"
@@ -220,6 +322,7 @@ samples:
     items:
       - "label"
       - name: "flowRate"
+        label: "cmps"
         type: Double
         max: 30
         min: 5
@@ -229,15 +332,16 @@ devices:
     name: "Test Device 01"
     description: "testing device configuration"
     interval: 1000
-    jitter: 200
-    count: 3
+    jitter: 0
+    count: 1
     samples:
       - "alpha"
+      - "beta"
   - id: "random"
     name: "Test Device 02"
     description: "test device configuration"
     interval: 3000
-    jitter: 0
+    jitter: 500
     count: 1
     samples:
       - beta
@@ -247,13 +351,15 @@ devices:
         items:
           - name: "radiance"
             type: "Double"
+            label: "lumens"
             max: 27
             min: 0.1
             period: 2
           - name: "appLabel"
             type: "String"
+            label: "app"
             values:
-              - "lumens"
+              - "luminescence"
 ```
 
 ## Architecture

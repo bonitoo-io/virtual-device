@@ -2,7 +2,7 @@ package io.bonitoo.qa.data.generator;
 
 import io.bonitoo.qa.conf.VirDevConfigException;
 import io.bonitoo.qa.conf.data.DataConfig;
-import io.bonitoo.qa.plugin.ItemPluginMill;
+import io.bonitoo.qa.plugin.item.ItemPluginMill;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
 import org.slf4j.Logger;
@@ -32,9 +32,8 @@ public abstract class DataGenerator<T extends DataConfig> {
     try {
       // check if plugin
       if (ItemPluginMill.hasPluginClass(className)) {
-        System.out.println("IS PLUGIN");
         logger.info(String.format("Creating DataGenerator instance of plugin class %s", className));
-        return ItemPluginMill.getPluginClassByName(className)
+        return (DataGenerator<? extends DataConfig>) ItemPluginMill.getPluginClassByName(className)
             .getDeclaredConstructor().newInstance(args);
       } else { // try systemLoader
         logger.info(String.format("Creating DataGenerator instance of internal class %s",

@@ -9,6 +9,7 @@ import io.bonitoo.qa.conf.data.*;
 import io.bonitoo.qa.conf.device.DeviceConfig;
 import io.bonitoo.qa.conf.mqtt.broker.AuthConfig;
 import io.bonitoo.qa.conf.mqtt.broker.BrokerConfig;
+import io.bonitoo.qa.data.GenericSample;
 import io.bonitoo.qa.data.ItemType;
 import io.bonitoo.qa.mqtt.client.MqttClientBlocking;
 import io.bonitoo.qa.conf.Config;

@@ -1,4 +1,4 @@
-package io.bonitoo.qa.plugin;
+package io.bonitoo.qa.plugin.item;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,6 +9,11 @@ import io.bonitoo.qa.conf.data.ItemConfigRegistry;
 import io.bonitoo.qa.conf.data.ItemPluginConfig;
 import io.bonitoo.qa.data.Item;
 import io.bonitoo.qa.data.ItemType;
+import io.bonitoo.qa.plugin.*;
+import io.bonitoo.qa.plugin.eg.CounterItemPlugin;
+import io.bonitoo.qa.plugin.eg.EmptyItemGenPlugin;
+import io.bonitoo.qa.plugin.eg.PiItemGenPlugin;
+import io.bonitoo.qa.plugin.item.ItemPluginMill;
 import io.bonitoo.qa.plugin.util.JarTool;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -118,8 +123,7 @@ public class ItemGenPluginTest {
     File pluginFile = new File(testJarName);
 
     try {
-      @SuppressWarnings("unchecked")
-      Class<ItemGenPlugin> clazz = (Class<ItemGenPlugin>) PluginLoader.loadPlugin(pluginFile);
+      Class<? extends Plugin> clazz = PluginLoader.loadPlugin(pluginFile);
       assertTrue(ItemPluginMill.pluginPackMap.containsKey("CounterItemPlugin"));
       CounterItemPlugin counterPlugin = (CounterItemPlugin) ItemPluginMill.genNewInstance("CounterItemPlugin", null);
       assertEquals("CounterItemPlugin", counterPlugin.getPropsName());
@@ -144,8 +148,7 @@ public class ItemGenPluginTest {
     IllegalAccessException, NoSuchFieldException {
 
     File pluginFile = new File(testJarName);
-    @SuppressWarnings("unchecked")
-    Class<ItemGenPlugin> clazz = (Class<ItemGenPlugin>) PluginLoader.loadPlugin(pluginFile);
+    Class<? extends Plugin> clazz = PluginLoader.loadPlugin(pluginFile);
     assertTrue(ItemPluginMill.pluginPackMap.containsKey("CounterItemPlugin"));
     CounterItemPlugin counterPlugin = (CounterItemPlugin) ItemPluginMill.genNewInstance("CounterItemPlugin", null);
     assertEquals("CounterItemPlugin", counterPlugin.getPropsName());

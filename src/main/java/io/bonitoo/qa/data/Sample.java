@@ -3,13 +3,13 @@ package io.bonitoo.qa.data;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
+import io.bonitoo.qa.conf.data.SampleConfig;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
@@ -40,6 +40,10 @@ public abstract class Sample {
 
   public abstract Sample update();
 
+  public static Sample of(Function<SampleConfig, Sample> init, SampleConfig config) {
+    return init.apply(config);
+  }
+
   public Item item(String name) {
     return items.get(name);
   }
@@ -66,7 +70,7 @@ public abstract class Sample {
     return result.append("]\n").toString();
   }
 
-  private void checkNameClash() {
+  protected void checkNameClash() {
 
     List<String> toRemove = new ArrayList<>();
 
@@ -92,10 +96,11 @@ public abstract class Sample {
    * @return - a JSON string.
    * @throws JsonProcessingException - thrown when object cannot be serialized.
    */
-  public String toJson() throws JsonProcessingException {
+  /*  public String toJson() throws JsonProcessingException {
     checkNameClash();
     // todo add pretty print option.
     ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
     return objectWriter.writeValueAsString(this);
-  }
+  } */
+  public abstract String toJson() throws JsonProcessingException;
 }

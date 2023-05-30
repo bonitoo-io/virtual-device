@@ -190,4 +190,17 @@ public class Config {
     SampleConfigRegistry.clear();
     runnerConfig = getRunnerConfig();
   }
+
+  /**
+   * Initialize the config implicitly.  Intended for testing.
+   */
+  public static void init() {
+    if (runnerConfig != null) {
+      logger.info(LogHelper
+          .buildMsg("", "Init", "Config is already initialized.  Will not reinitialize."));
+      return;
+    }
+    logger.info(LogHelper.buildMsg("", "Init", "Initializing Config"));
+    runnerConfig = getRunnerConfig();
+  }
 }

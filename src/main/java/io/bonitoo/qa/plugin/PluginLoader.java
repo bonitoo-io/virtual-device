@@ -11,6 +11,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Properties;
+
+import io.bonitoo.qa.plugin.item.ItemPluginMill;
+import io.bonitoo.qa.plugin.sample.SamplePluginMill;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +72,7 @@ public class PluginLoader {
    * @throws PluginConfigException - when the plugin.props file
    *                               of the plugin is illegal or incomplete.
    */
-  public static Class<? extends DataGenPlugin<?>> loadPlugin(File file) throws IOException,
+  public static Class<? extends Plugin> loadPlugin(File file) throws IOException,
       PluginConfigException, ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     if (!file.exists()) {
       logger.warn(String.format("Failed to open plugin file %s", file.getName()));
@@ -93,7 +96,8 @@ public class PluginLoader {
       ItemPluginMill.addPluginClass(props.getName(), props, ucl);
       return ItemPluginMill.getPluginClass(props.getName());
     } else if (props.getType() == PluginType.Sample) {
-      throw new RuntimeException("Sample Plugin handling not yet implemented - TODO");
+      SamplePluginMill.addPluginClass(props.getName(), props, ucl);
+      return SamplePluginMill.getPluginClass(props.getName());
     } else {
       throw new PluginConfigException("Plugin must have a type of either Item or Sample");
     }

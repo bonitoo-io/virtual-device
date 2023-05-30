@@ -7,9 +7,10 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.bonitoo.qa.conf.data.*;
 import io.bonitoo.qa.data.generator.NumGenerator;
 import io.bonitoo.qa.plugin.*;
+import io.bonitoo.qa.plugin.eg.CounterItemPlugin;
+import io.bonitoo.qa.plugin.eg.PiItemGenPlugin;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;

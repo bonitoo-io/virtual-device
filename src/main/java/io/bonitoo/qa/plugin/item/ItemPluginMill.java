@@ -1,4 +1,4 @@
-package io.bonitoo.qa.plugin;
+package io.bonitoo.qa.plugin.item;
 
 import io.bonitoo.qa.conf.Config;
 import io.bonitoo.qa.conf.VirDevConfigException;
@@ -9,6 +9,10 @@ import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import io.bonitoo.qa.plugin.Plugin;
+import io.bonitoo.qa.plugin.PluginConfigException;
+import io.bonitoo.qa.plugin.PluginProperties;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,13 +26,13 @@ public class ItemPluginMill {
 
   @AllArgsConstructor
   static class PluginPack {
-    Class<? extends ItemGenPlugin> pluginClass;
+    Class<? extends Plugin> pluginClass;
     PluginProperties pluginProps;
   }
 
   static Map<String, PluginPack> pluginPackMap = new HashMap<>();
 
-  public static Class<? extends ItemGenPlugin> getPluginClass(String key) {
+  public static Class<? extends Plugin> getPluginClass(String key) {
     return pluginPackMap.get(key).pluginClass;
   }
 
@@ -40,7 +44,7 @@ public class ItemPluginMill {
    * @param classname - the name of the sought class.
    * @return - the class stored in the registry.
    */
-  public static Class<? extends ItemGenPlugin> getPluginClassByName(String classname) {
+  public static Class<? extends Plugin> getPluginClassByName(String classname) {
     for (String key : pluginPackMap.keySet()) {
       if (pluginPackMap.get(key).pluginClass.getName().equals(classname)) {
         return pluginPackMap.get(key).pluginClass;
@@ -50,7 +54,7 @@ public class ItemPluginMill {
   }
 
   public static void addPluginClass(String key,
-                                    Class<? extends ItemGenPlugin> pluginClass,
+                                    Class<? extends Plugin> pluginClass,
                                     PluginProperties props) {
     pluginPackMap.put(key, new PluginPack(pluginClass, props));
     logger.info(String.format("Added plugin to mill %s:%s", props.getName(), props.getMain()));
@@ -72,8 +76,8 @@ public class ItemPluginMill {
       throw new RuntimeException("Cannot add create plugin class without plugin.main property");
     }
     @SuppressWarnings("unchecked")
-    Class<? extends ItemGenPlugin> pluginClass =
-        (Class<? extends ItemGenPlugin>) Class.forName(props.getMain());
+    Class<Plugin> pluginClass =
+        (Class<Plugin>) Class.forName(props.getMain());
     pluginPackMap.put(key, new PluginPack(pluginClass, props));
     logger.info(String.format("Added plugin to mill %s:%s", props.getName(), props.getMain()));
   }
@@ -95,7 +99,7 @@ public class ItemPluginMill {
       throw new RuntimeException("Cannot add create plugin class without plugin.main property");
     }
     @SuppressWarnings("unchecked")
-    Class<? extends ItemGenPlugin> pluginClass = (Class<? extends ItemGenPlugin>)
+    Class<Plugin> pluginClass = (Class<Plugin>)
         Class.forName(props.getMain(), true, ucl);
 
     pluginPackMap.put(key, new PluginPack(pluginClass, props));
@@ -147,7 +151,7 @@ public class ItemPluginMill {
 
     PluginPack pack = pluginPackMap.get(pluginName);
 
-    ItemGenPlugin plugin = pack.pluginClass.getDeclaredConstructor().newInstance();
+    ItemGenPlugin plugin = (ItemGenPlugin) pack.pluginClass.getDeclaredConstructor().newInstance();
 
     plugin.setProps(pack.pluginProps);
 

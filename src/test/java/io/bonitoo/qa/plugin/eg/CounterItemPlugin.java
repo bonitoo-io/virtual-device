@@ -1,14 +1,12 @@
-package io.bonitoo.qa.plugin;
+package io.bonitoo.qa.plugin.eg;
 
-import io.bonitoo.qa.conf.data.DataConfig;
 import io.bonitoo.qa.conf.data.ItemConfig;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import io.bonitoo.qa.plugin.item.ItemGenPlugin;
+import io.bonitoo.qa.plugin.PluginProperties;
 
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class CounterItemPlugin extends ItemGenPlugin{
+public class CounterItemPlugin extends ItemGenPlugin {
 
   AtomicLong counter = new AtomicLong(0);
   public CounterItemPlugin(PluginProperties props, ItemConfig config, boolean enabled) {
@@ -27,6 +25,11 @@ public class CounterItemPlugin extends ItemGenPlugin{
   @Override
   public void onLoad() {
     enabled = true;
+  }
+
+  @Override
+  public void applyProps(PluginProperties props) {
+     // holder
   }
 
   @Override

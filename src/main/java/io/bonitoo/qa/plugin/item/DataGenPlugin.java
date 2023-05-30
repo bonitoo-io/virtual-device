@@ -1,7 +1,11 @@
-package io.bonitoo.qa.plugin;
+package io.bonitoo.qa.plugin.item;
 
 import io.bonitoo.qa.conf.data.DataConfig;
 import io.bonitoo.qa.data.generator.DataGenerator;
+import io.bonitoo.qa.plugin.Plugin;
+import io.bonitoo.qa.plugin.PluginProperties;
+import io.bonitoo.qa.plugin.PluginResultType;
+import io.bonitoo.qa.plugin.PluginType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,7 +25,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Setter
 @Getter
-public abstract class DataGenPlugin<T extends DataConfig> extends DataGenerator {
+public abstract class DataGenPlugin<T extends DataConfig> extends DataGenerator implements Plugin {
 
   protected PluginProperties props;
 

@@ -8,4 +8,8 @@ public class PluginConfigException extends Exception {
   public PluginConfigException(String msg) {
     super(msg);
   }
+
+  public PluginConfigException(String msg, Throwable t) {
+    super(msg, t);
+  }
 }

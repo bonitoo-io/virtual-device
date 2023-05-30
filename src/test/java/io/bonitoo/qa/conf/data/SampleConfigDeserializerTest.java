@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.bonitoo.qa.conf.VirDevConfigException;
 import io.bonitoo.qa.data.ItemType;
+import io.bonitoo.qa.plugin.sample.SamplePluginConfig;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -39,6 +40,19 @@ public class SampleConfigDeserializerTest {
             "      \"stringConf\"\n" +
             "   ]\n" +
             "}";
+
+    static String confSampleItemStringsPluginJSON = "{\n" +
+      "   \"id\": \"ffffffff\",\n" +
+      "   \"plugin\": \"Foo Plugin\",\n" +
+      "   \"name\": \"sampleConf\",\n" +
+      "   \"topic\": \"test/sample\",\n" +
+      "   \"items\": [\n" +
+      "      \"doubleConf\",\n" +
+      "      \"longConf\",\n" +
+      "      \"stringConf\"\n" +
+      "   ]\n" +
+      "}";
+
     static String confSampleItemStringsYAML = "---\n" +
             "id: ffffffff\n" +
             "name: sampleConf\n" +
@@ -79,6 +93,19 @@ public class SampleConfigDeserializerTest {
         SampleConfig sampleConf = om.readValue(confSampleItemStringsJSON, SampleConfig.class);
 
         assertEquals(confSample, sampleConf);
+
+    }
+
+    @Test
+    public void jsonConfigItemStringsPluginTest() throws JsonProcessingException {
+        ObjectMapper om = new ObjectMapper();
+        SampleConfig sampleConf = om.readValue(confSampleItemStringsPluginJSON, SampleConfig.class);
+
+        assertEquals(sampleConf.getPlugin(), "Foo Plugin");
+
+        SamplePluginConfig spConf = om.readValue(confSampleItemStringsPluginJSON, SamplePluginConfig.class);
+
+        assertEquals(sampleConf.getPlugin(), "Foo Plugin");
 
     }
 

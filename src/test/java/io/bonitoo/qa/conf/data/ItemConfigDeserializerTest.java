@@ -7,6 +7,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.bonitoo.qa.conf.VirDevConfigException;
 import io.bonitoo.qa.data.ItemType;
 import io.bonitoo.qa.plugin.*;
+import io.bonitoo.qa.plugin.eg.EmptyItemGenPlugin;
+import io.bonitoo.qa.plugin.item.ItemPluginMill;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -171,10 +173,10 @@ public class ItemConfigDeserializerTest {
 
         ItemPluginConfig configPj = (ItemPluginConfig) omj.readValue(localJsonConf, ItemConfig.class);
         ItemPluginConfig configPy = (ItemPluginConfig) omy.readValue(localYamlConf, ItemConfig.class);
-        @SuppressWarnings("unchecked")
-        Class<ItemGenPlugin> IGPj = (Class<ItemGenPlugin>) ItemPluginMill.getPluginClass(configPj.getPluginName());
-        @SuppressWarnings("unchecked")
-        Class<ItemGenPlugin> IGPy = (Class<ItemGenPlugin>) ItemPluginMill.getPluginClass(configPy.getPluginName());
+
+        Class<? extends Plugin> IGPj = ItemPluginMill.getPluginClass(configPj.getPluginName());
+
+        Class<? extends Plugin> IGPy = ItemPluginMill.getPluginClass(configPy.getPluginName());
 
         assertEquals(EmptyItemGenPlugin.class.getName(), IGPj.getName());
         assertEquals(EmptyItemGenPlugin.class.getName(), IGPy.getName());

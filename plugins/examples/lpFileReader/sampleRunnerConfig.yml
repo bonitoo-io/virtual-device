@@ -1,0 +1,22 @@
+---
+broker:
+  host: "localhost"
+  port: 1883
+  auth:
+    username: "fred"
+    password: "changeit"
+devices:
+- id: "random"
+  name: "Test Device"
+  description: "test device configuration with plugin"
+  interval: 300
+  jitter: 0
+  count: 1
+  samples:
+    - id: "random"
+      name: "LPFileReaderConf"
+      topic: "test/linep"
+      items: [ ]
+      plugin: "LPFileReader"
+      source: "./plugins/examples/lpFileReader/data/myTestLP.lp"
+ttl: 10000
