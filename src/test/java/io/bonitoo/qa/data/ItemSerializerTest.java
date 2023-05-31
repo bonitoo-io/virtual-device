@@ -73,7 +73,7 @@ public class ItemSerializerTest {
       PluginResultType.Long,
       new Properties());
 
-    ItemConfig conf = new ItemPluginConfig(props, "testPluginConf", new Vector<>());
+    ItemConfig conf = new ItemPluginConfig(props, "testPluginConf");
 
     CounterItemPlugin plugin1 = new CounterItemPlugin(props, conf, true);
 

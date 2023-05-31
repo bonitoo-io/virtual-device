@@ -1,5 +1,9 @@
 package io.bonitoo.qa.data.generator;
 
+import io.bonitoo.qa.VirtualDeviceRuntimeException;
+import io.bonitoo.qa.conf.data.ItemConfig;
+import io.bonitoo.qa.conf.data.ItemNumConfig;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -67,23 +71,17 @@ public class NumGenerator extends DataGenerator {
   }
 
   @Override
-  public Double genData(Object... args) {
-    if (args[0] instanceof String) { // use builtin method
-      System.out.printf("Using method %s%n", args[0]);
-
-      try {
-        Method method = this.getClass().getMethod((String) args[0], long.class);
-        return (Double) method.invoke(this, System.currentTimeMillis());
-      } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-        throw new RuntimeException(e);
-      }
-    } else {
-      Long period = (Long) args[0];
-      Double min = (Double) args[1];
-      Double max = (Double) args[2];
-      Long time = (Long) args[3];
-      return genDoubleVal(period, min, max, time);
+  public Object genData() {
+    ItemConfig conf = item.getConfig();
+    switch (conf.getType()) {
+      case BuiltInTemp:
+        return genTemperature(System.currentTimeMillis());
+      case Double:
+        return genDoubleVal(((ItemNumConfig) conf).getPeriod(), ((ItemNumConfig) conf).getMin(), ((ItemNumConfig) conf).getMax(), System.currentTimeMillis());
+      case Long:
+        return Math.round(genDoubleVal(((ItemNumConfig) conf).getPeriod(), ((ItemNumConfig) conf).getMin(), ((ItemNumConfig) conf).getMax(), System.currentTimeMillis()));
+      default:
+        throw new VirtualDeviceRuntimeException(String.format("ItemType %s not supported by NumGenerator", conf.getType()));
     }
-
   }
 }

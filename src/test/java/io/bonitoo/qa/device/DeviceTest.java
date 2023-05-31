@@ -8,8 +8,7 @@ import io.bonitoo.qa.conf.data.SampleConfig;
 import io.bonitoo.qa.conf.device.DeviceConfig;
 import io.bonitoo.qa.mqtt.client.MqttClientBlocking;
 import io.bonitoo.qa.conf.Config;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -31,6 +30,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class DeviceTest {
 
+    static long origTTL;
     @Mock
     MqttClientBlocking mockClient;
 
@@ -39,6 +39,14 @@ public class DeviceTest {
         reset(mockClient);
         lenient().when(mockClient.connect()).thenReturn(mockClient);
         Config.reset();
+        // N.B. changing values in static Config can impact other tests
+        origTTL = Config.ttl();
+    }
+
+    @AfterEach
+    public void resetAny(){
+        // N.B. changing values in static Config can impact other tests
+        Config.getRunnerConfig().setTtl(origTTL);
     }
 
     @Test

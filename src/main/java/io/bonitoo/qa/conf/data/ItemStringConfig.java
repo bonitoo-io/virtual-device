@@ -32,8 +32,8 @@ public class ItemStringConfig extends ItemConfig {
    * @param values - list of string values to be randomized.
    */
   public ItemStringConfig(String name, String label, ItemType type, List<String> values) {
-    super(name, label, type, SimpleStringGenerator.class.getName(),
-      new Vector<>(Collections.singletonList("values")));
+    super(name, label, type, SimpleStringGenerator.class.getName());
+
     this.values = values;
     ItemConfigRegistry.add(this.name, this);
   }
@@ -51,8 +51,8 @@ public class ItemStringConfig extends ItemConfig {
 
   @Override
   public String toString() {
-    return String.format("name:%s,label:%s,type:%s,values:%s,updateArgs:%s",
-      name, label, type, values, updateArgs);
+    return String.format("name:%s,label:%s,type:%s,values:%s",
+      name, label, type, values);
   }
 
   @Override

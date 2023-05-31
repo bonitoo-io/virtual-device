@@ -31,8 +31,14 @@ public class PiItemGenPlugin extends ItemGenPlugin {
      // holder
   }
 
+  /*
   @Override
         public Object genData(Object... args) {
             return Math.PI;
         }
+*/
+  @Override
+  public Object genData() {
+    return Math.PI;
+  }
 }

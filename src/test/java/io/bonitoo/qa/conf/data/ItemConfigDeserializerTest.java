@@ -60,7 +60,7 @@ public class ItemConfigDeserializerTest {
 //        confPlugin = new ItemPluginConfig(props.getName(), props.getName() + "Test01", props.getLabel(),
 //          ItemPluginMill.genNewInstance(props.getName(), null));
 
-        confPlugin = new ItemPluginConfig(props,props.getName() + "Test01", new Vector<>(Arrays.asList("argy","bargy")));
+        confPlugin = new ItemPluginConfig(props,props.getName() + "Test01");
 
 //        System.out.println("DEBUG ItemPluginMill.keys " + ItemPluginMill.getKeys());
 

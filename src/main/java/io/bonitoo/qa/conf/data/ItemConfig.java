@@ -23,32 +23,6 @@ public class ItemConfig extends DataConfig {
 
   protected String genClassName;
 
-  protected Vector<String> updateArgs;
-
-  /**
-   * Base constructor.
-   *
-   * @param name - name handle for the item.
-   * @param label - label to be used when serializing the item to JSON.
-   * @param type - type to which the item will conform.
-   * @param genClassName - class name of the data generator to be instantiated.
-   * @param updateArgs - names of the argument fields in the child configuration to be passed to
-   *         the generator <code>genData</code> method.
-   *
-   */
-  public ItemConfig(String name,
-                    String label,
-                    ItemType type,
-                    String genClassName,
-                    Vector<String> updateArgs) {
-    this.name = name;
-    this.type = type;
-    this.label = label;
-    this.genClassName = genClassName;
-    this.updateArgs = updateArgs;
-    ItemConfigRegistry.add(this.name, this);
-  }
-
   /**
    * Constructor wich adds an empty vector for updateArgs.
    *
@@ -65,7 +39,6 @@ public class ItemConfig extends DataConfig {
     this.type = type;
     this.label = label;
     this.genClassName = genClassName;
-    this.updateArgs = new Vector<>();
     ItemConfigRegistry.add(this.name, this);
   }
 
@@ -82,12 +55,7 @@ public class ItemConfig extends DataConfig {
     this.label = orig.getLabel();
     this.type = orig.getType();
     this.genClassName = orig.getGenClassName();
-    this.updateArgs = new Vector<>();
-    for (String s : orig.getUpdateArgs()) {
-      this.updateArgs.add(String.copyValueOf(s.toCharArray()));
-    }
   }
-
 
   /**
    * Returns an ItemConfig instance from the ItemConfigRegistry.
@@ -124,13 +92,8 @@ public class ItemConfig extends DataConfig {
 
   @Override
   public String toString() {
-    return String.format("name:%s,label:%s,type:%s,className:%s,updateArgs:%s",
-      name, label, type, genClassName, updateArgs);
-  }
-
-  public ItemConfig copy() {
-
-    return new ItemConfig(this.name, this.label, this.type, this.genClassName, this.updateArgs);
+    return String.format("name:%s,label:%s,type:%s,className:%s",
+      name, label, type, genClassName);
   }
 
 }

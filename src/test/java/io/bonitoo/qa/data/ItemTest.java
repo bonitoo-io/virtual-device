@@ -9,6 +9,7 @@ import io.bonitoo.qa.data.generator.NumGenerator;
 import io.bonitoo.qa.plugin.*;
 import io.bonitoo.qa.plugin.eg.CounterItemPlugin;
 import io.bonitoo.qa.plugin.eg.PiItemGenPlugin;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -113,7 +114,7 @@ public class ItemTest {
 
         PiItemGenPlugin plugin = new PiItemGenPlugin(props, null, true);
 
-        plugin.setDataConfig(new ItemPluginConfig(props,props.getName() + "01", new Vector<>()));
+        plugin.setDataConfig(new ItemPluginConfig(props,props.getName() + "01"));
 
         assertEquals(PluginResultType.Double, plugin.getResultType());
         assertEquals(props.getName() + "01", plugin.getDataConfig().getName());
@@ -124,6 +125,7 @@ public class ItemTest {
 
     }
 
+    @Disabled("UpdateArgs are no longer a part of ItemConfig")
     @Test
     public void updateArgsOrderTest(){
 
@@ -139,14 +141,14 @@ public class ItemTest {
         String[] args = { "foo", "bar", "wombat", "apple", "zebra",
           "couscous", "dodo", "kangaroo", "platypus", "fred"};
 
-        ItemConfig itc = new ItemPluginConfig(props, "piConf",
-          new Vector<>(Arrays.asList(args[0],args[1],args[2],args[3],args[4]
-          ,args[5],args[6],args[7],args[8],args[9])));
+//        ItemConfig itc = new ItemPluginConfig(props, "piConf",
+//          new Vector<>(Arrays.asList(args[0],args[1],args[2],args[3],args[4]
+//          ,args[5],args[6],args[7],args[8],args[9])));
 
-        int count = 0;
-        for(String s : itc.getUpdateArgs()){
-            assertEquals(s, args[count++]);
-        }
+ //       int count = 0;
+      //  for(String s : itc.getUpdateArgs()){
+      //      assertEquals(s, args[count++]);
+      //  }
     }
 
     @Test
@@ -160,7 +162,7 @@ public class ItemTest {
           PluginResultType.Long,
           new Properties());
 
-        ItemConfig conf = new ItemPluginConfig(props, "testPluginConf", new Vector<>());
+        ItemConfig conf = new ItemPluginConfig(props, "testPluginConf");
 
         CounterItemPlugin plugin1 = new CounterItemPlugin(props, conf, true);
         CounterItemPlugin plugin2 = new CounterItemPlugin(props, conf, true);
@@ -204,7 +206,7 @@ public class ItemTest {
         ItemConfig configNum = new ItemNumConfig("testDouble", "someVal", ItemType.Double, 0, 10, 4);
         ItemConfig configString = new ItemStringConfig("testString", "lalala", ItemType.String,
           Arrays.asList("Do", "Re", "Mi", "Fa", "Sol", "La", "Ti"));
-        ItemConfig configPlugin = new ItemPluginConfig(props, "testPluginConf", new Vector<>());
+        ItemConfig configPlugin = new ItemPluginConfig(props, "testPluginConf");
 
         ItemConfig newConfigNum = new ItemNumConfig((ItemNumConfig) configNum);
         ItemConfig newConfigString = new ItemStringConfig((ItemStringConfig) configString);
@@ -251,7 +253,7 @@ public class ItemTest {
         ItemConfig configNum = new ItemNumConfig("testDouble", "someVal", ItemType.Double, 0, 10, 4);
         ItemConfig configString = new ItemStringConfig("testString", "lalala", ItemType.String,
           Arrays.asList("Do", "Re", "Mi", "Fa", "Sol", "La", "Ti"));
-        ItemConfig configPlugin = new ItemPluginConfig(props, "testPluginConf", new Vector<>());
+        ItemConfig configPlugin = new ItemPluginConfig(props, "testPluginConf");
 
         Item itNum = Item.of(configNum);
         Item itString = Item.of(configString);

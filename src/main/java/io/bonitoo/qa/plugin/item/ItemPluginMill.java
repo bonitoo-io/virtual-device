@@ -159,8 +159,7 @@ public class ItemPluginMill {
     // TODO resolve updateArgs for new null config
     if (pluginDataConfig == null) {
       plugin.setDataConfig(new ItemPluginConfig(ItemPluginMill.getPluginProps(pluginName),
-          pluginName + "Conf",
-          null));
+          pluginName + "Conf"));
       if (pack.pluginProps.getPrec() != null) {
         ((ItemPluginConfig) plugin.getDataConfig()).setPrec(pack.pluginProps.getPrec());
       }

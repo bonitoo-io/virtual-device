@@ -31,7 +31,7 @@ public class EmptyItemGenPlugin extends ItemGenPlugin {
      // Holder
   }
 
-  @Override
+/*  @Override
     public String genData(Object... args) {
       StringBuilder sb = new StringBuilder();
       for(Object obj: args){
@@ -42,5 +42,14 @@ public class EmptyItemGenPlugin extends ItemGenPlugin {
       } else {
         return null;
       }
-    }
+    } */
+
+  @Override
+  public Object genData() {
+      if(enabled) {
+        return value;
+      } else {
+        return null;
+      }
   }
+}

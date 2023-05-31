@@ -81,37 +81,35 @@ public class Item {
         NumGenerator builtInNg = (NumGenerator) DataGenerator.create(NumGenerator.class.getName());
         // ensure each new item has its own copy of config so changes impact only this item
         it = new Item(new ItemConfig(config), 0.0, builtInNg);
-        it.update("genTemperature", System.currentTimeMillis());
+        builtInNg.setItem(it);
+        it.update();
         break;
       case Double:
       case Long:
         NumGenerator ng = (NumGenerator) DataGenerator.create(config.getGenClassName());
         // ensure each new item has its own copy of config so changes impact only this item
         it = new Item(new ItemNumConfig((ItemNumConfig) config), 0.0, ng);
-        it.update(
-            ((ItemNumConfig) config).getPeriod(),
-            ((ItemNumConfig) config).getMin(),
-            ((ItemNumConfig) config).getMax(),
-            System.currentTimeMillis()
-        );
+        ng.setItem(it);
+        it.update();
         break;
       case String:
         SimpleStringGenerator sg =
             (SimpleStringGenerator) DataGenerator.create(config.getGenClassName());
         // ensure each new item has its own copy of config so changes impact only this item
         it = new Item(new ItemStringConfig((ItemStringConfig) config), "", sg);
-        it.update(((ItemStringConfig) config).getValues());
+        sg.setItem(it);
+        it.update();
         break;
       case Plugin:
         DataGenerator<? extends DataConfig> dg = DataGenerator.create(config.getGenClassName());
         // ensure each new item has its own copy of config so changes impact only this item
         it = new Item(new ItemPluginConfig((ItemPluginConfig) config), null, dg);
+        dg.setItem(it);
         it.update();
         break;
       default:
         throw new VirDevConfigException(String.format("Unknown Item Type: %s",
           config.getType()));
-
     }
     return it;
   }
@@ -140,59 +138,15 @@ public class Item {
   }
 
   /**
-   * Updates the internal value of an item.
-   *
-   * <p>Checks <code>updateArgs</code> of the config and then
-   * makes a call to <code>update(List)</code></p>
-   *
-   * @return - returns the item after updating its internal value.
-   */
-  public Item update() {
-    // TODO review - should this not be a Vector?
-    List<Object> args = new ArrayList<>();
-    for (String arg : this.getConfig().getUpdateArgs()) {
-      if (! arg.equalsIgnoreCase("time")) {
-        try {
-          Object obj = ItemConfig.getFieldVal(this.getConfig(), arg);
-          // expand container args directly to method args
-          if (obj instanceof Collection) {
-            args.addAll((Collection<?>) obj);
-          } else {
-            args.add(ItemConfig.getFieldVal(this.getConfig(), arg));
-          }
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-          throw new VirDevConfigException(
-            String.format("Mismatched or missing argument \"%s\" for update method.\n%s", arg, e)
-          );
-        }
-      } else {
-        args.add(System.currentTimeMillis());
-      }
-    }
-
-    update(args);
-    return this;
-  }
-
-  /**
-   * Helper method for updating the internal value of the item.
-   *
-   * @param args - names of args to be passed to <code>generator.genData()</code>.
-   * @return - the item with an updated value.
-   */
-  public Item update(List<?> args) {
-    return update(args.toArray());
-  }
-
-  /**
    * Updates the internal value of the item.
    *
-   * @param args - names of args from the config to be passed to
+   * @ param args - names of args from the config to be passed to
    *             <code>generator.gendData()</code>.
    * @return - the updated item.
    */
-  public Item update(Object... args) {
-    Object obj = generator.genData(args);
+  public Item update() {
+    //Object obj = generator.genData(args);
+    Object obj = generator.genData();
     switch (config.getType()) {
       case Long:
         val = ensureLong(obj);

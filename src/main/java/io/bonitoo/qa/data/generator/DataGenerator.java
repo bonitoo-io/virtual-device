@@ -2,9 +2,13 @@ package io.bonitoo.qa.data.generator;
 
 import io.bonitoo.qa.conf.VirDevConfigException;
 import io.bonitoo.qa.conf.data.DataConfig;
+import io.bonitoo.qa.data.Item;
 import io.bonitoo.qa.plugin.item.ItemPluginMill;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
+
+import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,11 +17,15 @@ import org.slf4j.LoggerFactory;
  *
  * @param <T> - a data configuration object.
  */
+@Getter
+@Setter
 public abstract class DataGenerator<T extends DataConfig> {
 
   static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  public abstract Object genData(Object... args);
+  Item item;
+
+  public abstract Object genData();
 
   /**
    * Factory method for instantiating data generators.
