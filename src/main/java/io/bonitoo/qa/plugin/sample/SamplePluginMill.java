@@ -1,6 +1,9 @@
 package io.bonitoo.qa.plugin.sample;
 
 import io.bonitoo.qa.VirtualDeviceRuntimeException;
+import io.bonitoo.qa.plugin.Plugin;
+import io.bonitoo.qa.plugin.PluginConfigException;
+import io.bonitoo.qa.plugin.PluginProperties;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -9,10 +12,6 @@ import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import io.bonitoo.qa.plugin.Plugin;
-import io.bonitoo.qa.plugin.PluginConfigException;
-import io.bonitoo.qa.plugin.PluginProperties;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

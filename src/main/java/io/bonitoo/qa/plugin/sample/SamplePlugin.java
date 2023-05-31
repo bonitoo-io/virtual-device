@@ -6,14 +6,13 @@ import io.bonitoo.qa.conf.data.ItemConfig;
 import io.bonitoo.qa.conf.data.SampleConfig;
 import io.bonitoo.qa.data.Item;
 import io.bonitoo.qa.data.Sample;
+import io.bonitoo.qa.plugin.Plugin;
+import io.bonitoo.qa.plugin.PluginProperties;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.function.Function;
-
-import io.bonitoo.qa.plugin.Plugin;
-import io.bonitoo.qa.plugin.PluginProperties;
 import lombok.Getter;
 import lombok.Setter;
 

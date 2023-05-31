@@ -6,9 +6,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.bonitoo.qa.conf.VirDevConfigException;
 import io.bonitoo.qa.conf.VirDevDeserializer;
 import io.bonitoo.qa.data.ItemType;
-import io.bonitoo.qa.plugin.item.ItemPluginMill;
 import io.bonitoo.qa.plugin.PluginProperties;
 import io.bonitoo.qa.plugin.PluginResultType;
+import io.bonitoo.qa.plugin.item.ItemPluginMill;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -71,9 +71,15 @@ public class ItemConfigDeserializer extends VirDevDeserializer<ItemConfig> {
         plugin = safeGetNode(node, "pluginName").asText();
         PluginResultType resultType = PluginResultType
             .valueOf(safeGetNode(node, "resultType").asText());
-        // TODO resolve updateArgs - when plugin uses them - only zero args is currently stable
         PluginProperties props = ItemPluginMill.getPluginProps(plugin);
-        return new ItemPluginConfig(props, name);
+        JsonNode prNode = node.get("prec");
+        ItemPluginConfig result = new ItemPluginConfig(props, name);
+        if (prNode != null) {
+          int precision = prNode.asInt();
+          result.setPrec(precision);
+        }
+        // TODO resolve updateArgs - when plugin uses them - only zero args is currently stable
+        return result;
       default:
         throw new VirDevConfigException("Cannot instantiate config for type " + type);
     }
