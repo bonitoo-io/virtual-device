@@ -44,7 +44,6 @@ public class ItemPluginConfig extends ItemConfig {
     this.resultType = props.getResultType();
     this.genClassName = props.getMain();
     this.pluginType = PluginType.Item;
-   // this.updateArgs = new Vector<>(); // create empty update args
     this.prec = props.getPrec();
     ItemConfigRegistry.add(this.name, this);
   }

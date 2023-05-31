@@ -4,9 +4,6 @@ import io.bonitoo.qa.VirtualDeviceRuntimeException;
 import io.bonitoo.qa.conf.data.ItemConfig;
 import io.bonitoo.qa.conf.data.ItemNumConfig;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 /**
  * Generates random numerical values based on a sinusoidal attractor.
  *
@@ -77,11 +74,22 @@ public class NumGenerator extends DataGenerator {
       case BuiltInTemp:
         return genTemperature(System.currentTimeMillis());
       case Double:
-        return genDoubleVal(((ItemNumConfig) conf).getPeriod(), ((ItemNumConfig) conf).getMin(), ((ItemNumConfig) conf).getMax(), System.currentTimeMillis());
+        return genDoubleVal(
+          ((ItemNumConfig) conf).getPeriod(),
+          ((ItemNumConfig) conf).getMin(),
+          ((ItemNumConfig) conf).getMax(),
+          System.currentTimeMillis());
       case Long:
-        return Math.round(genDoubleVal(((ItemNumConfig) conf).getPeriod(), ((ItemNumConfig) conf).getMin(), ((ItemNumConfig) conf).getMax(), System.currentTimeMillis()));
+        return Math.round(genDoubleVal(
+          ((ItemNumConfig) conf).getPeriod(),
+          ((ItemNumConfig) conf).getMin(),
+          ((ItemNumConfig) conf).getMax(),
+          System.currentTimeMillis())
+        );
       default:
-        throw new VirtualDeviceRuntimeException(String.format("ItemType %s not supported by NumGenerator", conf.getType()));
+        throw new VirtualDeviceRuntimeException(
+          String.format("ItemType %s not supported by NumGenerator", conf.getType())
+        );
     }
   }
 }

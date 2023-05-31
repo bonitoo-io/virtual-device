@@ -140,8 +140,6 @@ public class Item {
   /**
    * Updates the internal value of the item.
    *
-   * @ param args - names of args from the config to be passed to
-   *             <code>generator.gendData()</code>.
    * @return - the updated item.
    */
   public Item update() {

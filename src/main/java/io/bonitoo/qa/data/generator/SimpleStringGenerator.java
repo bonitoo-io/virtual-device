@@ -2,7 +2,6 @@ package io.bonitoo.qa.data.generator;
 
 import io.bonitoo.qa.conf.data.DataConfig;
 import io.bonitoo.qa.conf.data.ItemStringConfig;
-
 import java.util.List;
 
 /**

@@ -6,7 +6,6 @@ import io.bonitoo.qa.data.Item;
 import io.bonitoo.qa.plugin.item.ItemPluginMill;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
-
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
