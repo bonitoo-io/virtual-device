@@ -41,7 +41,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
 
-@Disabled("Do not test while refactoring ItemPlugin")
 @ExtendWith(MockitoExtension.class)
 public class PluginIntegrationTest {
 

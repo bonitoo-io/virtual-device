@@ -124,33 +124,7 @@ public class ItemTest {
         assertEquals(Math.PI, item.asDouble());
 
     }
-
-    @Disabled("UpdateArgs are no longer a part of ItemConfig")
-    @Test
-    public void updateArgsOrderTest(){
-
-        PluginProperties props = new PluginProperties(PiItemGenPlugin.class.getName(),
-          "PiPlugin",
-          "pi",
-          "A simple test plugin",
-          "0.1",
-          PluginType.Item,
-          PluginResultType.Long,
-          new Properties());
-
-        String[] args = { "foo", "bar", "wombat", "apple", "zebra",
-          "couscous", "dodo", "kangaroo", "platypus", "fred"};
-
-//        ItemConfig itc = new ItemPluginConfig(props, "piConf",
-//          new Vector<>(Arrays.asList(args[0],args[1],args[2],args[3],args[4]
-//          ,args[5],args[6],args[7],args[8],args[9])));
-
- //       int count = 0;
-      //  for(String s : itc.getUpdateArgs()){
-      //      assertEquals(s, args[count++]);
-      //  }
-    }
-
+    
     @Test
     public void pluginItemTestSeparateInstances(){
         PluginProperties props = new PluginProperties(CounterItemPlugin.class.getName(),
