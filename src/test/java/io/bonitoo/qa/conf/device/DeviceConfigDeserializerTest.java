@@ -13,12 +13,14 @@ import io.bonitoo.qa.conf.data.ItemStringConfig;
 import io.bonitoo.qa.conf.data.SampleConfig;
 import io.bonitoo.qa.conf.data.SampleConfigRegistry;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@Tag("unit")
 public class DeviceConfigDeserializerTest {
 
     static SampleConfig testSampConfig = new SampleConfig("abcd", "testSample","test/parsing",

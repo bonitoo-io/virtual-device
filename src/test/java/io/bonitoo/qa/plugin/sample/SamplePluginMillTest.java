@@ -7,10 +7,7 @@ import io.bonitoo.qa.plugin.PluginConfigException;
 import io.bonitoo.qa.plugin.PluginProperties;
 import io.bonitoo.qa.plugin.PluginResultType;
 import io.bonitoo.qa.plugin.PluginType;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -23,6 +20,7 @@ import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("unit")
 public class SamplePluginMillTest {
 
   private static String defaultKey = SamplePluginTest.conf.getPlugin();

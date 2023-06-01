@@ -15,10 +15,7 @@ import io.bonitoo.qa.plugin.eg.EmptyItemGenPlugin;
 import io.bonitoo.qa.plugin.eg.PiItemGenPlugin;
 import io.bonitoo.qa.plugin.item.ItemPluginMill;
 import io.bonitoo.qa.plugin.util.JarTool;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +30,7 @@ import java.util.jar.JarOutputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("intg")
 public class ItemGenPluginTest {
 
   static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

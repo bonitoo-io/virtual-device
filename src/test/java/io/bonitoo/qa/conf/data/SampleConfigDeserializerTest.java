@@ -8,6 +8,7 @@ import io.bonitoo.qa.conf.VirDevConfigException;
 import io.bonitoo.qa.data.ItemType;
 import io.bonitoo.qa.plugin.sample.SamplePluginConfig;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -15,6 +16,7 @@ import java.util.Arrays;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
+@Tag("unit")
 public class SampleConfigDeserializerTest {
 
     static ItemConfig confDouble = new ItemNumConfig("doubleConf", "foo",  ItemType.Double, -5, 10, 1);

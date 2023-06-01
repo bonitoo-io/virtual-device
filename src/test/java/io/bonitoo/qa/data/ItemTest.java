@@ -10,12 +10,14 @@ import io.bonitoo.qa.plugin.*;
 import io.bonitoo.qa.plugin.eg.CounterItemPlugin;
 import io.bonitoo.qa.plugin.eg.PiItemGenPlugin;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("unit")
 public class ItemTest {
 
     @Test
@@ -66,37 +68,6 @@ public class ItemTest {
                 "Item Configuration named zyxwvutsrqponmlkjihgfedcba not found");
     }
 
-
-/*    public static class PiItemGenPlugin extends ItemGenPlugin {
-        public PiItemGenPlugin(PluginProperties props, ItemConfig config, boolean enabled) {
-            super(props, config, enabled);
-        }
-
-        public PiItemGenPlugin(){
-         //   this.name = null;
-            this.props = null;
-            this.enabled = false;
-            this.dataConfig = null;
-        }
-
-        @Override
-        public Double getCurrentVal() {
-            return Math.PI;
-        }
-
-        @Override
-        public void onLoad() {
-            enabled = true;
-        }
-
-        @Override
-        public Object genData(Object... args) {
-            return Math.PI;
-        }
-    }
-
- */
-
     @Test
     public void pluginItemTest() throws ClassNotFoundException,
       PluginConfigException {
@@ -124,7 +95,7 @@ public class ItemTest {
         assertEquals(Math.PI, item.asDouble());
 
     }
-    
+
     @Test
     public void pluginItemTestSeparateInstances(){
         PluginProperties props = new PluginProperties(CounterItemPlugin.class.getName(),
@@ -249,9 +220,5 @@ public class ItemTest {
         assertNotEquals(ItemConfigRegistry.get(configPlugin.getName()).hashCode(), itPlugin.getConfig().hashCode());
 
     }
-
-
-
-
 
 }

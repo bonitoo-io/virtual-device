@@ -15,6 +15,7 @@ import io.bonitoo.qa.mqtt.client.MqttClientBlocking;
 import io.bonitoo.qa.conf.Config;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -26,19 +27,12 @@ import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.reset;
 
-@ExtendWith(MockitoExtension.class)
+@Tag("unit")
 public class DeviceRunnerTest {
-
-    @Mock
-    MqttClientBlocking mockClient;
 
     @BeforeEach
     public void setup() throws InterruptedException {
-        reset(mockClient);
-        lenient().when(mockClient.connect()).thenReturn(mockClient);
         Config.reset(); // NB reads default.conf which adds a sample to registry
         SampleConfigRegistry.clear();
     }

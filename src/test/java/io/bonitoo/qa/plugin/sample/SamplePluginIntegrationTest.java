@@ -41,6 +41,7 @@ import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
+@Tag("intg")
 public class SamplePluginIntegrationTest {
 
   static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

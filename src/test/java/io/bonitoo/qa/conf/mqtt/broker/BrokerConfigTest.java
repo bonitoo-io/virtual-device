@@ -5,10 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.bonitoo.qa.conf.mqtt.broker.AuthConfig;
 import io.bonitoo.qa.conf.mqtt.broker.BrokerConfig;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@Tag("unit")
 public class BrokerConfigTest {
 
     public static String authConfigYaml = "---\n" +
