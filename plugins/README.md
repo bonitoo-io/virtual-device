@@ -28,7 +28,7 @@ Plugins must also contain a `plugin.props` file.  At a minimum this file needs t
       * `String`.  
    * `plugin.label` - default label to be used when serializing the results of an Item Plugin as part of a sample.  This value can be overridden on YAML configuration files. 
 
-For primitive results of type `Double` a precision property `plugin.dec.prec` of type integer can be added, to specify the floating point decimal precision of a value to be used during serialization. (Note see issue [6](https://github.com/bonitoo-io/virtual-device/issues/6)).
+For primitive results of type `Double` a precision property `plugin.dec.prec` of type integer can be added, to specify globally for the plugin the floating point decimal precision of a value to be used during serialization.  This can also be set in configuration files through the field `prec`.
 
 Additional properties can be defined for use in specific plugins.  
 
@@ -36,11 +36,13 @@ Additional properties can be defined for use in specific plugins.
 
 When the default device runner starts it scans the `plugins/` directory for any jar files and attempts to load them into the environment.  Subdirectories will not be scanned.  They are therefore an ideal location for storing examples, that can be activated by being copied into the `plugins/` directory before starting the runner.  The copies can also be removed from the directory to remove them from the environment on a subsequent device runner load and run.  
 
-When first loaded the plugin class is generated and saved into a registry.  Later, new instances get generated and bound to samples or items based on their YAML configurations.  During the remainder of runtime the plugin needs to generate one of the following.  
-   * ItemPlugin - primitive data to be used in sample payload fields.  This is done through the overloaded `genData()` method.  It must generate and return a value of the type specified by the property `plugin.resultType`.
-   * SamplePlugin - a complete JSON sample payload.  This is done through the overloaded `update()` method.
+When first loaded the plugin class is generated and saved into a registry.  Later, new instances get generated and bound to samples or items based on their YAML configurations.  During the remainder of runtime the plugin needs to generate data based on the plugin type.  
+   * ItemPlugin - generates primitive data to be used in sample payload fields.  This is done through the overloaded `genData()` method.  It must generate and return a value of the type specified by the property `plugin.resultType`.
+   * SamplePlugin - generates a complete JSON sample payload.  This is done through the overloaded `update()` method.
 
 These methods will be repeatedly called based on the `interval` property of the device to which they are attached. 
+
+Plugins include an `enabled` field, whch can be used to switch on or off data generation as needed.  It depends upon the plugin implementation.  `enabled` should be set to `true` in either the `onLoad` or `create` method.     
 
 Plugin instances last until they and the items or samples to which they are bound get garbage collected.  Generally this means for the life of the device runner.  Class references in the registry last for the life of the device runner.  
 
@@ -63,7 +65,7 @@ Any Item instance created from this configuration will look for the plugin class
 The abstract class `ItemGenPlugin`, which extends `DataGenPlugin`, provides the basis for any ItemPlugin to be loaded into the Virtual Device runtime.  Two abstract methods need to be implemented. 
 
    * `onLoad()` -  intended to be used to set up any background or global values needed by a plugin instance.  For example, it is a good place to set the `enabled` property to `true`.
-   * `genData()` - returns an object and accepts a variable array of object arguments.  The return value needs to be of the type defined in `plugin.resultType`.
+   * `genData()` - returns an object.  The return value needs to be of the type defined in `plugin.resultType`.
 
 **An Example Item Plugin**
 
@@ -123,7 +125,7 @@ public class AcceleratorPlugin extends ItemGenPlugin {
      }
 
      @Override
-     public Object genData(Object... objects) {
+     public Object genData() {
           accel = changeAccel(accel, speed);
           long currTimeStamp = System.currentTimeMillis();
           double timeFactor = currTimeStamp - lastRecordStamp;
@@ -312,4 +314,6 @@ _A Sample configuration using the above_
     plugin: "LPFileReader"
     source: "./plugins/examples/lpFileReader/data/myTestLP.lp"
 ```
+
+Note above that an empty array of `Items` is needed.  This is required by the default sample configuration deserializer.  Failure to include it will result in an exception. 
 

@@ -14,6 +14,7 @@ import io.bonitoo.qa.plugin.eg.CounterItemPlugin;
 import io.bonitoo.qa.plugin.PluginProperties;
 import io.bonitoo.qa.plugin.PluginResultType;
 import io.bonitoo.qa.plugin.PluginType;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -23,6 +24,7 @@ import java.util.Vector;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Tag("unit")
 public class ItemSerializerTest {
 
   @Test
@@ -73,7 +75,7 @@ public class ItemSerializerTest {
       PluginResultType.Long,
       new Properties());
 
-    ItemConfig conf = new ItemPluginConfig(props, "testPluginConf", new Vector<>());
+    ItemConfig conf = new ItemPluginConfig(props, "testPluginConf");
 
     CounterItemPlugin plugin1 = new CounterItemPlugin(props, conf, true);
 
@@ -107,7 +109,7 @@ public class ItemSerializerTest {
 
   @Test
   public void serializeDoubleWithPrecisionTest() throws JsonProcessingException {
-    // TODO
+
     int prec = 3;
 
     ItemNumConfig configWPrec = new ItemNumConfig("confWPrec", "dbl", ItemType.Double, -5, 10, 1, prec);

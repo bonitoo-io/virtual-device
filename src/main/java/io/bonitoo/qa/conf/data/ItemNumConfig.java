@@ -39,8 +39,7 @@ public class ItemNumConfig extends ItemConfig {
                        double min,
                        double max,
                        long period) {
-    super(name, label, type, NumGenerator.class.getName(),
-      new Vector<>(Arrays.asList("period", "min", "max", "time")));
+    super(name, label, type, NumGenerator.class.getName());
     this.max = max;
     this.min = min;
     this.period = period;
@@ -76,8 +75,8 @@ public class ItemNumConfig extends ItemConfig {
   @Override
   public String toString() {
     return String.format("name=%s,label=%s,max=%.2f,min=%.2f,"
-        + "period=%d,type=%s,updateArgs=%s,prec=%s\n",
-      name, label, max, min, period, type, updateArgs, prec);
+        + "period=%d,type=%s,prec=%s\n",
+      name, label, max, min, period, type, prec);
   }
 
   @Override

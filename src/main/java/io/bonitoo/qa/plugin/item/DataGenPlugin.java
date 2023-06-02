@@ -46,7 +46,7 @@ public abstract class DataGenPlugin<T extends DataConfig> extends DataGenerator 
 
   public abstract void onLoad();
 
-  public abstract Object genData(Object... args);
+  //public abstract Object genData(Object... args);
 
   public String getPropsName() {
     return props.getName();

@@ -32,9 +32,14 @@ public class CounterItemPlugin extends ItemGenPlugin {
      // holder
   }
 
-  @Override
+  /*@Override
   public Long genData(Object... args) {
     int delta = (args.length < 1 || args[0] == null) ? 1 : (Integer)args[0];
     return counter.addAndGet(delta);
+  }*/
+
+  @Override
+  public Long genData() {
+    return counter.addAndGet(1);
   }
 }

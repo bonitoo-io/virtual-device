@@ -30,11 +30,6 @@ public class ItemPluginConfig extends ItemConfig {
   @JsonInclude(JsonInclude.Include.NON_NULL)
   Integer prec; // can be null
 
-  public ItemPluginConfig(PluginProperties props, String name, Vector<String> updateArgs) {
-    this(props, name);
-    this.updateArgs = updateArgs;
-  }
-
   /**
    * Base Constructor.
    *
@@ -49,7 +44,6 @@ public class ItemPluginConfig extends ItemConfig {
     this.resultType = props.getResultType();
     this.genClassName = props.getMain();
     this.pluginType = PluginType.Item;
-    this.updateArgs = new Vector<>(); // create empty update args
     this.prec = props.getPrec();
     ItemConfigRegistry.add(this.name, this);
   }

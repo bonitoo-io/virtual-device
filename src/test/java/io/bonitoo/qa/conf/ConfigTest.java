@@ -5,6 +5,7 @@ import io.bonitoo.qa.conf.data.ItemConfigRegistry;
 import io.bonitoo.qa.conf.data.SampleConfigRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -22,12 +23,14 @@ public class ConfigTest {
     }
 
     @Test
+    @Tag("unit")
     public void testReadDeviceConf(){
         String val = Config.getProp("test.val");
         assertEquals("foo", val);
     }
 
     @Test
+    @Tag("intg")
     void configFileOutsidePath() throws IOException {
         Properties propsHolder = Config.getProps();
         // zero out props to force new read
@@ -59,6 +62,7 @@ public class ConfigTest {
     }
 
     @Test
+    @Tag("unit")
     public void getRunnerConfigTest(){
         // Based on testRunnnerConfig.yml as specified in virtualdevice.props runner.conf
         RunnerConfig rConf = Config.getRunnerConfig();
@@ -75,6 +79,7 @@ public class ConfigTest {
     }
 
     @Test
+    @Tag("intg")
     public void runnerConfigOutsideOfPathTest() throws IOException {
         String runnerConfPropHolder = Config.getProp("runner.conf");
         RunnerConfig runnerConfHolder = Config.getRunnerConfig();
@@ -104,6 +109,7 @@ public class ConfigTest {
     }
 
     @Test
+    @Tag("unit")
     public void systemPropsTest(){
         // Based on virtualdevice.props
         Properties propsHolder = Config.getProps();

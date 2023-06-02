@@ -12,6 +12,7 @@ import io.bonitoo.qa.plugin.PluginType;
 import io.bonitoo.qa.plugin.sample.SamplePlugin;
 import io.bonitoo.qa.plugin.sample.SamplePluginConfig;
 import io.bonitoo.qa.plugin.sample.SamplePluginConfigClass;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("unit")
 public class SamplePluginTest {
 
   protected static PluginProperties defaultProps = new PluginProperties(

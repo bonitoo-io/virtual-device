@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 import java.util.jar.JarOutputStream;
@@ -40,6 +41,7 @@ import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
+@Tag("intg")
 public class SamplePluginIntegrationTest {
 
   static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -248,7 +250,6 @@ public class SamplePluginIntegrationTest {
     GenericDevice dev = GenericDevice.singleDevice(mockClient, devConf);
 
     ExecutorService service = Executors.newFixedThreadPool(1);
-
     service.execute(dev);
 
     // N.B. returns false if timeout expires, which is what this should do
@@ -257,7 +258,6 @@ public class SamplePluginIntegrationTest {
     service.shutdown();
 
     verify(mockClient, times(1)).connect();
-
     verify(mockClient, times(10)).publish(eq(conf.getTopic()), anyString());
 
   }
@@ -338,7 +338,7 @@ public class SamplePluginIntegrationTest {
   @Test
   public void InfluxLPSamplePluginConfDeserializerTest() throws JsonProcessingException {
 
-    String sampleConfigJSON = "{\"name\":\"InfluxLPSamplePluginConf\",\"id\":\"random\",\"topic\":\"test/foo\",\"items\":[{\"name\":\"temp\",\"label\":\"temperature\",\"type\":\"Double\",\"genClassName\":\"io.bonitoo.qa.data.generator.NumGenerator\",\"updateArgs\":[\"period\",\"min\",\"max\",\"time\"],\"max\":40.0,\"min\":10.0,\"period\":1,\"prec\":4},{\"name\":\"press\",\"label\":\"pressure\",\"type\":\"Double\",\"genClassName\":\"io.bonitoo.qa.data.generator.NumGenerator\",\"updateArgs\":[\"period\",\"min\",\"max\",\"time\"],\"max\":32.0,\"min\":26.0,\"period\":1,\"prec\":4}],\"plugin\":\"InfluxLPSamplePlugin\",\"measurement\":\"testing\",\"tags\":{\"bar\":\"barfly\",\"foo\":\"foodie\"}}";
+    String sampleConfigJSON = "{\"name\":\"InfluxLPSamplePluginConf\",\"id\":\"random\",\"topic\":\"test/foo\",\"items\":[{\"name\":\"temp\",\"label\":\"temperature\",\"type\":\"Double\",\"genClassName\":\"io.bonitoo.qa.data.generator.NumGenerator\",\"max\":40.0,\"min\":10.0,\"period\":1,\"prec\":4},{\"name\":\"press\",\"label\":\"pressure\",\"type\":\"Double\",\"genClassName\":\"io.bonitoo.qa.data.generator.NumGenerator\",\"max\":32.0,\"min\":26.0,\"period\":1,\"prec\":4}],\"plugin\":\"InfluxLPSamplePlugin\",\"measurement\":\"testing\",\"tags\":{\"bar\":\"barfly\",\"foo\":\"foodie\"}}";
 
     ObjectMapper om = new ObjectMapper();
 

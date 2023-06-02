@@ -11,6 +11,7 @@ import io.bonitoo.qa.plugin.eg.EmptyItemGenPlugin;
 import io.bonitoo.qa.plugin.item.ItemPluginMill;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.InvocationTargetException;
@@ -18,6 +19,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("unit")
 public class ItemConfigDeserializerTest {
 
     static PluginProperties props = new PluginProperties(EmptyItemGenPlugin.class.getName(),
@@ -60,7 +62,7 @@ public class ItemConfigDeserializerTest {
 //        confPlugin = new ItemPluginConfig(props.getName(), props.getName() + "Test01", props.getLabel(),
 //          ItemPluginMill.genNewInstance(props.getName(), null));
 
-        confPlugin = new ItemPluginConfig(props,props.getName() + "Test01", new Vector<>(Arrays.asList("argy","bargy")));
+        confPlugin = new ItemPluginConfig(props,props.getName() + "Test01");
 
 //        System.out.println("DEBUG ItemPluginMill.keys " + ItemPluginMill.getKeys());
 

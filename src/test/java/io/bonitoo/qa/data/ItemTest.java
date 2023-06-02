@@ -9,12 +9,15 @@ import io.bonitoo.qa.data.generator.NumGenerator;
 import io.bonitoo.qa.plugin.*;
 import io.bonitoo.qa.plugin.eg.CounterItemPlugin;
 import io.bonitoo.qa.plugin.eg.PiItemGenPlugin;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("unit")
 public class ItemTest {
 
     @Test
@@ -65,37 +68,6 @@ public class ItemTest {
                 "Item Configuration named zyxwvutsrqponmlkjihgfedcba not found");
     }
 
-
-/*    public static class PiItemGenPlugin extends ItemGenPlugin {
-        public PiItemGenPlugin(PluginProperties props, ItemConfig config, boolean enabled) {
-            super(props, config, enabled);
-        }
-
-        public PiItemGenPlugin(){
-         //   this.name = null;
-            this.props = null;
-            this.enabled = false;
-            this.dataConfig = null;
-        }
-
-        @Override
-        public Double getCurrentVal() {
-            return Math.PI;
-        }
-
-        @Override
-        public void onLoad() {
-            enabled = true;
-        }
-
-        @Override
-        public Object genData(Object... args) {
-            return Math.PI;
-        }
-    }
-
- */
-
     @Test
     public void pluginItemTest() throws ClassNotFoundException,
       PluginConfigException {
@@ -113,7 +85,7 @@ public class ItemTest {
 
         PiItemGenPlugin plugin = new PiItemGenPlugin(props, null, true);
 
-        plugin.setDataConfig(new ItemPluginConfig(props,props.getName() + "01", new Vector<>()));
+        plugin.setDataConfig(new ItemPluginConfig(props,props.getName() + "01"));
 
         assertEquals(PluginResultType.Double, plugin.getResultType());
         assertEquals(props.getName() + "01", plugin.getDataConfig().getName());
@@ -122,31 +94,6 @@ public class ItemTest {
 
         assertEquals(Math.PI, item.asDouble());
 
-    }
-
-    @Test
-    public void updateArgsOrderTest(){
-
-        PluginProperties props = new PluginProperties(PiItemGenPlugin.class.getName(),
-          "PiPlugin",
-          "pi",
-          "A simple test plugin",
-          "0.1",
-          PluginType.Item,
-          PluginResultType.Long,
-          new Properties());
-
-        String[] args = { "foo", "bar", "wombat", "apple", "zebra",
-          "couscous", "dodo", "kangaroo", "platypus", "fred"};
-
-        ItemConfig itc = new ItemPluginConfig(props, "piConf",
-          new Vector<>(Arrays.asList(args[0],args[1],args[2],args[3],args[4]
-          ,args[5],args[6],args[7],args[8],args[9])));
-
-        int count = 0;
-        for(String s : itc.getUpdateArgs()){
-            assertEquals(s, args[count++]);
-        }
     }
 
     @Test
@@ -160,7 +107,7 @@ public class ItemTest {
           PluginResultType.Long,
           new Properties());
 
-        ItemConfig conf = new ItemPluginConfig(props, "testPluginConf", new Vector<>());
+        ItemConfig conf = new ItemPluginConfig(props, "testPluginConf");
 
         CounterItemPlugin plugin1 = new CounterItemPlugin(props, conf, true);
         CounterItemPlugin plugin2 = new CounterItemPlugin(props, conf, true);
@@ -204,7 +151,7 @@ public class ItemTest {
         ItemConfig configNum = new ItemNumConfig("testDouble", "someVal", ItemType.Double, 0, 10, 4);
         ItemConfig configString = new ItemStringConfig("testString", "lalala", ItemType.String,
           Arrays.asList("Do", "Re", "Mi", "Fa", "Sol", "La", "Ti"));
-        ItemConfig configPlugin = new ItemPluginConfig(props, "testPluginConf", new Vector<>());
+        ItemConfig configPlugin = new ItemPluginConfig(props, "testPluginConf");
 
         ItemConfig newConfigNum = new ItemNumConfig((ItemNumConfig) configNum);
         ItemConfig newConfigString = new ItemStringConfig((ItemStringConfig) configString);
@@ -251,7 +198,7 @@ public class ItemTest {
         ItemConfig configNum = new ItemNumConfig("testDouble", "someVal", ItemType.Double, 0, 10, 4);
         ItemConfig configString = new ItemStringConfig("testString", "lalala", ItemType.String,
           Arrays.asList("Do", "Re", "Mi", "Fa", "Sol", "La", "Ti"));
-        ItemConfig configPlugin = new ItemPluginConfig(props, "testPluginConf", new Vector<>());
+        ItemConfig configPlugin = new ItemPluginConfig(props, "testPluginConf");
 
         Item itNum = Item.of(configNum);
         Item itString = Item.of(configString);
@@ -273,9 +220,5 @@ public class ItemTest {
         assertNotEquals(ItemConfigRegistry.get(configPlugin.getName()).hashCode(), itPlugin.getConfig().hashCode());
 
     }
-
-
-
-
 
 }

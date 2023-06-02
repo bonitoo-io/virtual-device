@@ -2,7 +2,7 @@
 
 ![build workflow](https://github.com/bonitoo-io/virtual-device/actions/workflows/default-build.yml/badge.svg)
 
-This project offers virtual devices for testing IoT frameworks communicating through MQTT.  The device runner can start one or more devices, each of which publishes randomly generated data samples as MQTT messages with a JSON payload.  Data samples are made up of a topic as defined in the MQTT specification, and the payload.  The default payload contains at a minimum the sample ID, a timestamp of when the sample was generated, and other configurable items containing randomly generated values.
+This project offers virtual devices for testing IoT frameworks communicating through MQTT.  The device runner can start one or more devices, each of which publishes randomly generated data samples as MQTT messages with a JSON payload.  Data samples are made up of a topic, as defined in the MQTT specification, and of the payload.  The default sample payload contains, at a minimum, the sample ID, a timestamp of when the sample was generated, and other configurable items containing randomly generated values.
 
 *Generated default payload example.*
 
@@ -23,7 +23,7 @@ The project is drawn together through the base `DeviceRunner` class.  It also pr
 
 **Basic Structure**
 
-When working with virtual devices in this project keep in mind that the following class structure, from the bottom up, is used:
+When working with virtual devices in this project, keep in mind that the following class structure, from the bottom up, is used:
 
    * _Data Generator_ - generates primitive values of type Long, Double or String.
    * _Item_ - encapsulates the results of a Data Generator adding to them a label and a name, so that the item can be handled elsewhere. 
@@ -120,7 +120,7 @@ java -jar target/virtual-device-0.1-SNAPSHOT-4c6be4c.jar
 
 This uses the default runner configuration yaml declared in `virtualdevice.props`.  
 
-An alternate runner config can be specified in that file or through the JVM property `runner.conf`.  The value of this property can be either a file name on the resource classpath or a path to a file.  
+An alternate runner config can be specified in that file or through the JVM property `runner.conf`.  The value of this property can be either a file name on the classpath or a path to a file.  
 
 For example:
 
@@ -136,7 +136,7 @@ The life of the device runner is determined by the configuration value `ttl` in 
 
 1. **Load Plugins** - the first task that the device runner undertakes is to scan the `plugins` directory for any generator plugins and then adds them to the runtime.  These are jar files whose main classes extend the `DataGenerator` class. 
 2. **Read Runner Configuration** - the runner configuration YAML file is then parsed and the items, samples and devices defined within get instantiated and coupled together.
-3. **Generate Samples** - each device is isolated in its own thread.  Devices then generate sample data and send messages to the MQTT broker at millisecond intervals determined by the `interval` configuration property.
+3. **Generate Samples** - each device is isolated in its own thread.  Devices then generate sample data and send messages to the MQTT broker at intervals determined in milliseconds by the `interval` configuration property.
 4. **Shutdown** - once the TTL point is reached, the device runner ends all device threads and terminates the run.  
 
 ## System Configuration
@@ -179,9 +179,7 @@ Items represent the primitive elements in a sample, whose values can be randomly
   * `BuiltInTemp` - a builtin temperature generator.
   * other builtins can be added.
 
-Fields associated with the `Plugin` type:
-
-* `updateArgs` - _required_ - this is an array of field names taken from the configuration.  The values of these fields will be sent as arguments to the item plugin's `genData()` method.  For plugins which use only an empty argument array, this can also be left out.  Note that the order in which the fields are named is important, as it needs to match the order in which the arguments are used in the `genData()` method. 
+Item subtypes will expect additional configuration fields/
 
 #### Numerical Items
 
@@ -202,9 +200,13 @@ _Double Item configuration example_
     period: 1
 ```
 
+The `Double` type also allows an optional field:
+
+   * `prec` - for setting the decimal precision used when serializing values.  It takes an  integer.
+
 #### String Items
 
-The `String` types require an array of strings from which one value will be chosen randomly whenever a new value gets generated.
+The `String` type requires an array of strings from which one value will be chosen randomly whenever a new value gets generated.
 
 _Item as String constant example_
 ```yaml
@@ -221,6 +223,8 @@ A plugin item type looks for a generator in an Item Plugin preloaded from the di
 
 * `pluginName` - name of the plugin as set in plugin properties.
 * `resultType` - the primitive type the plugin generates: e.g. `Double`,`Long`,`String`.
+
+Custom configuration classes can be added to a plugin.  This supports the extension of an Item configuration to any other fields that a custom plugin might need to support.
 
 _Item Plugin example_
 ```yaml
@@ -374,7 +378,7 @@ devices:
 
 ## Setting up a test ground
 
-This project leverages the Hive MQ client API.  During development testing was mostly done against Mosquitto, using the Mosquitto docker image.  
+This project leverages the Hive MQ client API.  During development, testing was mostly done against Mosquitto, using the Mosquitto docker image.  
 
 ### Starting Mosquitto docker
 
