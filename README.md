@@ -28,7 +28,7 @@ When working with virtual devices in this project, keep in mind that the followi
    * _Data Generator_ - generates primitive values of type Long, Double or String.
    * _Item_ - encapsulates the results of a Data Generator adding to them a label and a name, so that the item can be handled elsewhere. 
    * _Sample_ - encapsulates a set of Items adding with them an MQTT topic and a timestamp of when they were generated.
-   * _Device_ - encapsulates a set of Samples, times the value updates and handles communication with the MQTT broker. 
+   * _Device_ - encapsulates a set of Samples, schedules the value updates and handles communication with the MQTT broker. 
    * _DeviceRunner_ - encapsulates a set of Devices, manages their threads and sets up the broker client.  
 
 **Configurability**
@@ -58,11 +58,12 @@ For a quick peek at what this project does and how it works, try  `scripts/quick
    1. remove any copied plugins. 
    1. tear down the listener and broker.
 
-It offers four simple scenarios. 
+It offers five simple scenarios. 
 
    * `no args` - runs a simple scenario without plugins.
    * `nrf9160` - runs with the `runner.conf` file set to `examples/nrf9160/thingy91.yml`
-   * `itemPlugin` - runs a scenario with the accelerator item plugin. 
+   * `itemPlugin` - runs a scenario with the accelerator item plugin.
+   * `itemPluginRich` - runs a richer scenario with the simpleMovingAverage item plugin.
    * `samplePlugin` - runs a scenario with the lpFileReader sample plugin. 
 
 For example: 
@@ -370,11 +371,11 @@ devices:
 
 *Core Classes*
 
-![Core Classes](VirtualDeviceCoreClasses.png "Core Classes")
+![Core Classes](VirtualDeviceCoreClassesTrans.png "Core Classes")
 
 *Extended Classes*
 
-![Extended Classes](VirtualDeviceExtClasses.png "Extended Classes")
+![Extended Classes](VirtualDeviceExtClassesTrans.png "Extended Classes")
 
 ## Setting up a test ground
 

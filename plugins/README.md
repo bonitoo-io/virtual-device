@@ -174,6 +174,9 @@ _A configuration using the plugin_
       pluginName: "AcceleratorPlugin"
       resultType: "Double"
 ```
+#### Richer Item Plugins
+
+It may occur that an item plugin needs to handle more values in its configuration than those made available by default.  In this case a custom configuration extending the `ItemPluginConfig` class can be added to the plugin.  This new configuration needs to be declared through the annotation `@ItemPluginConfigClass(conf = <Configuration.Class>)` used at the start of the definition of the plugin class.  Furthermore, it needs an associated deserializer extending the class `ItemConfigDeserializer`.  See the _SimpleMovingAverage_ plugin for more insight. 
 
 ### Sample plugins
 
