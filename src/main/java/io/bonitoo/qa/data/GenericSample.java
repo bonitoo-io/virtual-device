@@ -5,8 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.bonitoo.qa.conf.data.ItemConfig;
+import io.bonitoo.qa.conf.data.ItemPluginConfig;
 import io.bonitoo.qa.conf.data.SampleConfig;
 import io.bonitoo.qa.data.serializer.GenericSampleSerializer;
+import io.bonitoo.qa.plugin.PluginConfigException;
+import io.bonitoo.qa.plugin.item.ItemPluginMill;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
 /**
@@ -26,9 +30,19 @@ public class GenericSample extends Sample {
     gs.id = config.getId();
     gs.topic = config.getTopic();
     gs.items = new HashMap<>();
-    // gs.generator = new GenericSampleGenerator();
     for (ItemConfig itemConfig : config.getItems()) {
-      gs.getItems().put(itemConfig.getName(), Item.of(itemConfig));
+      if (itemConfig instanceof ItemPluginConfig) {
+        try {
+          gs.getItems().put(itemConfig.getName(), ItemPluginMill.genNewInstance(
+              ((ItemPluginConfig) itemConfig).getPluginName(),
+              (ItemPluginConfig) itemConfig).getItem());
+        } catch (PluginConfigException | NoSuchMethodException | InvocationTargetException
+                 | InstantiationException | IllegalAccessException e) {
+          throw new RuntimeException(e);
+        }
+      } else {
+        gs.getItems().put(itemConfig.getName(), Item.of(itemConfig));
+      }
     }
     gs.timestamp = System.currentTimeMillis();
 

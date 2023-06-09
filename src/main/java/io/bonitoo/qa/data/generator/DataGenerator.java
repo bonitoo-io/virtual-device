@@ -1,10 +1,12 @@
 package io.bonitoo.qa.data.generator;
 
+import io.bonitoo.qa.VirtualDeviceRuntimeException;
 import io.bonitoo.qa.conf.VirDevConfigException;
 import io.bonitoo.qa.conf.data.DataConfig;
 import io.bonitoo.qa.data.Item;
 import io.bonitoo.qa.plugin.item.ItemPluginMill;
 import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,7 +24,7 @@ public abstract class DataGenerator<T extends DataConfig> {
 
   static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  Item item;
+  protected Item item;
 
   public abstract Object genData();
 
@@ -36,12 +38,21 @@ public abstract class DataGenerator<T extends DataConfig> {
   @SuppressWarnings("unchecked")
   public static DataGenerator<? extends DataConfig> create(String className, Object... args) {
     ClassLoader systemLoader = ClassLoader.getSystemClassLoader();
+
+    // TODO - review if calling constructor with args is used or is usable
+
     try {
       // check if plugin
       if (ItemPluginMill.hasPluginClass(className)) {
         logger.info(String.format("Creating DataGenerator instance of plugin class %s", className));
+        Class<?>[] argTypes = new Class<?>[args.length];
+        int index = 0;
+        for (Object o : args) {
+          argTypes[index++] = o.getClass();
+        }
+
         return (DataGenerator<? extends DataConfig>) ItemPluginMill.getPluginClassByName(className)
-            .getDeclaredConstructor().newInstance(args);
+            .getDeclaredConstructor(argTypes).newInstance(args);
       } else { // try systemLoader
         logger.info(String.format("Creating DataGenerator instance of internal class %s",
             className));

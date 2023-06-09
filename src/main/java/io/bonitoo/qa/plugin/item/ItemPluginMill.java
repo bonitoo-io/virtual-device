@@ -1,8 +1,10 @@
 package io.bonitoo.qa.plugin.item;
 
+import io.bonitoo.qa.VirtualDeviceRuntimeException;
 import io.bonitoo.qa.conf.Config;
 import io.bonitoo.qa.conf.VirDevConfigException;
 import io.bonitoo.qa.conf.data.ItemPluginConfig;
+import io.bonitoo.qa.data.Item;
 import io.bonitoo.qa.plugin.Plugin;
 import io.bonitoo.qa.plugin.PluginConfigException;
 import io.bonitoo.qa.plugin.PluginProperties;
@@ -51,7 +53,7 @@ public class ItemPluginMill {
     }
     throw new RuntimeException(String.format("Class %s is not a loaded plugin", classname));
   }
-
+  
   public static void addPluginClass(String key,
                                     Class<? extends Plugin> pluginClass,
                                     PluginProperties props) {
@@ -143,6 +145,10 @@ public class ItemPluginMill {
       throws PluginConfigException, NoSuchMethodException, InvocationTargetException,
       InstantiationException, IllegalAccessException {
 
+    if (pluginDataConfig == null) {
+      throw new PluginConfigException("pluginDataConfig must not be null");
+    }
+
     if (!pluginPackMap.containsKey(pluginName)) {
       throw new PluginConfigException("Attempt to create instance of unknown plugin class "
         + pluginName);
@@ -150,26 +156,17 @@ public class ItemPluginMill {
 
     PluginPack pack = pluginPackMap.get(pluginName);
 
-    ItemGenPlugin plugin = (ItemGenPlugin) pack.pluginClass.getDeclaredConstructor().newInstance();
+    ItemGenPlugin plugin = (ItemGenPlugin) Item.of(pluginDataConfig, pack.pluginProps)
+        .getGenerator();
 
-    plugin.setProps(pack.pluginProps);
-
-    // instances get stored directly in config from where they get called
-    // this pattern follows pattern used in Item class for the default generator
-    // TODO resolve updateArgs for new null config
-    if (pluginDataConfig == null) {
-      plugin.setDataConfig(new ItemPluginConfig(ItemPluginMill.getPluginProps(pluginName),
-          pluginName + "Conf"));
-      if (pack.pluginProps.getPrec() != null) {
-        ((ItemPluginConfig) plugin.getDataConfig()).setPrec(pack.pluginProps.getPrec());
-      }
-    } else {
-      plugin.setDataConfig(pluginDataConfig);
+    if (pack.pluginProps.getPrec() != null) {
+      ((ItemPluginConfig) plugin.getDataConfig()).setPrec(pack.pluginProps.getPrec());
     }
+
     plugin.onLoad();
 
     logger.info(String.format("Generated new instance %s:%s of plugin %s:%s",
-        plugin.getDataConfig().getName(), plugin.hashCode(),
+        pluginDataConfig.getName(), plugin.hashCode(),
         pluginName, pack.pluginClass.getName()));
 
     return plugin;

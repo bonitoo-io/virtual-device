@@ -10,6 +10,8 @@ import io.bonitoo.qa.conf.data.ItemConfig;
 import io.bonitoo.qa.conf.data.ItemPluginConfig;
 import io.bonitoo.qa.conf.data.SampleConfig;
 import io.bonitoo.qa.conf.device.DeviceConfig;
+import io.bonitoo.qa.data.GenericSample;
+import io.bonitoo.qa.data.Sample;
 import io.bonitoo.qa.device.GenericDevice;
 import io.bonitoo.qa.mqtt.client.MqttClientBlocking;
 import io.bonitoo.qa.plugin.item.ItemGenPlugin;
@@ -30,6 +32,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
@@ -87,11 +90,9 @@ public class PluginIntegrationTest {
     itemConfig = new ItemPluginConfig(ItemPluginMill.getPluginProps("AcceleratorPlugin"),
       "AcceleratorTest");
 
-  //  System.out.println("DEBUG itemConfig itemGen " + ((ItemPluginConfig)itemConfig).getGenClassName());
     assertEquals(accelClassName, itemConfig.getGenClassName());
     assertEquals("AcceleratorTest", itemConfig.getName());
     assertEquals("speed", itemConfig.getLabel());
-   // assertEquals(new Vector<>(), itemConfig.getUpdateArgs());
 
     SampleConfig sConf = new SampleConfig("random", "accelTestSample", "test/accel", Arrays.asList(itemConfig));
 
@@ -105,13 +106,9 @@ public class PluginIntegrationTest {
 
     ObjectWriter yamlWriter = new ObjectMapper(new YAMLFactory()).writer().withDefaultPrettyPrinter();
 
-  //  System.out.println("DEBUG deviceConfig\n" + yamlWriter.writeValueAsString(devConf));
-
     ExecutorService executor = Executors.newSingleThreadExecutor();
 
     Config.getRunnerConfig().setDevices(Collections.singletonList(devConf));
-
- //   System.out.println("DEBUG Config.runnerConfig\n" + yamlWriter.writeValueAsString(Config.getRunnerConfig()));
 
     GenericDevice accelDevice = GenericDevice.singleDevice(mockClient, Config.deviceConf(0));
 
@@ -217,7 +214,6 @@ public class PluginIntegrationTest {
 
 
     // Now try and run it
-
     ExecutorService executor = Executors.newSingleThreadExecutor();
 
     executor.execute(lpSampleDevice);
@@ -235,7 +231,137 @@ public class PluginIntegrationTest {
     for (SampleConfig sampConf : Config.getSampleConfs(0)) {
       verify(mockClient, times(34)).publish(eq(sampConf.getTopic()), anyString());
     }
+  }
 
+  /*
+  public static class FooItemPluginConfig extends ItemPluginConfig {
+
+    public FooItemPluginConfig(PluginProperties props, String name) {
+      super(props, name);
+    }
+
+    public FooItemPluginConfig(ItemPluginConfig config) {
+      super(config);
+    }
+  }
+
+   */
+
+  @Getter
+  @Setter
+  @AllArgsConstructor
+  @NoArgsConstructor
+  public static class FooSample extends GenericSample {
+    double foo;
+  }
+
+
+  @Test
+  @Tag("intg")
+  public void loadComplexItemPlugin()
+    throws PluginConfigException, InvocationTargetException, NoSuchMethodException,
+    InstantiationException, IllegalAccessException, JsonProcessingException, InterruptedException {
+
+    final String simpleMovingAvgClassName = "io.bonitoo.virdev.plugin.SimpleMovingAvg";
+    final String simpleMovingAvgName = "SimpleMovingAvg";
+    final String sampleID = "fooSample2050";
+    final double min = 0.0;
+    final double max = 99.9;
+    final int prec = 3;
+
+    File[] pluginFiles = new File("plugins/examples/simpleMovingAvg").listFiles((dir, name) ->
+      name.toLowerCase().endsWith(".jar")
+    );
+    assertNotNull(pluginFiles);
+    assertEquals(1, pluginFiles.length);
+    for(File f : pluginFiles){
+      assertEquals("simpleMovingAverage-0.1-SNAPSHOT.jar", f.getName());
+      try {
+        @SuppressWarnings("unchecked")
+        Class<ItemGenPlugin> clazz = (Class<ItemGenPlugin>) PluginLoader.loadPlugin(f);
+        assertNotNull(clazz);
+        assertEquals(simpleMovingAvgClassName, clazz.getName());
+      } catch (IOException | PluginConfigException |
+               ClassNotFoundException | NoSuchFieldException |
+               IllegalAccessException e) {
+        throw new VirDevConfigException(e);
+      }
+    }
+
+    assertTrue(ItemPluginMill.getKeys().contains(simpleMovingAvgName));
+
+    Class<?> clazz = ItemPluginMill.getPluginClass(simpleMovingAvgName);
+    assertEquals(simpleMovingAvgClassName, clazz.getName());
+
+    String deviceTestConfig = "---\n" +
+      "id: \"random\"\n" +
+      "name: \"simpleMovingAvgTestDevice\"\n" +
+      "description: \"testing simpleMovingAvg plugin\"\n" +
+      "samples:\n" +
+      "- name: \"simpleMovingAvgTestSample\"\n" +
+      "  id: \"" + sampleID + "\"\n" +
+      "  topic: \"test/foo\"\n" +
+      "  items:\n" +
+      "  - name: \"simpleMovingAvgConf\"\n" +
+      "    label: \"foo\"\n" +
+      "    type: \"Plugin\"\n" +
+      "    pluginName: \"SimpleMovingAvg\"\n" +
+      "    resultType: \"Double\"\n" +
+      "    prec: " + prec +  "\n" +
+      "    window: 5\n" +
+      "    min: " + min + "\n" +
+      "    max: " + max + "\n" +
+      "interval: 500\n" +
+      "jitter: 100\n" +
+      "count: 1";
+
+    ObjectMapper omy = new ObjectMapper(new YAMLFactory());
+
+    DeviceConfig devConf = omy.readValue(deviceTestConfig, DeviceConfig.class);
+
+    Config.getRunnerConfig().setDevices(Collections.singletonList(devConf));
+
+    GenericDevice avgTestDevice = GenericDevice.singleDevice(mockClient, Config.deviceConf(0));
+
+    ObjectMapper omj = new ObjectMapper();
+
+    FooSample fsStart = omj.readValue(avgTestDevice.getSampleList().get(0).toJson(), FooSample.class);
+
+    assertEquals(sampleID, fsStart.getId());
+    long minuteAgo = System.currentTimeMillis() - 60000;
+    assertTrue(fsStart.getTimestamp() > minuteAgo && fsStart.getTimestamp() < System.currentTimeMillis());
+    assertInstanceOf(Double.class, fsStart.getFoo());
+    assertTrue(fsStart.getFoo() >= min && fsStart.getFoo() <= max);
+
+    ObjectWriter ow = omj.writer();
+    String valPrec = ow.writeValueAsString(fsStart.getFoo());
+    assertTrue(valPrec.split("\\.")[1].length() <= prec);
+
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    executor.execute(avgTestDevice);
+
+    executor.awaitTermination(Config.ttl(), TimeUnit.MILLISECONDS);
+
+    executor.shutdown();
+
+    FooSample fsEnd = omj.readValue(avgTestDevice.getSampleList().get(0).toJson(), FooSample.class);
+
+    assertEquals(sampleID, fsEnd.getId());
+    minuteAgo = System.currentTimeMillis() - 60000;
+    assertTrue(fsEnd.getTimestamp() > minuteAgo && fsEnd.getTimestamp() < System.currentTimeMillis());
+    assertInstanceOf(Double.class, fsEnd.getFoo());
+    assertTrue(fsEnd.getFoo() >= min && fsEnd.getFoo() <= max);
+    assertNotEquals(fsStart.getFoo(), fsEnd.getFoo());
+
+    valPrec = ow.writeValueAsString(fsEnd.getFoo());
+    assertTrue(valPrec.split("\\.")[1].length() <= prec);
+
+
+    verify(mockClient, times(1)).connect();
+
+    SampleConfig sampConf = Config.getSampleConfs(0).get(0);
+    verify(mockClient, times(17)).publish(eq(sampConf.getTopic()), anyString());
 
   }
 }

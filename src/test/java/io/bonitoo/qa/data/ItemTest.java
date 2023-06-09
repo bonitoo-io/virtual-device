@@ -9,6 +9,7 @@ import io.bonitoo.qa.data.generator.NumGenerator;
 import io.bonitoo.qa.plugin.*;
 import io.bonitoo.qa.plugin.eg.CounterItemPlugin;
 import io.bonitoo.qa.plugin.eg.PiItemGenPlugin;
+import io.bonitoo.qa.plugin.item.ItemPluginMill;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -82,17 +83,21 @@ public class ItemTest {
         generalProps.put("plugin.label", "pi");
 
         PluginProperties props = new PluginProperties(generalProps);
+        ItemPluginConfig conf = new ItemPluginConfig(props, props.getName()+"01");
 
-        PiItemGenPlugin plugin = new PiItemGenPlugin(props, null, true);
+       // PiItemGenPlugin plugin = new PiItemGenPlugin(props, null, true);
 
-        plugin.setDataConfig(new ItemPluginConfig(props,props.getName() + "01"));
+        // plugin.setDataConfig(new ItemPluginConfig(props,props.getName() + "01"));
+
+        PiItemGenPlugin plugin = (PiItemGenPlugin) Item.of(conf, props).getGenerator();
 
         assertEquals(PluginResultType.Double, plugin.getResultType());
         assertEquals(props.getName() + "01", plugin.getDataConfig().getName());
 
-        Item item = Item.of(plugin.getItemConfig());
+        //Item item = Item.of(plugin.getItemConfig());
+        plugin.onLoad();
 
-        assertEquals(Math.PI, item.asDouble());
+        assertEquals(Math.PI, plugin.getItem().asDouble());
 
     }
 
@@ -109,8 +114,10 @@ public class ItemTest {
 
         ItemConfig conf = new ItemPluginConfig(props, "testPluginConf");
 
-        CounterItemPlugin plugin1 = new CounterItemPlugin(props, conf, true);
-        CounterItemPlugin plugin2 = new CounterItemPlugin(props, conf, true);
+        //CounterItemPlugin plugin1 = new CounterItemPlugin(props, conf, true);
+        CounterItemPlugin plugin1 = (CounterItemPlugin) Item.of(conf, props).getGenerator();
+        //CounterItemPlugin plugin2 = new CounterItemPlugin(props, conf, true);
+        CounterItemPlugin plugin2 = (CounterItemPlugin) Item.of(conf, props).getGenerator();
 
         Item it1 = new Item(conf, 0, plugin1);
         Item it2 = new Item(conf, 0, plugin2);
@@ -184,7 +191,7 @@ public class ItemTest {
     }
 
     @Test
-    public void uniquenessOfItemConfigInItemTest(){
+    public void uniquenessOfItemConfigInItemTest() throws ClassNotFoundException {
         PluginProperties props = new PluginProperties(CounterItemPlugin.class.getName(),
           "CounterPlugin",
           "count",
@@ -199,6 +206,9 @@ public class ItemTest {
         ItemConfig configString = new ItemStringConfig("testString", "lalala", ItemType.String,
           Arrays.asList("Do", "Re", "Mi", "Fa", "Sol", "La", "Ti"));
         ItemConfig configPlugin = new ItemPluginConfig(props, "testPluginConf");
+
+        // Plugins are now sought in the factory
+        ItemPluginMill.addPluginClass(props.getName(), props);
 
         Item itNum = Item.of(configNum);
         Item itString = Item.of(configString);

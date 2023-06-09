@@ -16,11 +16,8 @@ import io.bonitoo.qa.plugin.PluginResultType;
 import io.bonitoo.qa.plugin.PluginType;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
 import java.util.Arrays;
 import java.util.Properties;
-import java.util.Vector;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -77,9 +74,7 @@ public class ItemSerializerTest {
 
     ItemConfig conf = new ItemPluginConfig(props, "testPluginConf");
 
-    CounterItemPlugin plugin1 = new CounterItemPlugin(props, conf, true);
-
-    // System.out.println("DEBUG plugin " + plugin1.genData());
+    CounterItemPlugin plugin1 = (CounterItemPlugin) Item.of(conf, props).getGenerator();
     plugin1.genData();
 
     Item it1 = new Item(conf, 0, plugin1);
@@ -88,7 +83,7 @@ public class ItemSerializerTest {
       it1.update();
     }
 
-    CounterItemPlugin plugin2 = new CounterItemPlugin(props, conf, true);
+    CounterItemPlugin plugin2 = (CounterItemPlugin) Item.of(conf, props).getGenerator();
 
     Item it2 = new Item(conf, 0, plugin2);
 

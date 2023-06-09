@@ -72,12 +72,6 @@ public class DeviceTest {
 
         GenericDevice device = GenericDevice.singleDevice(mockClient, devConf);
 
-     //   System.out.println("DEBUG device " + device.getName());
-     //   System.out.println("DEBUG device.sampleList " + device.getSampleList().size());
-     //   for(GenericSample s : device.getSampleList()){
-     //       System.out.println("   DEBUG sample " + s);
-     //   }
-
         executor.execute(device);
 
         executor.awaitTermination(Config.ttl(), TimeUnit.MILLISECONDS);

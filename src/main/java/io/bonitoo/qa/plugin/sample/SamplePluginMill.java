@@ -169,7 +169,6 @@ public class SamplePluginMill {
 
     @SuppressWarnings("unchecked")
     Class<SamplePlugin> clazz = (Class<SamplePlugin>) getPluginClass(pluginName);
-    //    System.out.println("DEBUG conforms " + getCreateMethod(clazz));
 
     try {
       Method m = getCreateMethod(clazz);

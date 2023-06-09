@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.bonitoo.qa.conf.VirDevConfigException;
+import io.bonitoo.qa.data.Item;
 import io.bonitoo.qa.data.ItemType;
 import io.bonitoo.qa.plugin.*;
 import io.bonitoo.qa.plugin.eg.EmptyItemGenPlugin;
@@ -32,8 +33,8 @@ public class ItemConfigDeserializerTest {
       new Properties()
     );
 
-    static EmptyItemGenPlugin plugin = new EmptyItemGenPlugin(props,
-      new ItemConfig(props.getName(), "plug", ItemType.Plugin, props.getMain()), false);
+    static EmptyItemGenPlugin plugin = new EmptyItemGenPlugin(props, false);
+
 
     static ItemConfig confDouble = new ItemNumConfig("doubleConf", "dbl", ItemType.Double, -5, 10, 1);
     static ItemConfig confLong = new ItemNumConfig("longConf", "lng", ItemType.Long, 0, 100, 1);
@@ -59,12 +60,8 @@ public class ItemConfigDeserializerTest {
     public static void setStringConstants() throws JsonProcessingException, PluginConfigException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         ItemConfigRegistry.clear();
         ItemPluginMill.addPluginClass(plugin.getPluginName(), plugin.getClass(), props);
-//        confPlugin = new ItemPluginConfig(props.getName(), props.getName() + "Test01", props.getLabel(),
-//          ItemPluginMill.genNewInstance(props.getName(), null));
 
         confPlugin = new ItemPluginConfig(props,props.getName() + "Test01");
-
-//        System.out.println("DEBUG ItemPluginMill.keys " + ItemPluginMill.getKeys());
 
         ObjectWriter jsonWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
         ObjectWriter yamlWriter = new ObjectMapper(new YAMLFactory()).writer().withDefaultPrettyPrinter();
@@ -73,14 +70,11 @@ public class ItemConfigDeserializerTest {
         confLongJson = jsonWriter.writeValueAsString(confLong);
         confStringJson = jsonWriter.writeValueAsString(confString);
         confPluginJson = jsonWriter.writeValueAsString(confPlugin);
-//        System.out.println("DEBUG confPluginJson " + confPluginJson);
-
 
         confDoubleYaml = yamlWriter.writeValueAsString(confDouble);
         confLongYaml = yamlWriter.writeValueAsString(confLong);
         confStringYaml = yamlWriter.writeValueAsString(confString);
         confPluginYaml = yamlWriter.writeValueAsString(confPlugin);
-//        System.out.println("DEBUG confPluginYaml\n" + confPluginYaml);
     }
 
     @AfterAll
@@ -103,8 +97,6 @@ public class ItemConfigDeserializerTest {
         assertEquals(configP.getPluginName(), ((ItemPluginConfig)confPlugin).getPluginName());
         assertEquals(configP.getType(), confPlugin.getType());
         assertEquals(configP.getResultType(), ((ItemPluginConfig)confPlugin).getResultType());
-        // every config should have its own instance of this
-  //      assertNotEquals(configP.getItemGen(), ((ItemPluginConfig)confPlugin).getItemGen());
 
         assertEquals(configD, ItemConfigRegistry.get(confDouble.getName()));
         assertEquals(configL, ItemConfigRegistry.get(confLong.getName()));
@@ -127,8 +119,6 @@ public class ItemConfigDeserializerTest {
         assertEquals(configP.getPluginName(), ((ItemPluginConfig)confPlugin).getPluginName());
         assertEquals(configP.getType(), confPlugin.getType());
         assertEquals(configP.getResultType(), ((ItemPluginConfig)confPlugin).getResultType());
-        // every config should have its own instance of this
-     //   assertNotEquals(configP.getItemGen(), ((ItemPluginConfig)confPlugin).getItemGen());
 
         assertEquals(configD, ItemConfigRegistry.get(confDouble.getName()));
         assertEquals(configL, ItemConfigRegistry.get(confLong.getName()));
@@ -192,10 +182,8 @@ public class ItemConfigDeserializerTest {
         ItemNumConfig configWPrec = new ItemNumConfig("doubleConf", "dbl", ItemType.Double, -5, 10, 1, 3);
         ObjectWriter yw = new ObjectMapper(new YAMLFactory()).writer().withDefaultPrettyPrinter();
         String configAsYaml = yw.writeValueAsString(configWPrec);
-        // System.out.println("DEBUG config\n" + configAsYaml);
         ObjectMapper omy = new ObjectMapper(new YAMLFactory());
         ItemConfig configParsed = omy.readValue(configAsYaml, ItemConfig.class);
-        // System.out.println("DEBUG configParsed\n" + configParsed);
         assertEquals(configWPrec.getPrec(), ((ItemNumConfig)configParsed).getPrec());
     }
 
