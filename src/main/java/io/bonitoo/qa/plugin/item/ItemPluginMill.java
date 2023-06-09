@@ -1,6 +1,5 @@
 package io.bonitoo.qa.plugin.item;
 
-import io.bonitoo.qa.VirtualDeviceRuntimeException;
 import io.bonitoo.qa.conf.Config;
 import io.bonitoo.qa.conf.VirDevConfigException;
 import io.bonitoo.qa.conf.data.ItemPluginConfig;
@@ -53,7 +52,7 @@ public class ItemPluginMill {
     }
     throw new RuntimeException(String.format("Class %s is not a loaded plugin", classname));
   }
-  
+
   public static void addPluginClass(String key,
                                     Class<? extends Plugin> pluginClass,
                                     PluginProperties props) {
