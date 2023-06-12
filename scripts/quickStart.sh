@@ -8,6 +8,8 @@ MQTT5_PID=""
 SUBSCRIBER_LOG=scripts/mqtt5subscriber.log
 ITEM_PLUGIN_JAR=accelerator-0.1-SNAPSHOT.jar
 ITEM_PLUGIN_PATH=plugins/examples/accelerator/${ITEM_PLUGIN_JAR}
+ITEM_PLUGIN_AVG_JAR=simpleMovingAverage-0.1-SNAPSHOT.jar
+ITEM_PLUGIN_AVG_PATH=plugins/examples/simpleMovingAvg/${ITEM_PLUGIN_AVG_JAR}
 SAMPLE_PLUGIN_JAR=lpFileReader-0.1-SNAPSHOT.jar
 SAMPLE_PLUGIN_PATH=plugins/examples/lpFileReader/${SAMPLE_PLUGIN_JAR}
 
@@ -33,11 +35,12 @@ function help(){
   echo " "
   echo "run one of the following scenarios"
   echo " "
-  echo "$MY_NAME              - runs the basic configuration without plugins"
-  echo "$MY_NAME itemPlugin   - runs a configuration with an item plugin"
-  echo "$MY_NAME samplePlugin - runs a confguration with a sample plugin"
-  echo "$MY_NAME nrf9160      - runs without plugins but with example runner.conf"
-  echo "$MY_NAME help         - returns this message"
+  echo "$MY_NAME                - runs the basic configuration without plugins"
+  echo "$MY_NAME itemPlugin     - runs a configuration with an item plugin"
+  echo "$MY_NAME itemPluginRich - runs a configuration with item plugin - simpleMovingAvg"
+  echo "$MY_NAME samplePlugin   - runs a configuration with a sample plugin"
+  echo "$MY_NAME nrf9160        - runs without plugins but with example runner.conf"
+  echo "$MY_NAME help           - returns this message"
 }
 
 function build(){
@@ -156,6 +159,28 @@ function item_plugin_example(){
   shutdown
 }
 
+function item_plugin_avg_example(){
+  setup
+
+  printf "\nCopying ${ITEM_PLUGIN_AVG_PATH} to ./plugins/${ITEM_PLUGIN_AVG_JAR}\n"
+  cp ${ITEM_PLUGIN_AVG_PATH} ./plugins/${ITEM_PLUGIN_AVG_JAR}
+
+  printf "\n\nRUNNING ITEM PLUGIN RICH EXAMPLE\n"
+  printf "=======================\n"
+
+  java -Drunner.conf=plugins/examples/simpleMovingAvg/sampleRunnerConfig.yml -jar target/${VIRDEV_JAR};
+
+  printf "\n\nDONE PUBLISHING ITEM RICH EXAMPLE\n"
+  printf "=============================\n"
+
+  read_log
+
+  printf "\nRemoving ./plugins/${ITEM_PLUGIN_AVG_JAR}\n"
+  rm ./plugins/${ITEM_PLUGIN_AVG_JAR}
+
+  shutdown
+}
+
 function sample_plugin_example(){
   setup
 
@@ -198,6 +223,9 @@ function sample_nrf9160(){
 case $1 in
   "itemPlugin")
      item_plugin_example
+     ;;
+  "itemPluginRich")
+     item_plugin_avg_example
      ;;
   "samplePlugin")
      sample_plugin_example

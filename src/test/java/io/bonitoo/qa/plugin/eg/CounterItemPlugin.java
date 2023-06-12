@@ -3,14 +3,19 @@ package io.bonitoo.qa.plugin.eg;
 import io.bonitoo.qa.conf.data.ItemConfig;
 import io.bonitoo.qa.plugin.item.ItemGenPlugin;
 import io.bonitoo.qa.plugin.PluginProperties;
+import lombok.val;
 
 import java.util.concurrent.atomic.AtomicLong;
 
 public class CounterItemPlugin extends ItemGenPlugin {
 
   AtomicLong counter = new AtomicLong(0);
-  public CounterItemPlugin(PluginProperties props, ItemConfig config, boolean enabled) {
-    super(props, config, enabled);
+  //public CounterItemPlugin(PluginProperties props, ItemConfig config, boolean enabled) {
+  //  super(props, config, enabled);
+ ///}
+
+  public CounterItemPlugin(PluginProperties props, boolean enabled){
+    super(props,enabled);
   }
 
   public CounterItemPlugin(){
@@ -25,6 +30,7 @@ public class CounterItemPlugin extends ItemGenPlugin {
   @Override
   public void onLoad() {
     enabled = true;
+    item.setVal(counter.get());
   }
 
   @Override

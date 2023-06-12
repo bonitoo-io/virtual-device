@@ -1,6 +1,7 @@
 package io.bonitoo.qa.data;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.bonitoo.qa.VirtualDeviceRuntimeException;
 import io.bonitoo.qa.conf.VirDevConfigException;
 import io.bonitoo.qa.conf.data.DataConfig;
 import io.bonitoo.qa.conf.data.ItemConfig;
@@ -11,9 +12,10 @@ import io.bonitoo.qa.data.generator.DataGenerator;
 import io.bonitoo.qa.data.generator.NumGenerator;
 import io.bonitoo.qa.data.generator.SimpleStringGenerator;
 import io.bonitoo.qa.data.serializer.ItemSerializer;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import io.bonitoo.qa.plugin.PluginProperties;
+import io.bonitoo.qa.plugin.item.DataGenPlugin;
+import io.bonitoo.qa.plugin.item.ItemPluginMill;
+import java.lang.reflect.InvocationTargetException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -101,17 +103,60 @@ public class Item {
         it.update();
         break;
       case Plugin:
-        DataGenerator<? extends DataConfig> dg = DataGenerator.create(config.getGenClassName());
-        // ensure each new item has its own copy of config so changes impact only this item
-        it = new Item(new ItemPluginConfig((ItemPluginConfig) config), null, dg);
-        dg.setItem(it);
-        it.update();
+        // DataGenerator<? extends DataConfig> dg = DataGenerator.create(config.getGenClassName());
+        if (! (config instanceof ItemPluginConfig)) {
+          throw new VirtualDeviceRuntimeException(
+            String.format("Configuration %s is not of type ItemPluginConfig, "
+              + "cannot create a plugin from it.", config.getName()));
+        }
+        PluginProperties props = ItemPluginMill.getPluginProps(((ItemPluginConfig) config)
+            .getPluginName());
+        if (props == null) {
+          throw new VirtualDeviceRuntimeException(
+            String.format("Cannot locate %s plugin in ItemPluginMill",
+            ((ItemPluginConfig) config).getPluginName())
+          );
+        }
+        it = of(config, props);
         break;
       default:
         throw new VirDevConfigException(String.format("Unknown Item Type: %s",
           config.getType()));
     }
     return it;
+  }
+
+  /**
+   * Factory method for creating items directly coupled with ItemGenPlugin subtypes.
+   *
+   * @param config - item configuration.
+   * @param props - plugin properties.
+   * @return - an item coupled with the plugin.
+   */
+  public static Item of(ItemConfig config, PluginProperties props) {
+    if (config.getType() != ItemType.Plugin) {
+      throw new VirDevConfigException("Factory method reserved only for Plugin Types");
+    }
+
+    DataGenPlugin<? extends DataConfig> dgp = (DataGenPlugin<? extends DataConfig>)
+        DataGenerator.create(config.getGenClassName());
+
+    try {
+      @SuppressWarnings("unchecked")
+      Item it = new Item(ItemPluginConfig.copy((ItemPluginConfig) config), null, dgp);
+      dgp.setItem(it);
+      dgp.setProps(props);
+
+      // TODO find way to set initial value
+      if (it.val != null) {
+        it.update();
+      }
+      return it;
+    } catch (NoSuchMethodException | InvocationTargetException
+             | InstantiationException | IllegalAccessException e) {
+      throw new RuntimeException(e);
+    }
+
   }
 
   private static Long ensureLong(Object obj) {
@@ -143,39 +188,45 @@ public class Item {
    * @return - the updated item.
    */
   public Item update() {
-    //Object obj = generator.genData(args);
-    Object obj = generator.genData();
-    switch (config.getType()) {
-      case Long:
-        val = ensureLong(obj);
-        break;
-      case Double:
-      case BuiltInTemp:
-        val = ensureDouble(obj);
-        break;
-      case String:
-        val = obj.toString();
-        break;
-      case Plugin:
-        switch (((ItemPluginConfig) config).getResultType()) {
-          case Long:
-            val = ensureLong(obj);
-            break;
-          case Double:
-            val = ensureDouble(obj);
-            break;
-          case String:
-            val = obj.toString();
-            break;
-          default:
-            throw new VirDevConfigException("Unknown plugin result type "
-              + ((ItemPluginConfig) config).getResultType());
-        }
-        break;
-      default:
-        throw new VirDevConfigException("Unknown type " + config.getType());
+    try {
+      Object obj = generator.genData();
+      switch (config.getType()) {
+        case Long:
+          val = ensureLong(obj);
+          break;
+        case Double:
+        case BuiltInTemp:
+          val = ensureDouble(obj);
+          break;
+        case String:
+          val = obj.toString();
+          break;
+        case Plugin:
+          switch (((ItemPluginConfig) config).getResultType()) {
+            case Long:
+              val = ensureLong(obj);
+              break;
+            case Double:
+              val = ensureDouble(obj);
+              break;
+            case String:
+              val = obj.toString();
+              break;
+            default:
+              throw new VirDevConfigException("Unknown plugin result type "
+                + ((ItemPluginConfig) config).getResultType());
+          }
+          break;
+        default:
+          throw new VirDevConfigException("Unknown type " + config.getType());
+      }
+      return this;
+    } catch (Exception e) {
+      throw new VirtualDeviceRuntimeException(
+         String.format("Failed to execute genData() for generator %s ",
+           generator.getClass().getName()), e
+       );
     }
-    return this;
   }
 
   /**
@@ -231,6 +282,10 @@ public class Item {
       p = Double.parseDouble("1e" + prec);
     }
     return (long) (val * p) / p;
+  }
+
+  public void setVal(Object obj) {
+    val = obj;
   }
 
 }

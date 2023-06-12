@@ -9,6 +9,7 @@ import io.bonitoo.qa.plugin.eg.CounterItemPlugin;
 import io.bonitoo.qa.plugin.PluginProperties;
 import io.bonitoo.qa.plugin.PluginResultType;
 import io.bonitoo.qa.plugin.PluginType;
+import io.bonitoo.qa.plugin.item.ItemPluginMill;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -154,13 +155,16 @@ Example from Scientio
     }
 
     @Test
-    public void samplesReuseItemEachWithOwnGenerator(){
+    public void samplesReuseItemEachWithOwnGenerator() throws ClassNotFoundException {
 
         String itemName = "counter";
 
         PluginProperties props = new PluginProperties(CounterItemPlugin.class.getName(),
           "testCounterPlugin", "count", "a counter", "0.0.1", PluginType.Item, PluginResultType.Long,
           new Properties());
+
+        // N.B. GenericSample.of looks up plugins now
+        ItemPluginMill.addPluginClass(props.getName(), props);
 
         ItemConfig dataConf = new ItemPluginConfig(props, itemName);
         SampleConfig conf1 = new SampleConfig("random", "first", "test/first",
@@ -170,6 +174,9 @@ Example from Scientio
 
         Sample s1 = GenericSample.of(conf1);
         Sample s2 = GenericSample.of(conf2);
+
+        ((CounterItemPlugin)s1.item(itemName).getGenerator()).onLoad(); // init the plugin instance
+        ((CounterItemPlugin)s2.item(itemName).getGenerator()).onLoad(); // init the plugin instance
 
         assertNotEquals(s1.item(itemName).getGenerator(), s2.item(itemName).getGenerator());
         while (s1.item(itemName).asLong() < 7L){

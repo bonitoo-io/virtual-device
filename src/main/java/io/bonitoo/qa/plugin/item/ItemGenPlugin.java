@@ -8,8 +8,9 @@ import io.bonitoo.qa.plugin.PluginProperties;
  */
 public abstract class ItemGenPlugin extends DataGenPlugin<ItemConfig> {
 
-  public ItemGenPlugin(PluginProperties props, ItemConfig config, boolean enabled) {
-    super(props, config, enabled);
+
+  public ItemGenPlugin(PluginProperties props, boolean enabled) {
+    super(props, enabled);
   }
 
   /**
@@ -21,11 +22,10 @@ public abstract class ItemGenPlugin extends DataGenPlugin<ItemConfig> {
   public ItemGenPlugin() {
     this.props = null;
     this.enabled = false;
-    this.dataConfig = null;
   }
 
   public ItemConfig getItemConfig() {
-    return (ItemConfig) this.dataConfig;
+    return getItem().getConfig();
   }
 
   /**

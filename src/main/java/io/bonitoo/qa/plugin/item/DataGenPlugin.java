@@ -1,6 +1,8 @@
 package io.bonitoo.qa.plugin.item;
 
 import io.bonitoo.qa.conf.data.DataConfig;
+import io.bonitoo.qa.conf.data.ItemConfig;
+import io.bonitoo.qa.conf.data.ItemPluginConfig;
 import io.bonitoo.qa.data.generator.DataGenerator;
 import io.bonitoo.qa.plugin.Plugin;
 import io.bonitoo.qa.plugin.PluginProperties;
@@ -21,7 +23,7 @@ import lombok.Setter;
  *
  * @param <T> - ItemConfig or SampleConfig
  */
-@AllArgsConstructor
+// @AllArgsConstructor
 @NoArgsConstructor
 @Setter
 @Getter
@@ -29,8 +31,28 @@ public abstract class DataGenPlugin<T extends DataConfig> extends DataGenerator 
 
   protected PluginProperties props;
 
-  protected DataConfig dataConfig;
   protected boolean enabled = false;
+
+  /**
+   * Basic constructor for DataGenPlugin,  Called mainly by subclasses.
+   *
+   * @param props - properties for the plugin.
+   * @param enabled - whether to start enabled or not.
+   */
+  public DataGenPlugin(PluginProperties props, boolean enabled) {
+    this.props = props;
+    this.enabled = enabled;
+  }
+
+  /**
+   * Basic constructor for DataGenPlugin,  Called mainly by subclasses.
+   *
+   * @param props - properties for the plugin.
+   */
+  public DataGenPlugin(PluginProperties props) {
+    this.props = props;
+    this.enabled = false;
+  }
 
   public String getPluginName() {
     return props.getName();
@@ -70,6 +92,10 @@ public abstract class DataGenPlugin<T extends DataConfig> extends DataGenerator 
 
   public PluginResultType getResultType() {
     return props.getResultType();
+  }
+
+  public ItemConfig getDataConfig() {
+    return getItem().getConfig();
   }
 
 }

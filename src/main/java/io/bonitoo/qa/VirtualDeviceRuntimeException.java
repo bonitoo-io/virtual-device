@@ -7,4 +7,8 @@ public class VirtualDeviceRuntimeException extends RuntimeException {
   public VirtualDeviceRuntimeException(String s) {
     super(s);
   }
+
+  public VirtualDeviceRuntimeException(String s, Throwable t) {
+    super(s, t);
+  }
 }

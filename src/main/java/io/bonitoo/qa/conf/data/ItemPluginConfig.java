@@ -6,12 +6,13 @@ import io.bonitoo.qa.data.ItemType;
 import io.bonitoo.qa.plugin.PluginProperties;
 import io.bonitoo.qa.plugin.PluginResultType;
 import io.bonitoo.qa.plugin.PluginType;
-import java.util.Vector;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
- * A configuration file for Items leveraging Item Genertar Plugins.
+ * A configuration file for Items leveraging Item Generator Plugins.
  *
  * <p>Note that the configuration file contains a reference to the
  * Item Generator Plugin/</p>
@@ -37,6 +38,7 @@ public class ItemPluginConfig extends ItemConfig {
    * @param name - name of the configuration.
    */
   public ItemPluginConfig(PluginProperties props, String name) {
+
     this.type = ItemType.Plugin;
     this.name = name;
     this.label = props.getLabel();
@@ -61,10 +63,34 @@ public class ItemPluginConfig extends ItemConfig {
     this.prec = config.prec;
   }
 
+  /**
+   * Copy factory method.  There are cases where an exact copy of the
+   * ItemPluginConfig subtype is what will be required.  This method looks
+   * for overriden definitions of the copy constructor and uses them instead.
+   *
+   * @param config - the config to be copied.
+   * @param <T> - any class extending ItemPluginConfig.
+   * @return - any class extending ItemPluginConfig.
+   * @throws NoSuchMethodException -
+   * @throws InvocationTargetException -
+   * @throws InstantiationException -
+   * @throws IllegalAccessException -
+   */
+  public static <T extends ItemPluginConfig> ItemPluginConfig copy(T config)
+      throws NoSuchMethodException, InvocationTargetException, InstantiationException,
+      IllegalAccessException {
+
+    Constructor<? extends ItemPluginConfig> constructor = config.getClass()
+        .getDeclaredConstructor(ItemPluginConfig.class);
+
+    return constructor.newInstance(config);
+
+  }
+
   @Override
   public String toString() {
-    return String.format("%s,pluginName:%s,pluginType:%s,resultType:%s",
-      super.toString(), pluginName, pluginType, resultType);
+    return String.format("%s,pluginName:%s,pluginType:%s,resultType:%s,prec:%s",
+      super.toString(), pluginName, pluginType, resultType, prec);
   }
 
   @Override

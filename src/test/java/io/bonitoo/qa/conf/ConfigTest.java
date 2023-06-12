@@ -66,7 +66,6 @@ public class ConfigTest {
     public void getRunnerConfigTest(){
         // Based on testRunnnerConfig.yml as specified in virtualdevice.props runner.conf
         RunnerConfig rConf = Config.getRunnerConfig();
-        // System.out.println("DEBUG rConf " + rConf);
         assertEquals(10000, rConf.getTtl());
         assertEquals(2, rConf.getDevices().size());
         assertEquals(2, rConf.getDevices().get(0).getSamples().size());

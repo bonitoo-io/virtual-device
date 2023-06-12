@@ -74,7 +74,7 @@ function start_mosquitto(){
   fi
 
   docker rm mosquito-mq > /dev/null 2>&1
-  docker run --name mosquito-mq -p 1883:1883 -p 9001:9001 -v ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf -v ./mosquitto/data:/mosquitto/data eclipse-mosquitto
+  docker run --name mosquito-mq -p 1883:1883 -p 9001:9001 -v $(pwd)/mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf -v $(pwd)/mosquitto/data:/mosquitto/data eclipse-mosquitto
 
 }
 

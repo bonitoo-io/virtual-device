@@ -4,6 +4,7 @@ import io.bonitoo.qa.conf.data.ItemConfig;
 import io.bonitoo.qa.plugin.item.ItemGenPlugin;
 import io.bonitoo.qa.plugin.PluginProperties;
 import lombok.NoArgsConstructor;
+import net.bytebuddy.pool.TypePool;
 
 @NoArgsConstructor
 public class EmptyItemGenPlugin extends ItemGenPlugin {
@@ -12,8 +13,12 @@ public class EmptyItemGenPlugin extends ItemGenPlugin {
 
     String value;
 
-    public EmptyItemGenPlugin(PluginProperties props, ItemConfig config, boolean enabled) {
-      super(props, config, enabled);
+    //public EmptyItemGenPlugin(PluginProperties props, ItemConfig config, boolean enabled) {
+    //  super(props, config, enabled);
+    //}
+
+    public EmptyItemGenPlugin(PluginProperties props, boolean enabled){
+      super(props, enabled);
     }
 
   @Override
