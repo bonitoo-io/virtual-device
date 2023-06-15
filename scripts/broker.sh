@@ -4,6 +4,14 @@ PROJ_NAME=virtual-device
 MQTT_DIR=mqtt
 START_DIR=${PWD}
 PATH_END=${START_DIR##*/}
+KEYS_DIR=keys
+CA_CERT="ca.cert"
+SERVER_CERT="server.crt"
+SERVER_KEY="server.key"
+SERVER_CA_FILE="${KEYS_DIR}/${CA_CERT}"
+SERVER_CERT_FILE="${KEYS_DIR}/${SERVER_CERT}"
+SERVER_KEY_FILE="${KEYS_DIR}/${SERVER_KEY}"
+
 
 if [[ $START_DIR != *$PROJ_NAME* ]]; then
   echo $0 must be run within the project $PROJ_NAME
@@ -27,8 +35,10 @@ function help(){
   echo .
   echo "Commands"
   echo "   start    - start the container."
+  echo "                -tls - with this argument enables tls"
   echo "   stop     - stop the container."
   echo "   clean    - clean remove the container and clean local directories."
+  echo "                -certs - with this arg cleans generated certificates."
   echo "                N.B. requires sudo."
   echo "   up       - check if container is currently running."
   echo "   down     - check if container is currently down."
@@ -39,6 +49,7 @@ function help(){
 }
 
 function setup_mosquitto(){
+
   if [[ ! -d ${MQTT_DIR}  ]]; then
     mkdir ${MQTT_DIR}
   fi
@@ -56,6 +67,36 @@ function setup_mosquitto(){
   if [[ ! -f mosquitto/data/password-file ]]; then
     cp ${PROJ_DIR}/scripts/mosquitto/password-file mosquitto/data || error_exit "Failed to copy password file"
   fi
+
+  if  [[ "$1" == "-tls" ]]; then
+
+    if [[ ! -f ${PROJ_DIR}/scripts/${SERVER_CA_FILE} ||
+          ! -f ${PROJ_DIR}/scripts/${SERVER_CERT_FILE} ||
+          ! -f ${PROJ_DIR}/scripts/${SERVER_KEY_FILE}  ]]; then
+      ../scripts/selfSignCert.sh || error_exit "Failed to generate new self signed certificates"
+    fi
+
+    mkdir -p mosquitto/etc
+
+    if [[ ! -f mosquitto/etc/${CA_CERT} ]]; then
+      cp ${PROJ_DIR}/scripts/${SERVER_CA_FILE} mosquitto/etc || error_exit "Failed to copy ${CA_CERT}"
+      sed -i -E "s/#cafile/cafile \/mosquitto\/etc\/${CA_CERT}/" mosquitto/config/mosquitto.conf
+    fi
+
+    if [[ ! -f mosquitto/etc/${SERVER_CERT} ]]; then
+      cp ${PROJ_DIR}/scripts/${SERVER_CERT_FILE} mosquitto/etc || error_exit "Failed to copy ${SERVER_CERT}"
+    sed -i -E "s/#certfile/certfile \/mosquitto\/etc\/${SERVER_CERT}/" mosquitto/config/mosquitto.conf
+    fi
+
+    if [[ ! -f mosquitto/etc/${SERVER_KEY} ]]; then
+      cp ${PROJ_DIR}/scripts/${SERVER_KEY_FILE} mosquitto/etc || error_exit "Failed to copy ${SERVER_KEY}"
+      sed -i -E "s/#keyfile/keyfile \/mosquitto\/etc\/${SERVER_KEY}/" mosquitto/config/mosquitto.conf
+    fi
+
+    sed -i -E "s/^listener 1883/listener 8883 0.0.0.0/" mosquitto/config/mosquitto.conf
+
+  fi
+
 }
 
 function error_exit(){
@@ -74,7 +115,12 @@ function start_mosquitto(){
   fi
 
   docker rm mosquito-mq > /dev/null 2>&1
-  docker run --name mosquito-mq -p 1883:1883 -p 9001:9001 -v $(pwd)/mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf -v $(pwd)/mosquitto/data:/mosquitto/data eclipse-mosquitto
+
+  if [[ "$1" == "-tls" ]]; then
+    docker run --name mosquito-mq -p 8883:8883 -p 9001:9001 -v $(pwd)/mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf -v $(pwd)/mosquitto/data:/mosquitto/data -v $(pwd)/mosquitto/etc:/mosquitto/etc eclipse-mosquitto
+  else
+    docker run --name mosquito-mq -p 1883:1883 -p 9001:9001 -v $(pwd)/mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf -v $(pwd)/mosquitto/data:/mosquitto/data eclipse-mosquitto
+  fi
 
 }
 
@@ -139,6 +185,12 @@ function clean_mosquitto(){
   cd ${PROJ_DIR} || error_exit "Failed to return to ${PROJ_DIR}"
   sudo rm -rdf ${MQTT_DIR}
 
+  if [[  "$1" == "-certs" ]]; then
+    cd scripts || error_exit "Failed to open directory ./scripts"
+    rm -rdf keys
+    cd ${PROJ_DIR} || error_exit "Failed to return to ${PROJ_DIR}"
+  fi
+
 }
 
 function add_user_mosquitto(){
@@ -162,14 +214,22 @@ function add_user_mosquitto(){
 
 case "$1" in
    "start")
-     setup_mosquitto
-     start_mosquitto
+     if [[ "$2" == "-tls" ]]; then
+       echo "Starting with tls enabled"
+       setup_mosquitto $2
+       start_mosquitto $2
+       exit 0
+     else
+       echo "Starting without tls"
+       setup_mosquitto
+       start_mosquitto
+     fi
      ;;
    "stop")
      stop_mosquitto
      ;;
    "clean")
-     clean_mosquitto
+     clean_mosquitto $2
      ;;
    "up")
      mosquitto_started
