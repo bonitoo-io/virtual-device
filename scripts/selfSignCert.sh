@@ -3,6 +3,7 @@
 PROJ_NAME=virtual-device
 START_DIR=${PWD}
 OPENSSL_CMD="openssl";
+KEYTOOL_CMD="keytool";
 KEYS_DIR="./scripts/keys";
 KEY_FILE="${KEYS_DIR}/ca.key";
 KEY_CERT="${KEYS_DIR}/ca.cert";
@@ -12,12 +13,21 @@ SERVER_CERT="${KEYS_DIR}/server.crt"
 CLIENT_KEY_FILE="${KEYS_DIR}/client.key"
 CLIENT_SIGN_REQ="${KEYS_DIR}/client.csr"
 CLIENT_CERT="${KEYS_DIR}/client.crt"
+DEFAULT_TRUSTSTORE="${KEYS_DIR}/brokerTrust.jks"
+DEFAULT_TRUSTSTORE_PASSWORD="changeit"
 
 if ! command -v $OPENSSL_CMD > /dev/null; then
   echo "This script requires $OPENSSL_CMD, but it was not found in the system."
   echo "Exiting"
   exit 1
 fi
+
+if ! command -v $KEYTOOL_CMD > /dev/null; then
+  echo "This script requires $KEYTOOL_CMD, but it was not found in the system."
+  echo "Exiting"
+  exit 1
+fi
+
 
 if [[ $START_DIR != *$PROJ_NAME* ]]; then
   echo $0 must be run within the project $PROJ_NAME
@@ -49,6 +59,7 @@ echo debug IP ${IP}
 
 SUBJECT_CA="/C=CZ/ST=Praha/L=Harfa/O=bonitoo/OU=qa/CN=$IP"
 SUBJECT_SERVER="/C=CZ/ST=Praha/L=Harfa/O=bonitoo/OU=server/CN=$IP"
+SAN_SERVER="subjectAltName=IP:$IP,IP:127.0.0.1,DNS:localhost"
 SUBJECT_CLIENT="/C=CZ/ST=Praha/L=Harfa/O=bonitoo/OU=client/CN=$IP"
 
 function help_openssl () {
@@ -64,8 +75,8 @@ function generate_CA () {
 function generate_server () {
    echo "Generating Server Cert"
    echo "$SUBJECT_SERVER"
-   $OPENSSL_CMD req -nodes -sha256 -new -subj "$SUBJECT_SERVER" -keyout $SERVER_KEY_FILE -out $SERVER_SIGN_REQ
-   $OPENSSL_CMD x509 -req -sha256 -in $SERVER_SIGN_REQ -CA $KEY_CERT -CAkey $KEY_FILE -CAcreateserial -out $SERVER_CERT -days 365
+   $OPENSSL_CMD req -nodes -sha256 -new -subj "$SUBJECT_SERVER" -addext "$SAN_SERVER" -keyout $SERVER_KEY_FILE -out $SERVER_SIGN_REQ
+   $OPENSSL_CMD x509 -req -sha256 -in $SERVER_SIGN_REQ -CA $KEY_CERT -CAkey $KEY_FILE -CAcreateserial -out $SERVER_CERT  -days 365 -copy_extensions=copyall
 }
 
 function generate_client () {
@@ -75,8 +86,18 @@ function generate_client () {
    openssl x509 -req -sha256 -in $CLIENT_SIGN_REQ -CA ${KEY_CERT} -CAkey ${KEY_FILE} -CAcreateserial -out ${CLIENT_CERT} -days 365
 }
 
+function generate_keystore () {
+  # TODO generalize and prepare for client use
+  ALIAS="ca$(date +%d%m)"
+  $KEYTOOL_CMD -alias $ALIAS -importcert -keystore $DEFAULT_TRUSTSTORE -file $KEY_CERT -storepass $DEFAULT_TRUSTSTORE_PASSWORD -noprompt
+  echo "Added ca.cert to keystore ${DEFAULT_TRUSTSTORE} as alias ${ALIAS}"
+  # keytool -alias ca0620d -importcert -keystore src/main/resources/testKeyStore.jks -file scripts/keys/ca.cert
+
+}
+
 generate_CA
 generate_server
 generate_client
+generate_keystore
 
 cd ${START_DIR} || exit 1
