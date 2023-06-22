@@ -95,11 +95,9 @@ function generate_client () {
 }
 
 function generate_keystore () {
-  # TODO generalize and prepare for client use
   ALIAS="ca$(date +%d%m)"
   $KEYTOOL_CMD -alias $ALIAS -importcert -keystore $DEFAULT_TRUSTSTORE -file $KEY_CERT -storepass $DEFAULT_TRUSTSTORE_PASSWORD -noprompt
   echo "Added ca.cert to keystore ${DEFAULT_TRUSTSTORE} as alias ${ALIAS}"
-  # keytool -alias ca0620d -importcert -keystore src/main/resources/testKeyStore.jks -file scripts/keys/ca.cert
 }
 
 function wait_file() {
