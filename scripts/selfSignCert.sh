@@ -76,6 +76,10 @@ function generate_server () {
    echo "Generating Server Cert"
    echo "$SUBJECT_SERVER"
    $OPENSSL_CMD req -nodes -sha256 -new -subj "$SUBJECT_SERVER" -addext "$SAN_SERVER" -keyout $SERVER_KEY_FILE -out $SERVER_SIGN_REQ
+   wait_file $SERVER_SIGN_REQ 10 || {
+     echo "Generation of ${SERVER_SIGN_REQ} timed out. Exiting."
+     exit 1;
+   }
    $OPENSSL_CMD x509 -req -sha256 -in $SERVER_SIGN_REQ -CA $KEY_CERT -CAkey $KEY_FILE -CAcreateserial -out $SERVER_CERT  -days 365 -copy_extensions=copyall
 }
 
@@ -83,6 +87,10 @@ function generate_client () {
    echo "Generating Client Cert"
    echo "$SUBJECT_CLIENT"
    openssl req -new -nodes -sha256 -subj "$SUBJECT_CLIENT" -out $CLIENT_SIGN_REQ -keyout $CLIENT_KEY_FILE
+      wait_file $CLIENT_SIGN_REQ || {
+        echo "Generation of ${CLIENT_SIGN_REQ} timed out. Exiting."
+        exit 1;
+      }
    openssl x509 -req -sha256 -in $CLIENT_SIGN_REQ -CA ${KEY_CERT} -CAkey ${KEY_FILE} -CAcreateserial -out ${CLIENT_CERT} -days 365
 }
 
@@ -92,7 +100,19 @@ function generate_keystore () {
   $KEYTOOL_CMD -alias $ALIAS -importcert -keystore $DEFAULT_TRUSTSTORE -file $KEY_CERT -storepass $DEFAULT_TRUSTSTORE_PASSWORD -noprompt
   echo "Added ca.cert to keystore ${DEFAULT_TRUSTSTORE} as alias ${ALIAS}"
   # keytool -alias ca0620d -importcert -keystore src/main/resources/testKeyStore.jks -file scripts/keys/ca.cert
+}
 
+function wait_file() {
+  local file="$1"; shift
+  local timeout=${1:-10}; shift
+  local count=0;
+
+  until [[ $((count++)) -eq ${timeout} || -e "${file}" ]]
+  do
+    sleep 1;
+  done
+
+  test -e "${file}"
 }
 
 generate_CA

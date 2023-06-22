@@ -5,11 +5,10 @@ import com.hivemq.client.mqtt.MqttClientSslConfig;
 import com.hivemq.client.mqtt.datatypes.MqttQos;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5BlockingClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
-import com.hivemq.client.mqtt.mqtt5.message.connect.connack.Mqtt5ConnAck;
 import com.hivemq.client.mqtt.mqtt5.message.subscribe.suback.Mqtt5SubAck;
+import com.hivemq.client.util.KeyStoreUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javax.net.ssl.TrustManagerFactory;
 import java.io.File;
 import java.io.IOException;
@@ -93,7 +92,7 @@ public class Mqtt5Subscriber {
 
   public static Mqtt5BlockingClient createTls(String hostName, Integer hostPort) throws IOException {
 
-    final TrustManagerFactory trustManagerFactory = KeyStoreSandbox
+    final TrustManagerFactory trustManagerFactory = KeyStoreUtil
         .trustManagerFromKeystore(new File(DEFAULT_TRUSTSTORE),
         TRUSTSTORE_PASSWORD);
 
