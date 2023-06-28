@@ -2,6 +2,7 @@ package io.bonitoo.qa.conf.mqtt.broker;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.bonitoo.qa.conf.mqtt.broker.AuthConfig;
 import io.bonitoo.qa.conf.mqtt.broker.BrokerConfig;
@@ -34,6 +35,16 @@ public class BrokerConfigTest {
             "  username: fred\n" +
             "  password: changeit";
 
+    public static String brokerConfigTlsYAML = "---\n" +
+      "host: localhost\n" +
+      "port: 8883\n" +
+      "auth:\n" +
+      "  username: fred\n" +
+      "  password: changeit\n" +
+      "tls:\n" +
+      "  trustStore: \"myTrustStore.jks\"\n" +
+      "  trustPass:  \"foobar\"\n";
+
     @Test
     public void parseAuthConfig() throws JsonProcessingException{
         ObjectMapper om = new ObjectMapper(new YAMLFactory());
@@ -44,7 +55,7 @@ public class BrokerConfigTest {
 
     }
     @Test
-    public void parseBrokerConfig() throws JsonProcessingException {
+    public void parseBrokerConfigBasic() throws JsonProcessingException {
 
         ObjectMapper om = new ObjectMapper(new YAMLFactory());
         BrokerConfig conf = om.readValue(brokerConfigYAML, BrokerConfig.class);
@@ -56,48 +67,33 @@ public class BrokerConfigTest {
     }
 
     @Test
-    public void checkTLSEncodedPassword(){
+    public void parseBrokerConfigTls() throws JsonProcessingException {
+        ObjectMapper om = new ObjectMapper(new YAMLFactory());
+        BrokerConfig conf = om.readValue(brokerConfigTlsYAML, BrokerConfig.class);
 
-        assertTrue(TLSConfig.passIsEncoded("ENCABCD".toCharArray()));
-        assertTrue(TLSConfig.passIsEncoded("ENCABCD123=".toCharArray()));
-        assertTrue(TLSConfig.passIsEncoded("ENCAbcd1234ef==".toCharArray()));
-        assertFalse(TLSConfig.passIsEncoded("ABCD".toCharArray()));
-        assertFalse(TLSConfig.passIsEncoded("ENCA12".toCharArray()));
+        System.out.println("DEBUG conf " + conf);
 
     }
 
     @Test
-    public void verifyEncryption() throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException, InvalidParameterSpecException {
+    public void parseTLSConfig() throws JsonProcessingException {
 
-        final String testPass1 = "changeit";
-        final String testHash = "ENCAAAAEC2O8a/ExCXKNPYn2JQPS7AougX5958+aa5wOjyN0+5i";
+        final String configYaml = "---\n" +
+          "trustStore: \"teststore.jks\"\n" +
+          "trustPass: \"changeit\"";
 
-        System.out.println("DEBUG testPass1 " + testPass1);
 
-        String passHash = TLSConfig.encryptTrustPass(
-          this.getClass().getPackage().getName(),
-          this.getClass().getSimpleName(), testPass1.toCharArray());
+        TLSConfig config = new TLSConfig("blbstore.jks", "password".toCharArray());
+        ObjectMapper omy = new ObjectMapper(new YAMLFactory());
 
-        System.out.println("DEBUG pass " + passHash);
+        TLSConfig parsedConf = omy.readValue(configYaml, TLSConfig.class);
 
-       // char[] decrypted = TLSConfig.decryptTrustPass(this.getClass().getPackage().getName(), pass);
-        char [] password = TLSConfig.decryptTrustPass(
-          this.getClass().getPackage().getName(),
-          this.getClass().getSimpleName(),
-          passHash
-        );
+        System.out.println("DEBUG parsedConf.trustStore " + parsedConf.getTrustStore());
+        System.out.println("DEBUG parsedConf.trustPass " + new String(parsedConf.getTrustPass()));
 
-        System.out.println("DEBUG password " + new String(password));
-        assertEquals(testPass1, new String(password));
+        ObjectWriter owy = omy.writer();
 
-        char[] testHashPass = TLSConfig.decryptTrustPass(
-          this.getClass().getPackage().getName(),
-          this.getClass().getSimpleName(),
-          testHash
-        );
-
-        System.out.println("DEBUG testHashPass " + new String(testHashPass));
-        assertEquals(testPass1, new String(testHashPass));
+        System.out.println("DEBUG config\n" + owy.writeValueAsString(config));
 
     }
 

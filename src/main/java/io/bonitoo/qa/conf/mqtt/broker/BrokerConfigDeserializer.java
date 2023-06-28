@@ -30,7 +30,16 @@ public class BrokerConfigDeserializer extends VirDevDeserializer<BrokerConfig> {
     JsonNode authNode = safeGetNode(node, "auth");
     AuthConfig authConf = ctx.readValue(authNode.traverse(jsonParser.getCodec()),
         AuthConfig.class);
+    JsonNode tlsNode = node.get("tls"); // can be null or undefined
 
-    return new BrokerConfig(host, port, authConf);
+    TLSConfig tlsConf = tlsNode == null ? null
+        :
+        ctx.readValue(tlsNode.traverse(jsonParser.getCodec()), TLSConfig.class);
+
+//    if( tlsNode != null){
+//      System.out.println("DEBUG tlsNode " + tlsNode.toPrettyString());
+//    }
+
+    return new BrokerConfig(host, port, authConf, tlsConf);
   }
 }

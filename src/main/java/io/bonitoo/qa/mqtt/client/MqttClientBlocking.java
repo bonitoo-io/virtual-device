@@ -1,14 +1,21 @@
 package io.bonitoo.qa.mqtt.client;
 
+import com.hivemq.client.mqtt.MqttClientSslConfig;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5BlockingClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
+import com.hivemq.client.mqtt.mqtt5.Mqtt5ClientBuilder;
 import com.hivemq.client.mqtt.mqtt5.message.connect.connack.Mqtt5ConnAck;
+import com.hivemq.client.util.KeyStoreUtil;
 import io.bonitoo.qa.conf.mqtt.broker.BrokerConfig;
 import io.bonitoo.qa.util.LogHelper;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+
+import javax.net.ssl.SSLException;
+import javax.net.ssl.TrustManagerFactory;
+import java.io.File;
 
 /**
  * A client that uses blocking or synchronous communications with the MQTT broker.
@@ -41,11 +48,35 @@ public class MqttClientBlocking extends AbstractMqttClient {
     MqttClientBlocking mcb = new MqttClientBlocking();
     mcb.broker = broker;
     mcb.id = id;
-    mcb.client = Mqtt5Client.builder()
-      .identifier(id)
-      .serverHost(broker.getHost())
-      .serverPort(broker.getPort())
-      .buildBlocking();
+
+    Mqtt5ClientBuilder clientBuilder = Mqtt5Client.builder()
+        .identifier(id)
+        .serverHost(broker.getHost())
+        .serverPort(broker.getPort());
+
+    if (broker.getTls() != null) {
+      try {
+        TrustManagerFactory trustManagerFactory = KeyStoreUtil
+            .trustManagerFromKeystore(new File(broker.getTls().getTrustStore()),
+              new String(broker.getTls().getTrustPass()));
+        clientBuilder.sslConfig(MqttClientSslConfig.builder()
+            .keyManagerFactory(null)
+            .trustManagerFactory(trustManagerFactory)
+            .build()
+        );
+      } catch (SSLException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+   // mcb.client = Mqtt5Client.builder()
+   //   .identifier(id)
+   //   .serverHost(broker.getHost())
+   //   .serverPort(broker.getPort())
+   //   .buildBlocking();
+
+    mcb.client = clientBuilder.buildBlocking();
+
     return mcb;
   }
 
