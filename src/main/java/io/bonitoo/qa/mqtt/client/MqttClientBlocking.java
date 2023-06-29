@@ -8,14 +8,13 @@ import com.hivemq.client.mqtt.mqtt5.message.connect.connack.Mqtt5ConnAck;
 import com.hivemq.client.util.KeyStoreUtil;
 import io.bonitoo.qa.conf.mqtt.broker.BrokerConfig;
 import io.bonitoo.qa.util.LogHelper;
+import java.io.File;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.TrustManagerFactory;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-
-import javax.net.ssl.SSLException;
-import javax.net.ssl.TrustManagerFactory;
-import java.io.File;
 
 /**
  * A client that uses blocking or synchronous communications with the MQTT broker.
@@ -68,12 +67,6 @@ public class MqttClientBlocking extends AbstractMqttClient {
         throw new RuntimeException(e);
       }
     }
-
-   // mcb.client = Mqtt5Client.builder()
-   //   .identifier(id)
-   //   .serverHost(broker.getHost())
-   //   .serverPort(broker.getPort())
-   //   .buildBlocking();
 
     mcb.client = clientBuilder.buildBlocking();
 

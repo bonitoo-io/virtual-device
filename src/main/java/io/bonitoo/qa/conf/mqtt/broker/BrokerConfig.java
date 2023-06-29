@@ -24,8 +24,15 @@ public class BrokerConfig {
 
   // optional
   @JsonInclude(JsonInclude.Include.NON_NULL)
-  TLSConfig tls;
+  TlsConfig tls;
 
+  /**
+   * Base constructor for BrokerConfig without TLS.
+   *
+   * @param host - hostname.
+   * @param port - host port.
+   * @param auth - password auth structure.
+   */
   public BrokerConfig(String host, int port, AuthConfig auth) {
     this.host = host;
     this.port = port;

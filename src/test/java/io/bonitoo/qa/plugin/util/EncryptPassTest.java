@@ -1,21 +1,11 @@
 package io.bonitoo.qa.plugin.util;
 
-import io.bonitoo.qa.conf.mqtt.broker.TLSConfig;
 import io.bonitoo.qa.util.EncryptPass;
 import org.junit.jupiter.api.Test;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.InvalidParameterSpecException;
-
-import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class EncryptPassTest {
 
@@ -31,55 +21,42 @@ public class EncryptPassTest {
   }
 
   @Test
-  public void verifyEncryption() throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException, InvalidParameterSpecException {
-
+  public void verifyEncryptionRandomSalt(){
     final String testPass1 = "changeit";
-    final String testHash = "ENCAAAAEAcyP+R4LI+ivazT1rDAtz0aRzNQyM8P99rgBA7SElWb";
+    final String preHash = "ENCRJiU44WpvE/gP3lKWAdY5kcAFfRCjAsmYEE821eN5HoAAAAQpRThOlweXkMG2ieDtiTXf9sjy4o1FRgi0JCi44gOHDI=";
 
-    System.out.println("DEBUG testPass1 " + testPass1);
-
-    String passHash = EncryptPass.encryptTrustPass(
+    String testHash1 = EncryptPass.encryptTrustPass(
       this.getClass().getPackage().getName(),
-      this.getClass().getSimpleName(), testPass1.toCharArray());
-
-    System.out.println("DEBUG pass " + passHash);
-
-    // char[] decrypted = TLSConfig.decryptTrustPass(this.getClass().getPackage().getName(), pass);
-    char [] password = EncryptPass.decryptTrustPass(
-      this.getClass().getPackage().getName(),
-      this.getClass().getSimpleName(),
-      passHash
+      testPass1.toCharArray()
     );
 
-    System.out.println("DEBUG password " + new String(password));
-    assertEquals(testPass1, new String(password));
-
-    char[] testHashPass = EncryptPass.decryptTrustPass(
+    char[] unHashed1 = EncryptPass.decryptTrustPass(
       this.getClass().getPackage().getName(),
-      this.getClass().getSimpleName(),
-      testHash
+      testHash1
     );
 
-    System.out.println("DEBUG testHashPass " + new String(testHashPass));
-    assertEquals(testPass1, new String(testHashPass));
+    assertEquals(testPass1, new String(unHashed1));
 
+    char[] preHashResult = EncryptPass.decryptTrustPass(
+      this.getClass().getPackage().getName(),
+      preHash
+    );
+
+    assertEquals(testPass1, new String(preHashResult));
   }
 
+  // Do not remove - leave commented
   // for verifying results of EncryptPass.main.
   // Copy and paste results to hashedPass variable below...
   // to be used in dev environment ONLY
- /* @Test
+  /* @Test
   public void decrypt() {
-    final String hashedPass = "ENCAAAAEPPs74IFMIGBkjtPwUND0fSJTIBiFm0J8YHuPNbYYS67";
-    try {
-      char[] pass = io.bonitoo.qa.util.EncryptPass.decryptTrustPass(TLSConfig.class.getPackage().getName(),
-        TLSConfig.class.getSimpleName(), hashedPass);
-      System.out.println("result:\n" + new String(pass));
-    } catch (NoSuchAlgorithmException | InvalidKeySpecException | NoSuchPaddingException
-             | InvalidAlgorithmParameterException | InvalidKeyException
-             | IllegalBlockSizeException | BadPaddingException e) {
-      throw new RuntimeException(e);
-    }
+    final String hashedPass = "ENCqTJZQarWDANjbiKQRH1R5/Dw3jNtSIYq12fIt67sIPEAAAAQmi6eCz/B3DynfmBHkC30s9n9/ynDhlcNo2yDA7ma90k=";
+
+    char[] pass = io.bonitoo.qa.util.EncryptPass.decryptTrustPass(TLSConfig.class.getPackage().getName(),
+        hashedPass);
+    System.out.println("result:\n" + new String(pass));
+
   } */
 
 }

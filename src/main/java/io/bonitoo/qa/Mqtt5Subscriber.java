@@ -7,16 +7,15 @@ import com.hivemq.client.mqtt.mqtt5.Mqtt5BlockingClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import com.hivemq.client.mqtt.mqtt5.message.subscribe.suback.Mqtt5SubAck;
 import com.hivemq.client.util.KeyStoreUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import javax.net.ssl.TrustManagerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import javax.net.ssl.TrustManagerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A simple subscriber class used to inspect the broker.
@@ -43,7 +42,7 @@ public class Mqtt5Subscriber {
     boolean useTls = Boolean.parseBoolean(System.getProperty("sub.tls", "false"));
     String hostname = System.getProperty("broker.host", DEFAULT_HOST);
     Integer hostport = Integer.valueOf(System.getProperty("broker.port",
-      useTls ? String.valueOf(DEFAULT_TLS_PORT) : String.valueOf(DEFAULT_PORT)));
+        useTls ? String.valueOf(DEFAULT_TLS_PORT) : String.valueOf(DEFAULT_PORT)));
 
     String topic = System.getProperty("sub.topic", defaultTopic);
 
@@ -69,9 +68,9 @@ public class Mqtt5Subscriber {
         .qos(MqttQos.AT_LEAST_ONCE)
         .callback(publish -> {
           String content = StandardCharsets.UTF_8.decode(publish.getPayload().get()).toString();
-          logger.info(String.format("Received on topic \"%s\", with payload %dbyte(s) and qos %s:\n%s",
-
-            publish.getTopic(), publish.getPayloadAsBytes().length, publish.getQos(), content));
+          logger.info(String.format(
+              "Received on topic \"%s\", with payload %dbyte(s) and qos %s:\n%s",
+              publish.getTopic(), publish.getPayloadAsBytes().length, publish.getQos(), content));
         })
         .send();
 
@@ -79,6 +78,13 @@ public class Mqtt5Subscriber {
 
   }
 
+  /**
+   * Creates a plain - unexcrypted HTTP connection.
+   *
+   * @param hostName - target broker hostname.
+   * @param hostPort - target broker port.
+   * @return - a client that can connect to the target broker.
+   */
   public static Mqtt5BlockingClient createPlain(String hostName, Integer hostPort) {
     logger.info(String.format("Creating client to %s:%d unsecure.", hostName, hostPort));
 
@@ -90,7 +96,16 @@ public class Mqtt5Subscriber {
         .buildBlocking();
   }
 
-  public static Mqtt5BlockingClient createTls(String hostName, Integer hostPort) throws IOException {
+  /**
+   * Creates a TLS encrypted connection.
+   *
+   * @param hostName - hostname of the target broker.
+   * @param hostPort - target broker port.
+   * @return - a client that can connect to the broker.
+   * @throws IOException -
+   */
+  public static Mqtt5BlockingClient createTls(String hostName, Integer hostPort)
+      throws IOException {
 
     final TrustManagerFactory trustManagerFactory = KeyStoreUtil
         .trustManagerFromKeystore(new File(DEFAULT_TRUSTSTORE),

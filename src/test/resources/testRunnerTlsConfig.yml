@@ -8,7 +8,7 @@ broker:
     password: changeit
   tls:
     trustStore: "./scripts/keys/brokerTrust.jks"
-    trustPass: "ENCAAAAEBUy4PudmZC+fFlba8DM+brSSrlwDXvwS05VMhTqOGP3"
+    trustPass: "ENCqTJZQarWDANjbiKQRH1R5/Dw3jNtSIYq12fIt67sIPEAAAAQmi6eCz/B3DynfmBHkC30s9n9/ynDhlcNo2yDA7ma90k="
 items:
   - name: "tension"
     type: "Double"

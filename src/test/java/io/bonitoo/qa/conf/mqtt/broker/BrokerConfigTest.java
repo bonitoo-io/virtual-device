@@ -4,20 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import io.bonitoo.qa.conf.mqtt.broker.AuthConfig;
-import io.bonitoo.qa.conf.mqtt.broker.BrokerConfig;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.InvalidParameterSpecException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -83,10 +71,10 @@ public class BrokerConfigTest {
           "trustPass: \"changeit\"";
 
 
-        TLSConfig config = new TLSConfig("blbstore.jks", "password".toCharArray());
+        TlsConfig config = new TlsConfig("blbstore.jks", "password".toCharArray());
         ObjectMapper omy = new ObjectMapper(new YAMLFactory());
 
-        TLSConfig parsedConf = omy.readValue(configYaml, TLSConfig.class);
+        TlsConfig parsedConf = omy.readValue(configYaml, TlsConfig.class);
 
         System.out.println("DEBUG parsedConf.trustStore " + parsedConf.getTrustStore());
         System.out.println("DEBUG parsedConf.trustPass " + new String(parsedConf.getTrustPass()));
