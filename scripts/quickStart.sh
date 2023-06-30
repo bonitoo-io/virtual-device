@@ -40,6 +40,7 @@ function help(){
   echo "$MY_NAME itemPluginRich - runs a configuration with item plugin - simpleMovingAvg"
   echo "$MY_NAME samplePlugin   - runs a configuration with a sample plugin"
   echo "$MY_NAME nrf9160        - runs without plugins but with example runner.conf"
+  echo "$MY_NAME tlsBasic       - runs the basic configuration against mosquitto with TLS."
   echo "$MY_NAME help           - returns this message"
 }
 
@@ -47,7 +48,8 @@ function build(){
   mvn -DskipTests clean package
 }
 
-function setup(){
+function check_build(){
+
   if [[ ! -d ${TARGET_DIR}  ]]; then
     echo "$TARGET_DIR not found.  Building project"
     build
@@ -56,6 +58,20 @@ function setup(){
   if [[ "${VIRDEV_JAR}x" == "x" ]]; then
     echo "$VIRDEV_JAR not found.  Building project"
     build
+  fi
+}
+
+function setup(){
+
+  check_build
+
+  nc -vz 127.0.0.1 8883
+  if [[ $? -eq 0 ]]; then
+    echo "Detected mosquitto listening at the TLS port (8883)."
+    echo "Please shut it down and clean configurations"
+    echo "before running non-tls quickStart examples."
+    echo "e.g. scripts/broker.sh stop && scripts/broker.sh clean"
+    exit 1
   fi
 
   nc -vz 127.0.0.1 1883
@@ -90,6 +106,57 @@ function setup(){
   fi
 
   echo "Mqtt5Subscriber started with PID $MQTT5_PID.  Output piped to ${SUBSCRIBER_LOG}"
+
+}
+
+function setup_tls(){
+    check_build
+
+     nc -vz 127.0.0.1 1883
+     if [[ $? -eq 0 ]]; then
+       echo "Mosquitto is already listening in non-TLS mode."
+       echo "Please shut it down and clean up any config files,"
+       echo "before continuing with TLS."
+       echo "e.g. scripts/broker.sh stop && scripts/broker.sh clean"
+       exit 1
+     fi
+
+     nc -vz 127.0.0.1 8883
+     if [[ $? -ne 0 ]]; then
+       echo "Local mosquitto not listening at traditional TLS port (8883)."
+       echo "starting mosquitto in TLS mode."
+       scripts/broker.sh start -tls > /dev/null 2>&1 &
+       now=$(date +%s)
+       ttl=$(($now + 10))
+       nc -vz 127.0.0.1 8883
+       rStatus=$?
+       sleep 1
+       until [[ $rStatus -eq 0 || $(date +%s) -gt ttl ]]; do
+         echo "waiting for Mosquitto"
+         sleep 1
+          nc -vz 127.0.0.1 8883
+          rStatus=$?
+       done
+
+       echo "Mosquitto started"
+
+       MSQTT_STARTED_HERE=true
+
+     else
+       echo "Found mosquitto already listening at traditional TLS port (8883)."
+       echo "No need to start."
+     fi
+
+     mvn exec:java -Dmain.class="io.bonitoo.qa.Mqtt5Subscriber" -Dsub.tls=true > ${SUBSCRIBER_LOG} &
+
+     MQTT5_PID=$!
+     if [[ -z "$MQTT5_PID" ]]; then
+       echo "ERROR: no PID for Mqtt5Subscriber"
+       shutdown
+       exit 1
+     fi
+
+     echo "Mqtt5Subscriber started with PID $MQTT5_PID.  Output piped to ${SUBSCRIBER_LOG}"
 
 }
 
@@ -218,6 +285,21 @@ function sample_nrf9160(){
   shutdown
 }
 
+function tlsBasic(){
+  setup_tls
+  printf "\n\nRUNNING TLS BASIC EXAMPLE\n"
+  printf "=======================\n"
+
+  java -Drunner.conf=src/test/resources/testRunnerTlsConfig.yml -jar target/${VIRDEV_JAR}
+
+  printf "\n\nDONE PUBLISHING TLS BASIC EXAMPLE\n"
+  printf "=============================\n"
+
+  read_log
+
+  shutdown
+}
+
 # TODO use case with special runner config only
 
 case $1 in
@@ -232,6 +314,9 @@ case $1 in
      ;;
   "nrf9160")
      sample_nrf9160
+     ;;
+  "tlsBasic")
+     tlsBasic
      ;;
   "")
      base_example

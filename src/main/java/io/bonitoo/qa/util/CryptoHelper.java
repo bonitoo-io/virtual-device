@@ -88,8 +88,6 @@ public class CryptoHelper {
    * @throws NoSuchAlgorithmException -
    */
   public static byte[] genSalt(int length) throws NoSuchAlgorithmException {
-    // TODO - currently default salt is based on local "constants"
-    //        review using this and packaging salt into final hash
     byte[] salt = new byte[length];
     SecureRandom drbg = SecureRandom.getInstance("DRBG");
     drbg.nextBytes(salt);
