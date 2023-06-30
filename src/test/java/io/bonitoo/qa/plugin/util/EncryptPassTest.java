@@ -26,19 +26,19 @@ public class EncryptPassTest {
     final String preHash = "ENCRJiU44WpvE/gP3lKWAdY5kcAFfRCjAsmYEE821eN5HoAAAAQpRThOlweXkMG2ieDtiTXf9sjy4o1FRgi0JCi44gOHDI=";
 
     String testHash1 = EncryptPass.encryptTrustPass(
-      this.getClass().getPackage().getName(),
+      this.getClass().getPackage().getName().toCharArray(),
       testPass1.toCharArray()
     );
 
     char[] unHashed1 = EncryptPass.decryptTrustPass(
-      this.getClass().getPackage().getName(),
+      this.getClass().getPackage().getName().toCharArray(),
       testHash1
     );
 
     assertEquals(testPass1, new String(unHashed1));
 
     char[] preHashResult = EncryptPass.decryptTrustPass(
-      this.getClass().getPackage().getName(),
+      this.getClass().getPackage().getName().toCharArray(),
       preHash
     );
 
