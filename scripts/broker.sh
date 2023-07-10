@@ -195,7 +195,17 @@ function clean_mosquitto(){
   docker rm mosquito-mq
 
   cd ${PROJ_DIR} || error_exit "Failed to return to ${PROJ_DIR}"
-  sudo rm -rdf ${MQTT_DIR}
+#  sudo rm -rdf ${MQTT_DIR}
+  rm -rdf ${MQTT_DIR}/mosquitto/config
+  rm -rdf ${MQTT_DIR}/mosquitto/log
+
+  if [[ "$EUID" -eq 0 ]]; then
+    rm -rdf ${MQTT_DIR}/mosquitto/data
+  else
+    echo "${0} not run as sudo. Cannot delete ${MQTT_DIR}/mosquitto/data."
+    echo "In order to delete it please run $ sudo ${0} clean"
+  fi
+
 
   if [[  "$1" == "-certs" ]]; then
     cd scripts || error_exit "Failed to open directory ./scripts"
