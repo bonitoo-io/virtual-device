@@ -172,6 +172,8 @@ function shutdown(){
     echo "Killing Mqtt5Subscriber with PID $MQTT5_PID"
     kill $MQTT5_PID
   fi
+
+  scripts/broker.sh clean
 }
 
 function read_log(){
