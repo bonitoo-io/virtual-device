@@ -56,13 +56,25 @@ function setup_mosquitto(){
 
   cd ${MQTT_DIR} || error_exit "Failed to change to ${MQTT_DIR}"
 
+  # Check if script was previously run with -tls enabled
+  grep "^listener 8883" mosquitto/config/mosquitto.conf
+  PAST_TLS=$?
+  if [[ "$PAST_TLS" == 0 && "$1" != "-tls" ]]; then
+   echo "Found -TLS enabled in current mosquitto.conf, but now running without tls.  Resetting config."
+   clean_mosquitto
+  elif [[ "$PAST_TLS" == 1 && "$1" == "-tls" ]]; then
+   echo "Starting with TLS but found existing config without it.  Resetting config."
+   clean_mosquitto
+  fi
+
   mkdir -p mosquitto/config
   mkdir -p mosquitto/data
   mkdir -p mosquitto/log
 
   if [[ ! -f mosquitto/config/mosquitto.conf ]]; then
-    cp ${PROJ_DIR}/scripts/mosquitto/mosquitto.conf mosquitto/config || error_exit "Failed to copy config"
+    cp -f ${PROJ_DIR}/scripts/mosquitto/mosquitto.conf mosquitto/config || error_exit "Failed to copy config"
   fi
+
 
   if [[ ! -f mosquitto/data/password-file ]]; then
     cp ${PROJ_DIR}/scripts/mosquitto/password-file mosquitto/data || error_exit "Failed to copy password file"
