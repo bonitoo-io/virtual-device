@@ -92,18 +92,25 @@ function setup_mosquitto(){
 
     if [[ ! -f mosquitto/etc/${CA_CERT} ]]; then
       cp ${PROJ_DIR}/scripts/${SERVER_CA_FILE} mosquitto/etc || error_exit "Failed to copy ${CA_CERT}"
-      sed -i -E "s/#cafile/cafile \/mosquitto\/etc\/${CA_CERT}/" mosquitto/config/mosquitto.conf
     fi
+
+    sed -i -E "s/#cafile/cafile \/mosquitto\/etc\/${CA_CERT}/" mosquitto/config/mosquitto.conf
+    echo "Added cafile to config"
+
 
     if [[ ! -f mosquitto/etc/${SERVER_CERT} ]]; then
       cp ${PROJ_DIR}/scripts/${SERVER_CERT_FILE} mosquitto/etc || error_exit "Failed to copy ${SERVER_CERT}"
-    sed -i -E "s/#certfile/certfile \/mosquitto\/etc\/${SERVER_CERT}/" mosquitto/config/mosquitto.conf
     fi
+
+    sed -i -E "s/#certfile/certfile \/mosquitto\/etc\/${SERVER_CERT}/" mosquitto/config/mosquitto.conf
+    echo "Added certfile to config"
 
     if [[ ! -f mosquitto/etc/${SERVER_KEY} ]]; then
       cp ${PROJ_DIR}/scripts/${SERVER_KEY_FILE} mosquitto/etc || error_exit "Failed to copy ${SERVER_KEY}"
-      sed -i -E "s/#keyfile/keyfile \/mosquitto\/etc\/${SERVER_KEY}/" mosquitto/config/mosquitto.conf
     fi
+
+    sed -i -E "s/#keyfile/keyfile \/mosquitto\/etc\/${SERVER_KEY}/" mosquitto/config/mosquitto.conf
+    echo "Added keyfile to config"
 
     sed -i -E "s/^listener 1883/listener 8883 0.0.0.0/" mosquitto/config/mosquitto.conf
 
@@ -201,9 +208,12 @@ function clean_mosquitto(){
 
   if [[ "$EUID" -eq 0 ]]; then
     rm -rdf ${MQTT_DIR}/mosquitto/data
+    rm -rdf ${MQTT_DIR}/mosquitto/etc
   else
-    echo "${0} not run as sudo. Cannot delete ${MQTT_DIR}/mosquitto/data."
-    echo "In order to delete it please run $ sudo ${0} clean"
+    echo "${0} not run as sudo."
+    echo "Cannot delete ${MQTT_DIR}/mosquitto/data."
+    echo "Cannot delete ${MQTT_DIR}/mosquitto/etc."
+    echo "In order to delete them please run $ sudo ${0} clean"
   fi
 
 
