@@ -17,6 +17,8 @@ import lombok.Setter;
 public class AuthConfig {
 
   String username;
+
+  // TODO implement encrypted passwords.
   String password;
 
   @Override
