@@ -107,6 +107,8 @@ public class Mqtt5Subscriber {
   public static Mqtt5BlockingClient createTls(String hostName, Integer hostPort)
       throws IOException {
 
+    // TODO add use of ENV VARS for Truststore and Password
+
     final TrustManagerFactory trustManagerFactory = KeyStoreUtil
         .trustManagerFromKeystore(new File(DEFAULT_TRUSTSTORE),
         TRUSTSTORE_PASSWORD);

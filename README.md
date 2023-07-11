@@ -33,7 +33,7 @@ When working with virtual devices in this project, keep in mind that the followi
 
 **Configurability**
 
-Devices are fully configurable using a runner configuration YAML file.  Internally devices can use a standard numeric or string generator to create values for primitive payload item fields.  More sophisticated random value generators can be added through the [Item Plugins](plugins/README.md#Item-plugins) API. The [Sample Plugins](plugins/README.md#Sample-plugins) API permits the creation of more sophisticated sample payloads.   
+Devices are fully configurable using a runner configuration YAML file.  Internally devices can use a standard numeric or string generator to create values for primitive payload item fields.  More sophisticated random value generators can be added through the [Item Plugins](plugins/README.md#Item-plugins) API. The [Sample Plugins](plugins/README.md#Sample-plugins) API permits the creation of more complex sample payloads.   
 
 ## System requirements
 
@@ -58,13 +58,14 @@ For a quick peek at what this project does and how it works, try  `scripts/quick
    1. remove any copied plugins. 
    1. tear down the listener and broker.
 
-It offers five simple scenarios. 
+It offers six simple scenarios. 
 
    * `no args` - runs a simple scenario without plugins.
    * `nrf9160` - runs with the `runner.conf` file set to `examples/nrf9160/thingy91.yml`
    * `itemPlugin` - runs a scenario with the accelerator item plugin.
    * `itemPluginRich` - runs a richer scenario with the simpleMovingAverage item plugin.
-   * `samplePlugin` - runs a scenario with the lpFileReader sample plugin. 
+   * `samplePlugin` - runs a scenario with the lpFileReader sample plugin.
+   * `tlsBasic` - runs the simple scenario without plugins but sets up mosquitto to accept only TLS connections at the default TLS port - 8883.
 
 For example: 
 
@@ -102,6 +103,8 @@ MQTT5Subscriber is currently runnable only as a compiled class.  This is most ea
 ```sh
 mvn exec:java -Dmain.class="io.bonitoo.qa.Mqtt5Subscriber" 
 ```
+
+<!-- TODO add info about TLS once it is universalized or unbound from the locally running mosquitto TLS configuration.  See issue https://github.com/bonitoo-io/virtual-device/issues/12  -->
 
 ### Run Default Publisher
 
@@ -165,6 +168,9 @@ The broker represents a connection to an MQTT5 broker. It contains...
 * `auth` - a configuration for simple authentication.  To connect anonymously this property can be omitted, or the `username` can be left unset. It includes two fields.
   * `username`
   * `password` - currently stored in plain text.
+* `tls` - (Optional) if present instructs the broker to connect over TLS.
+   * `trustStore` - location of a JKS truststore containing a root certificate that can verify the certificate sent by the server.
+   * `trustPass` - password to the truststore.  Can be set encrypted.  Copy results from executing `mvn exec:java -Dmain.class="io.bonitoo.qa.util.EncryptPass"` into this field.
 
 ### Items
 
@@ -180,7 +186,7 @@ Items represent the primitive elements in a sample, whose values can be randomly
   * `BuiltInTemp` - a builtin temperature generator.
   * other builtins can be added.
 
-Item subtypes will expect additional configuration fields/
+Item subtypes will expect additional configuration fields.
 
 #### Numerical Items
 
@@ -366,6 +372,19 @@ devices:
             values:
               - "luminescence"
 ```
+## Connecting over TLS
+
+MQTT brokers used in the runner configuration can run over plain HTTP, which is simple but unsecure.  They can also be configured to connect over TLS.  The following steps are recommended.  
+
+   1. Import a base certificate used for signing or verifying the certificate from the MQTT server into a JKS truststore.  
+   2. Add a `tls` node to the broker config section using the following properties. 
+      1. `trustStore` - path to the truststore.
+      2. `trustPass` - password to the truststore.
+
+The `trustPass` value can be encrypted.  The utility `EncryptPass` is included to simplify this step.  
+   1. Run `mvn exec:java -Dmain.class="io.bonitoo.qa.util.EncryptPass"`
+   2. When prompted provide the password. 
+   3. Copy the result to the `trustPass` node in the configuration file. 
 
 ## Architecture
 
