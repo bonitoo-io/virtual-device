@@ -49,6 +49,7 @@ IP=""
 if [ -f /sys/hypervisor/uuid ]; then
   # check if ec2 - TODO update for other types of AWS vms
   if [ `head -c 3 /sys/hypervisor/uuid` == "ec2" ]; then
+      echo "Detected current host is EC2"
       IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)
   fi
 else
@@ -112,6 +113,8 @@ function wait_file() {
 
   test -e "${file}"
 }
+
+echo "Starting generation of self-signed Certificate"
 
 generate_CA
 generate_server
