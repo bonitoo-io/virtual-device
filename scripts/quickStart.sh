@@ -197,7 +197,7 @@ function base_example(){
     printf "\n\nRUNNING BASIC EXAMPLE\n"
     printf "=======================\n"
 
-    java -jar target/${VIRDEV_JAR}
+    scripts/runner.sh
 
     printf "\n\nDONE PUBLISHING BASIC EXAMPLE\n"
     printf "=============================\n"
@@ -215,7 +215,7 @@ function item_plugin_example(){
   printf "\n\nRUNNING ITEM PLUGIN EXAMPLE\n"
   printf "=======================\n"
 
-  java -Drunner.conf=plugins/examples/accelerator/sampleRunnerConfig.yml -jar target/${VIRDEV_JAR};
+  scripts/runner.sh plugins/examples/accelerator/sampleRunnerConfig.yml
 
   printf "\n\nDONE PUBLISHING ITEM PLUGIN EXAMPLE\n"
   printf "=============================\n"
@@ -237,7 +237,7 @@ function item_plugin_avg_example(){
   printf "\n\nRUNNING ITEM PLUGIN RICH EXAMPLE\n"
   printf "=======================\n"
 
-  java -Drunner.conf=plugins/examples/simpleMovingAvg/sampleRunnerConfig.yml -jar target/${VIRDEV_JAR};
+  scripts/runner.sh plugins/examples/simpleMovingAvg/sampleRunnerConfig.yml
 
   printf "\n\nDONE PUBLISHING ITEM RICH EXAMPLE\n"
   printf "=============================\n"
@@ -259,7 +259,7 @@ function sample_plugin_example(){
   printf "\n\nRUNNING SAMPLE PLUGIN EXAMPLE\n"
   printf "=======================\n"
 
-  java -Drunner.conf=plugins/examples/lpFileReader/sampleRunnerConfig.yml -jar target/${VIRDEV_JAR};
+  scripts/runner.sh plugins/examples/lpFileReader/sampleRunnerConfig.yml
 
   printf "\n\nDONE PUBLISHING SAMPLE PLUGIN EXAMPLE\n"
   printf "=============================\n"
@@ -278,7 +278,7 @@ function sample_nrf9160(){
   printf "\n\nRUNNING NRF9160 THINGY EXAMPLE\n"
   printf "=======================\n"
 
-  java -Drunner.conf=examples/nrf9160/thingy91.yml -jar target/${VIRDEV_JAR};
+  scripts/runner.sh examples/nrf9160/thingy91.yml
 
   printf "\n\nDONE PUBLISHING NRF9160 THINGY EXAMPLE\n"
   printf "=============================\n"
@@ -292,7 +292,7 @@ function tlsBasic(){
   printf "\n\nRUNNING TLS BASIC EXAMPLE\n"
   printf "=======================\n"
 
-  java -Drunner.conf=src/test/resources/testRunnerTlsConfig.yml -jar target/${VIRDEV_JAR}
+  scripts/runner.sh src/test/resources/testRunnerTlsConfig.yml
 
   printf "\n\nDONE PUBLISHING TLS BASIC EXAMPLE\n"
   printf "=============================\n"

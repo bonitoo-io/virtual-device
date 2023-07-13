@@ -2,43 +2,21 @@
 
 PROJ_NAME=virtual-device
 START_DIR=${PWD}
-OPENSSL_CMD="openssl";
-KEYTOOL_CMD="keytool";
-KEYS_DIR="./scripts/keys";
-KEY_FILE="${KEYS_DIR}/ca.key";
-KEY_CERT="${KEYS_DIR}/ca.cert";
-SERVER_KEY_FILE="${KEYS_DIR}/server.key"
-SERVER_SIGN_REQ="${KEYS_DIR}/server.csr"
-SERVER_CERT="${KEYS_DIR}/server.crt"
-CLIENT_KEY_FILE="${KEYS_DIR}/client.key"
-CLIENT_SIGN_REQ="${KEYS_DIR}/client.csr"
-CLIENT_CERT="${KEYS_DIR}/client.crt"
-DEFAULT_TRUSTSTORE="${KEYS_DIR}/brokerTrust.jks"
-DEFAULT_TRUSTSTORE_PASSWORD="changeit"
-
-if ! command -v $OPENSSL_CMD > /dev/null; then
-  echo "This script requires $OPENSSL_CMD, but it was not found in the system."
-  echo "Exiting"
-  exit 1
-fi
-
-if ! command -v $KEYTOOL_CMD > /dev/null; then
-  echo "This script requires $KEYTOOL_CMD, but it was not found in the system."
-  echo "Exiting"
-  exit 1
-fi
-
 
 if [[ $START_DIR != *$PROJ_NAME* ]]; then
   echo $0 must be run within the project $PROJ_NAME
   exit 1
 fi
 
+PATH_END=${PWD##*/}
+
 while [[ $PATH_END != $PROJ_NAME ]];
 do
   cd ..
   PATH_END=${PWD##*/}
 done
+
+source scripts/env.sh "${START_DIR}"
 
 if [[ ! -d ${KEYS_DIR}  ]]; then
   mkdir ${KEYS_DIR}
@@ -97,7 +75,8 @@ function generate_client () {
 
 function generate_keystore () {
   ALIAS="ca$(date +%d%m)"
-  $KEYTOOL_CMD -alias $ALIAS -importcert -keystore $DEFAULT_TRUSTSTORE -file $KEY_CERT -storepass $DEFAULT_TRUSTSTORE_PASSWORD -noprompt
+  $KEYTOOL_CMD -alias $ALIAS -importcert -keystore $DEFAULT_TRUSTSTORE -file $KEY_CERT -storepass $DEFAULT_TRUSTSTORE_PASSWORD -noprompt || \
+     error_exit "Failed to add alias ${ALIAS} to keystore ${DEFAULT_TRUSTSTORE}."
   echo "Added ca.cert to keystore ${DEFAULT_TRUSTSTORE} as alias ${ALIAS}"
 }
 
