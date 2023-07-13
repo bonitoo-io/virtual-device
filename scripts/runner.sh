@@ -18,9 +18,18 @@ done
 
 source scripts/env.sh "${START_DIR}"
 
-VIRDEV_JAR=$(find target -name "virtual-device-*.jar" -printf "%f")
+function help(){
+  echo "$0 [path/to/config.yml]"
+  echo ""
+  echo "This script simply wraps running a locally built virtual-dev jar package."
+  do_exit 0
+}
 
-# echo "VIRDEV_JAR ${VIRDEV_JAR}"
+if [[ "${1}" == "-?" || "${1}" == "--help" ]]; then
+   help
+fi
+
+VIRDEV_JAR=$(find target -name "virtual-device-*.jar" -printf "%f")
 
 if [[ -z ${VIRDEV_JAR}  ]]; then
   echo "Could not locate virtual-device-*.jar in target directory."
@@ -28,22 +37,19 @@ if [[ -z ${VIRDEV_JAR}  ]]; then
   error_exit "No Jar File to run."
 fi
 
-RUNCMD="java"
+RUN_CMD="java"
 
 CONFIG=$1
 
 if [[ -n ${CONFIG} ]]; then
   test -f ${CONFIG} || error_exit "${CONFIG} does not exist or is not a normal file".
   CONFIG_HEAD=$(head -1 ${CONFIG})
-#  echo "DEBUG CONFIG_HEAD ${CONFIG_HEAD}"
   test "$CONFIG_HEAD" == "---" ||  error_exit "${CONFIG} does not appear to be a yaml file."
-  RUNCMD="${RUNCMD} -Drunner.conf=${CONFIG}"
+  RUN_CMD="${RUN_CMD} -Drunner.conf=${CONFIG}"
 fi
 
-RUNCMD="${RUNCMD} -jar target/${VIRDEV_JAR}"
+RUN_CMD="${RUN_CMD} -jar target/${VIRDEV_JAR}"
 
-# echo "DEBUG RUNCMD ${RUNCMD}"
-
-${RUNCMD}
+${RUN_CMD}
 
 do_exit 0
