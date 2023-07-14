@@ -23,6 +23,7 @@ PORT=8883
 TEMPCERT="tempCert.pem"
 ALIAS="test"
 FORCE="false"
+REMOVE_TEMP="true"
 
 function help(){
   echo ""
@@ -56,7 +57,7 @@ function import_cert_to_store(){
    fi
 
    echo "Attempting to add alias <${ALIAS}> to store ${DEFAULT_TRUSTSTORE}";
-   keytool -importcert -alias $ALIAS -keystore $DEFAULT_TRUSTSTORE -storepass $DEFAULT_TRUSTSTORE_PASSWORD -noprompt -file tempCert.pem || \
+   keytool -importcert -alias $ALIAS -keystore $DEFAULT_TRUSTSTORE -storepass $DEFAULT_TRUSTSTORE_PASSWORD -noprompt -file $TEMPCERT || \
         error_exit "FAILED TO ADD CERTIFICATE TO DEFAULT_TRUSTSTORE ${DEFAULT_TRUSTSTORE}. Exiting."
 }
 
@@ -64,15 +65,11 @@ function delete_alias(){
   keytool -delete -alias $ALIAS -keystore $DEFAULT_TRUSTSTORE -storePass $DEFAULT_TRUSTSTORE_PASSWORD -noprompt
 }
 
-#function error_exit(){
-#  echo "ERROR: $1";
-#  do_exit 1
-#}
-
-#function do_exit(){
-#  cd "${START_DIR}" || exit 1
-#  exit "$1"
-#}
+function remove_temp_cert(){
+  if [[ "${REMOVE_TEMP}" == "true" ]]; then
+    rm $TEMPCERT
+  fi
+}
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -96,6 +93,11 @@ while [[ $# -gt 0 ]]; do
       shift;
       shift;
       ;;
+    "-n" | "--certname")
+      TEMPCERT=$2
+      shift;
+      shift;
+      ;;
     "-a" | "--alias")
       ALIAS=$2;
       shift;
@@ -103,6 +105,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     "-f" | "--force")
       FORCE="true";
+      shift;
+      ;;
+    "-k" | "--keep")
+      REMOVE_TEMP="false";
       shift;
       ;;
     "-?" | "--help")
@@ -119,4 +125,5 @@ done
 
 get_server_cert
 import_cert_to_store
+remove_temp_cert
 do_exit 0

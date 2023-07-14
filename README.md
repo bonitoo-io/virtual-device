@@ -133,6 +133,15 @@ cp plugins/examples/accelerator/accelerator-0.1-SNAPSHOT.jar plugins; \
 java -Drunner.conf=plugins/examples/accelerator/sampleRunnerConfig.yml -jar target/virtual-device-0.1-SNAPSHOT-b012863.jar; \
 rm plugins/accelerator-0.1-SNAPSHOT.jar
 ```
+**Runner.sh**
+
+The script `scripts/runner.sh` simplifies launching a publisher.  It wraps the above commands, so that all that is needed is a command line argument for the path to the runner configuration file to be used. If a publisher requires a plugin, this needs to be added to the `plugins` directory before executing the script. 
+
+_example:_
+
+```bash
+scripts/runner.sh src/test/resources/simpleRunnerConfigToAWSTestbed.yml
+```
 
 ## Lifecycle
 
@@ -384,7 +393,30 @@ MQTT brokers used in the runner configuration can run over plain HTTP, which is 
 The `trustPass` value can be encrypted.  The utility `EncryptPass` is included to simplify this step.  
    1. Run `mvn exec:java -Dmain.class="io.bonitoo.qa.util.EncryptPass"`
    2. When prompted provide the password. 
-   3. Copy the result to the `trustPass` node in the configuration file. 
+   3. Copy the result to the `trustPass` node in the configuration file.
+
+**Adding a Remote Certificate to the Truststore**
+
+In script `scripts/addCert.sh`  can be used to add a certificate to a truststore.  
+
+_example_
+
+```bash
+$ scripts/addCert.sh -h 52.53.192.249 -p 8883 -a myCertA
+Attempting to add alias <myCertA> to store ./scripts/keys/brokerTrust.jks
+Certificate was added to keystore
+```
+
+This basic script accepts the following arguments.
+
+   * `-h|--host` - MQTT server host to which a broker will attempt to connect.
+   * `-p|--port` - Port on host where MQTT is listening.  Defaults to 8883.
+   * `-a|--alias` - alias for the certificate in the store.
+   * `-s|--store` - target truststore.  Note that this can also be set using the environment variable `VD_TRUSTSTORE`.
+   * `-pw|--password` - truststore password.  Note that this can also be set using the environment variable `VD_TRUSTSTORE_PASSWORD`
+   * `-n|--certname` - name for the temporary certificate used between downlad and import to the truststore.  Deleted on exit by default. 
+   * `-k|--keep` - flag indicates that the temporary certificate should not be deleted.
+   * `-f|--force` - if the alias already exists in the truststore, delete the current certificate and replace it with a new one. 
 
 ## Architecture
 
