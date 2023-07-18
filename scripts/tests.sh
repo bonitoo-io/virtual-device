@@ -53,7 +53,7 @@ function clean(){
 
 case $1 in
    "-a" | "--all")
-   # TIMEFORMAT=%2U
+   clean
    time all_tests
    ;;
    "-u" | "--unit")
