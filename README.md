@@ -392,7 +392,9 @@ MQTT brokers used in the runner configuration can run over plain HTTP, which is 
    2. Add a `tls` node to the broker config section using the following properties. 
       1. `trustStore` - path to the truststore.
       2. `trustPass` - password to the truststore - plain text or encrypted, see below .
-      3. `ENV VARS` - note that these properties can be omitted if the corresponding environment variables have been set.  
+      3. `ENV VARS` - note that these properties can be omitted if the corresponding environment variables have been set.
+         1. `VD_TRUSTSTORE`
+         1. `VD_TRUSTSTORE_PASSWORD` 
 
 The `trustPass` value can be encrypted.  The utility `EncryptPass` is included to simplify this step.  
    1. Run `scritps/encryptPass.sh`
