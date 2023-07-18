@@ -22,23 +22,29 @@ function default_test(){
 }
 
 function all_tests(){
+  echo "======= [Running All Tests] ======="
   unit_tests
   integration_tests
   envar_tests
 }
 
 function unit_tests(){
+  echo "========= [Running Unit Tests] ====="
   time mvn --batch-mode test -D groups=unit -DsurefireReportsDirectory=${REPORTS_DIR}/unit
 }
 
 function integration_tests(){
+  echo "========= [Running Integration Tests ] ====="
   time mvn --batch-mode test -D groups=intg -DsurefireReportsDirectory=${REPORTS_DIR}/integration
 }
 
 function envar_tests(){
 
+  echo "========= [Running Envar Tests] ====="
+
   export VD_TRUSTSTORE=envarStore.jks
   export VD_TRUSTSTORE_PASSWORD=envarPassword
+  env | grep "^VD"
 
   time mvn --batch-mode test -D groups=envars -DsurefireReportsDirectory=${REPORTS_DIR}/envars
 
