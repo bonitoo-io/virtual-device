@@ -18,15 +18,21 @@ do
 done
 
 function default_test(){
-  mvn test
+  mvn --batch-mode test
+}
+
+function all_tests(){
+  unit_tests
+  integration_tests
+  envar_tests
 }
 
 function unit_tests(){
-  mvn test -D groups=unit -DsurefireReportsDirectory=${REPORTS_DIR}/unit
+  time mvn --batch-mode test -D groups=unit -DsurefireReportsDirectory=${REPORTS_DIR}/unit
 }
 
 function integration_tests(){
-  mvn test -D groups=intg -DsurefireReportsDirectory=${REPORTS_DIR}/integration
+  time mvn --batch-mode test -D groups=intg -DsurefireReportsDirectory=${REPORTS_DIR}/integration
 }
 
 function envar_tests(){
@@ -34,7 +40,7 @@ function envar_tests(){
   export VD_TRUSTSTORE=envarStore.jks
   export VD_TRUSTSTORE_PASSWORD=envarPassword
 
-  mvn test -D groups=envars -DsurefireReportsDirectory=${REPORTS_DIR}/envars
+  time mvn --batch-mode test -D groups=envars -DsurefireReportsDirectory=${REPORTS_DIR}/envars
 
   unset VD_TRUSTSTORE
   unset VD_TRUSTSTORE_PASSWORD
@@ -46,6 +52,10 @@ function clean(){
 }
 
 case $1 in
+   "-a" | "--all")
+   # TIMEFORMAT=%2U
+   time all_tests
+   ;;
    "-u" | "--unit")
    unit_tests
    ;;
