@@ -44,7 +44,6 @@ public class BrokerConfigTest {
     }
     @Test
     public void parseBrokerConfigBasic() throws JsonProcessingException {
-
         ObjectMapper om = new ObjectMapper(new YAMLFactory());
         BrokerConfig conf = om.readValue(brokerConfigYAML, BrokerConfig.class);
 
@@ -59,7 +58,8 @@ public class BrokerConfigTest {
         ObjectMapper om = new ObjectMapper(new YAMLFactory());
         BrokerConfig conf = om.readValue(brokerConfigTlsYAML, BrokerConfig.class);
 
-        System.out.println("DEBUG conf " + conf);
+        assertEquals("myTrustStore.jks", conf.getTls().getTrustStore());
+        assertEquals("foobar", new String(conf.getTls().getTrustPass()));
 
     }
 
@@ -76,13 +76,46 @@ public class BrokerConfigTest {
 
         TlsConfig parsedConf = omy.readValue(configYaml, TlsConfig.class);
 
-        System.out.println("DEBUG parsedConf.trustStore " + parsedConf.getTrustStore());
-        System.out.println("DEBUG parsedConf.trustPass " + new String(parsedConf.getTrustPass()));
+        assertEquals("teststore.jks", parsedConf.getTrustStore());
+
+        assertEquals("changeit", new String(parsedConf.getTrustPass()));
 
         ObjectWriter owy = omy.writer();
 
-        System.out.println("DEBUG config\n" + owy.writeValueAsString(config));
+        TlsConfig mirrorConf = omy.readValue(owy.writeValueAsString(config), TlsConfig.class);
+
+        assertEquals("blbstore.jks", mirrorConf.getTrustStore());
+        assertEquals("password", new String(mirrorConf.getTrustPass()));
+    }
+
+    @Test
+    @Tag("envars")
+    public void parseTLSConfigWithENVARS() throws JsonProcessingException {
+
+        final String configYaml = "---\n" +
+          "trustStore: \"teststore.jks\"\n" +
+          "trustPass: \"changeit\"";
+
+        ObjectMapper omy = new ObjectMapper(new YAMLFactory());
+
+        TlsConfig parsedConf = omy.readValue(configYaml, TlsConfig.class);
+
+        String ENV_TRUSTSTORE = System.getenv("VD_TRUSTSTORE");
+        String ENV_TRUSTSTORE_PASSWORD = System.getenv("VD_TRUSTSTORE_PASSWORD");
+
+        if(ENV_TRUSTSTORE != null) {
+            assertEquals(ENV_TRUSTSTORE, parsedConf.getTrustStore());
+        } else {
+            assertEquals("teststore.jks", parsedConf.getTrustStore());
+        }
+
+        if(ENV_TRUSTSTORE_PASSWORD != null) {
+            assertEquals(ENV_TRUSTSTORE_PASSWORD, new String(parsedConf.getTrustPass()));
+        } else {
+            assertEquals("changeit", new String(parsedConf.getTrustPass()));
+        }
 
     }
+
 
 }

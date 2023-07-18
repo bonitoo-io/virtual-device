@@ -23,9 +23,19 @@ public class TlsConfigDeserializer extends VirDevDeserializer<TlsConfig> {
   public TlsConfig deserialize(JsonParser jsonParser,
                                DeserializationContext deserializationContext)
       throws IOException {
+
+    String envTruststore = System.getenv("VD_TRUSTSTORE");
+    char[] envPassword = System.getenv("VD_TRUSTSTORE_PASSWORD") == null ? null :
+      System.getenv().get("VD_TRUSTSTORE_PASSWORD").toCharArray();
+
     JsonNode node = jsonParser.getCodec().readTree(jsonParser);
-    String trustStore = safeGetNode(node, "trustStore").asText();
-    char[] password = safeGetNode(node, "trustPass").asText().toCharArray();
+    String trustStore = envTruststore == null
+        ? safeGetNode(node, "trustStore").asText()
+        : envTruststore;
+    char[] password = envPassword == null
+        ? safeGetNode(node, "trustPass").asText().toCharArray()
+        : envPassword;
+
     return new TlsConfig(trustStore, password);
   }
 }

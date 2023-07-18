@@ -179,7 +179,10 @@ The broker represents a connection to an MQTT5 broker. It contains...
   * `password` - currently stored in plain text.
 * `tls` - (Optional) if present instructs the broker to connect over TLS.
    * `trustStore` - location of a JKS truststore containing a root certificate that can verify the certificate sent by the server.
-   * `trustPass` - password to the truststore.  Can be set encrypted.  Copy results from executing `mvn exec:java -Dmain.class="io.bonitoo.qa.util.EncryptPass"` into this field.
+   * `trustPass` - password to the truststore.  Can be set encrypted.  Copy results from executing `scripts/encryptPass.sh` into this field.
+   * _ENV VARS for tls_ - note that the values for `trustStore` and `trustPass` and also be set using the following environment variables.
+      * `VD_TRUSTSTORE` - path to the truststore.
+      * `VD_TRUSTSTORE_PASSWORD` - truststore password.  Can be plain text or encrypted as described above. 
 
 ### Items
 
@@ -388,16 +391,17 @@ MQTT brokers used in the runner configuration can run over plain HTTP, which is 
    1. Import a base certificate used for signing or verifying the certificate from the MQTT server into a JKS truststore.  
    2. Add a `tls` node to the broker config section using the following properties. 
       1. `trustStore` - path to the truststore.
-      2. `trustPass` - password to the truststore.
+      2. `trustPass` - password to the truststore - plain text or encrypted, see below .
+      3. `ENV VARS` - note that these properties can be omitted if the corresponding environment variables have been set.  
 
 The `trustPass` value can be encrypted.  The utility `EncryptPass` is included to simplify this step.  
-   1. Run `mvn exec:java -Dmain.class="io.bonitoo.qa.util.EncryptPass"`
+   1. Run `scritps/encryptPass.sh`
    2. When prompted provide the password. 
-   3. Copy the result to the `trustPass` node in the configuration file.
+   3. Copy the result to the `trustPass` node in the configuration file or use it when defining the environment variable `VD_TRUSTSTORE_PASSWORD`.
 
 **Adding a Remote Certificate to the Truststore**
 
-In script `scripts/addCert.sh`  can be used to add a certificate to a truststore.  
+The script `scripts/addCert.sh` can be used to add a certificate to a truststore.  
 
 _example_
 

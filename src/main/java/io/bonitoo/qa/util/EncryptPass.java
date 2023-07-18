@@ -1,6 +1,7 @@
 package io.bonitoo.qa.util;
 
 import io.bonitoo.qa.conf.mqtt.broker.TlsConfig;
+import java.io.Console;
 import java.lang.invoke.MethodHandles;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
@@ -22,13 +23,26 @@ public class EncryptPass {
    */
   public static void main(String[] args) {
 
-    char[] password = System.console().readPassword("Enter truststore password: ");
-    String hashedPass = encryptTrustPass(
+    Console console = System.console();
+    String hashedPass;
+
+    if (console != null) {
+      char[] password = System.console().readPassword("Enter truststore password: ");
+      hashedPass = encryptTrustPass(
         TlsConfig.class.getPackage().getName().toCharArray(),
         password
-    );
+      );
+    } else {
+      // this branch run when executed without a console
+      // e.g. export TEST_PASS=$(scripts/encryptPass.sh foobar)
+      hashedPass = encryptTrustPass(
+        TlsConfig.class.getPackage().getName().toCharArray(),
+        args[0].toCharArray()
+      );
+    }
 
-    System.out.println("result:\n" + hashedPass);
+    System.out.println(hashedPass);
+
   }
 
   /**
