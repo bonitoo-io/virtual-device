@@ -3,6 +3,7 @@
 PROJ_NAME=virtual-device
 START_DIR=${PWD}
 REPORTS_DIR=target/test-reports
+FAILED="false"
 
 if [[ $START_DIR != *$PROJ_NAME* ]]; then
   echo $0 must be run within the project $PROJ_NAME
@@ -54,6 +55,7 @@ function envar_tests(){
 }
 
 function failure_check(){
+  echo "DEBUG \$1 $1"
   FAILURES=$(grep 'FAILURE!$' $1)
   FAILURE_COUNT=0
   if [[ -n $FAILURES  ]]; then
@@ -66,7 +68,9 @@ function failure_check(){
     do
       cat $FILE
     done
+    return 1
   fi
+  return 0
 }
 
 function clean(){
@@ -78,18 +82,30 @@ case $1 in
    clean
    time all_tests
    failure_check "${REPORTS_DIR}/**/*.txt"
+   if [[ $? -gt 0 ]]; then
+     FAILED="true"
+   fi
    ;;
    "-u" | "--unit")
    unit_tests
    failure_check "${REPORTS_DIR}/unit/*.txt"
+   if [[ $? -gt 0 ]]; then
+     FAILED="true"
+   fi
    ;;
    "-i" | "--integration" | "--intg")
    integration_tests
    failure_check "${REPORTS_DIR}/integration/*.txt"
+   if [[ $? -gt 0 ]]; then
+     FAILED="true"
+   fi
    ;;
    "-e" | "-v" | "--envars")
    envar_tests
    failure_check "${REPORTS_DIR}/envars/*.txt"
+   if [[ $? -gt 0 ]]; then
+     FAILED="true"
+   fi
    ;;
    "-c" | "--clean")
    clean
@@ -101,3 +117,8 @@ esac
 
 cd "${START_DIR}" || exit 1
 
+if [[ "$FAILED" == "true" ]]; then
+  exit 1
+else
+  exit 0
+fi
