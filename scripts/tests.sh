@@ -55,7 +55,6 @@ function envar_tests(){
 }
 
 function failure_check(){
-  echo "DEBUG \$1 $1"
   FAILURES=$(grep 'FAILURE!$' $1)
   FAILURE_COUNT=0
   if [[ -n $FAILURES  ]]; then

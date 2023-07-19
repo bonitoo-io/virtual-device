@@ -117,11 +117,4 @@ public class BrokerConfigTest {
 
     }
 
-    @Test
-    @Tag("unit")
-    public void failTest(){
-        assertTrue(false);
-    }
-
-
 }
