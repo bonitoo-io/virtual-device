@@ -78,7 +78,8 @@ public class MqttClientBlocking extends AbstractMqttClient {
     if (broker.getAuth() == null || broker.getAuth().getUsername() == null) {
       return connectAnon();
     } else {
-      return connectSimple(broker.getAuth().getUsername(), new String(broker.getAuth().getPassword()));
+      return connectSimple(broker.getAuth().getUsername(),
+        new String(broker.getAuth().getPassword()));
     }
   }
 
@@ -87,7 +88,7 @@ public class MqttClientBlocking extends AbstractMqttClient {
                                           String password)
       throws InterruptedException {
     logger.info(LogHelper.buildMsg(client.getConfig().getClientIdentifier().get().toString(),
-        "Connect Simple", broker.getAuth().getUsername() + ":" + new String(broker.getAuth().getPassword()) + ":" + new String(broker.getAuth().getRawPassword())));
+        "Connect Simple", broker.getAuth().getUsername()));
 
 
     Mqtt5ConnAck ack = client.connectWith()

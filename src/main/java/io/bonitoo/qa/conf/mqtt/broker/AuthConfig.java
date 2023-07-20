@@ -2,12 +2,11 @@ package io.bonitoo.qa.conf.mqtt.broker;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.bonitoo.qa.util.EncryptPass;
+import java.util.Arrays;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.Arrays;
 
 /**
  * Configuration for simple authorization.
@@ -20,11 +19,15 @@ import java.util.Arrays;
 public class AuthConfig {
 
   String username;
-
-  // TODO implement encrypted passwords.
   char[] password;
 
-  public char[] getPassword(){
+  /**
+   * Special getter checks to see if held password value is encrypted.
+   * If so it then decrypts it.
+   *
+   * @return - the password.
+   */
+  public char[] getPassword() {
     if (EncryptPass.passIsEncoded(password)) {
       return EncryptPass.decryptPass(
         TlsConfig.class.getPackage().getName().toCharArray(),
@@ -34,7 +37,7 @@ public class AuthConfig {
     return password;
   }
 
-  public char[] getRawPassword(){
+  public char[] getRawPassword() {
     return password;
   }
 
