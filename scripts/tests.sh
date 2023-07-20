@@ -58,6 +58,11 @@ function envar_tests(){
 
 }
 
+function sum_tests(){
+  TEST_SUM=$(grep -R "^Tests run:" $1 | awk '{print $3}' | sed "s/,//" | awk '{s+=$1} END {print s}')
+  printf "\nTest run total: %s\n" "${TEST_SUM}"
+}
+
 function failure_check(){
   FAILURES=$(grep 'FAILURE!$' $1)
   FAILURE_COUNT=0
@@ -65,7 +70,7 @@ function failure_check(){
     FAILURE_COUNT=$(echo "$FAILURES" | wc -l)
   fi
   FAILURE_FILES=$(grep -l 'FAILURE!$' $1)
-  echo "Failures $FAILURE_COUNT"
+  echo "Failures:       $FAILURE_COUNT"
   if [[ $FAILURE_COUNT -gt 0 ]]; then
     for FILE in $FAILURE_FILES
     do
@@ -84,6 +89,7 @@ case $1 in
    "-a" | "--all")
    clean
    time all_tests
+   sum_tests "${REPORTS_DIR}/**/*.txt"
    failure_check "${REPORTS_DIR}/**/*.txt"
    if [[ $? -gt 0 ]]; then
      FAILED="true"
@@ -91,6 +97,7 @@ case $1 in
    ;;
    "-u" | "--unit")
    unit_tests
+   sum_tests "${REPORTS_DIR}/unit/*.txt"
    failure_check "${REPORTS_DIR}/unit/*.txt"
    if [[ $? -gt 0 ]]; then
      FAILED="true"
