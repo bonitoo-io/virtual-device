@@ -39,7 +39,7 @@ public class TlsConfig {
    */
   public char[] getTrustPass() {
     if (EncryptPass.passIsEncoded(trustPass)) {
-      return EncryptPass.decryptTrustPass(
+      return EncryptPass.decryptPass(
         TlsConfig.class.getPackage().getName().toCharArray(),
         new String(trustPass)
       );

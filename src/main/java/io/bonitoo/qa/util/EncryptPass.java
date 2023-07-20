@@ -28,14 +28,14 @@ public class EncryptPass {
 
     if (console != null) {
       char[] password = System.console().readPassword("Enter truststore password: ");
-      hashedPass = encryptTrustPass(
+      hashedPass = encryptPass(
         TlsConfig.class.getPackage().getName().toCharArray(),
         password
       );
     } else {
       // this branch run when executed without a console
       // e.g. export TEST_PASS=$(scripts/encryptPass.sh foobar)
-      hashedPass = encryptTrustPass(
+      hashedPass = encryptPass(
         TlsConfig.class.getPackage().getName().toCharArray(),
         args[0].toCharArray()
       );
@@ -52,7 +52,7 @@ public class EncryptPass {
    * @param trustPass - password to be encrypted.
    * @return - a base64 encrypted string.
    */
-  public static String encryptTrustPass(char[] encPass, char[] trustPass) {
+  public static String encryptPass(char[] encPass, char[] trustPass) {
 
     if (passIsEncoded(trustPass)) {
       logger.info(LogHelper.buildMsg(
@@ -75,7 +75,7 @@ public class EncryptPass {
    * @param trustHash - value to be decrypted.
    * @return - the decrypted value.
    */
-  public static char[] decryptTrustPass(char[] encPass, String trustHash) {
+  public static char[] decryptPass(char[] encPass, String trustHash) {
     if (!passIsEncoded(trustHash.toCharArray())) {
       logger.info(LogHelper.buildMsg(
           "0000",

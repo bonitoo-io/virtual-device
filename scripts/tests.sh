@@ -45,12 +45,16 @@ function envar_tests(){
 
   export VD_TRUSTSTORE=envarStore.jks
   export VD_TRUSTSTORE_PASSWORD=envarPassword
+  export VD_BROKER_USER=donovan
+  export VD_BROKER_PASSWORD=ENC5w5Kp7wRhuk/QmAyHHKt/fjB/g0ZCsUxeOqIipbXC+sAAAAQ5yxLmKxNFlXkyRpmPUXzNVVAlLfRqNsgiq2Zl30oDZM=
   env | grep "^VD"
 
   time mvn --batch-mode test -D groups=envars -DsurefireReportsDirectory=${REPORTS_DIR}/envars
 
   unset VD_TRUSTSTORE
   unset VD_TRUSTSTORE_PASSWORD
+  unset VD_BROKER_USER
+  unset VD_BROKER_PASSWORD
 
 }
 

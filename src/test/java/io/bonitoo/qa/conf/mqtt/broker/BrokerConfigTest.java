@@ -4,8 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import io.bonitoo.qa.conf.Constants;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -39,9 +42,52 @@ public class BrokerConfigTest {
         AuthConfig conf = om.readValue(authConfigYaml, AuthConfig.class);
 
         assertEquals("musashi", conf.getUsername());
-        assertEquals("changeit", conf.getPassword());
+        assertTrue(Arrays.equals("changeit".toCharArray(), conf.getPassword()));
 
     }
+
+    @Test
+    public void parseAuthConfigPassEncrypted() throws JsonProcessingException {
+        String authConfigYamlEncrypted = "---\n" +
+          "username: musashi\n" +
+          "password: ENC0r9OaRpVBRAzsYhIsALU9w8EThXxlJT/YvFx64fkohEAAAAQm0CcLMFtAjEX4abdpEc2+jKb5r8XH2vMgnTPBDAl+mI=";
+
+        ObjectMapper om = new ObjectMapper(new YAMLFactory());
+        AuthConfig conf = om.readValue(authConfigYamlEncrypted, AuthConfig.class);
+
+        System.out.println("DEBUG conf.username " + conf.username);
+        System.out.println("DEBUG conf.password " + new String(conf.password));
+        System.out.println("DEBUG conf.getPassword " + new String(conf.getPassword()));
+
+        assertEquals("musashi", conf.getUsername());
+        assertEquals("ENC0r9OaRpVBRAzsYhIsALU9w8EThXxlJT/YvFx64fkohEAAAAQm0CcLMFtAjEX4abdpEc2+jKb5r8XH2vMgnTPBDAl+mI=",
+          new String(conf.password));
+        assertEquals("changeit", new String(conf.getPassword()));
+
+    }
+
+    @Test
+    @Tag("envars")
+    public void parseAuthConfigEnvVars() throws JsonProcessingException {
+        ObjectMapper om = new ObjectMapper(new YAMLFactory());
+        AuthConfig conf = om.readValue(authConfigYaml, AuthConfig.class);
+
+        String envUsername = System.getenv(Constants.ENV_BROKER_USER);
+        String envPassword = System.getenv(Constants.ENV_BROKER_PASSWORD);
+
+        if (envUsername != null) {
+            assertEquals(envUsername, conf.getUsername());
+        } else {
+            assertEquals("musashi", conf.getUsername());
+        }
+
+        if (envPassword != null) {
+            assertEquals(envPassword, new String(conf.getRawPassword()));
+        } else {
+            assertEquals("changeit", new String(conf.getPassword()));
+        }
+    }
+
     @Test
     public void parseBrokerConfigBasic() throws JsonProcessingException {
         ObjectMapper om = new ObjectMapper(new YAMLFactory());
@@ -49,7 +95,7 @@ public class BrokerConfigTest {
 
         assertEquals("localhost", conf.getHost());
         assertEquals(1883, conf.getPort());
-        assertEquals(new AuthConfig("fred", "changeit"), conf.getAuth());
+        assertEquals(new AuthConfig("fred", "changeit".toCharArray()), conf.getAuth());
 
     }
 
@@ -100,8 +146,8 @@ public class BrokerConfigTest {
 
         TlsConfig parsedConf = omy.readValue(configYaml, TlsConfig.class);
 
-        String ENV_TRUSTSTORE = System.getenv("VD_TRUSTSTORE");
-        String ENV_TRUSTSTORE_PASSWORD = System.getenv("VD_TRUSTSTORE_PASSWORD");
+        String ENV_TRUSTSTORE = System.getenv(Constants.ENV_TLS_STORE);
+        String ENV_TRUSTSTORE_PASSWORD = System.getenv(Constants.ENV_TLS_PASSWORD);
 
         if(ENV_TRUSTSTORE != null) {
             assertEquals(ENV_TRUSTSTORE, parsedConf.getTrustStore());
