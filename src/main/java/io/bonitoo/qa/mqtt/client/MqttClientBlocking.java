@@ -4,11 +4,13 @@ import com.hivemq.client.mqtt.MqttClientSslConfig;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5BlockingClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5ClientBuilder;
+import com.hivemq.client.mqtt.mqtt5.exceptions.Mqtt5MessageException;
 import com.hivemq.client.mqtt.mqtt5.message.connect.connack.Mqtt5ConnAck;
 import com.hivemq.client.util.KeyStoreUtil;
 import io.bonitoo.qa.conf.mqtt.broker.BrokerConfig;
 import io.bonitoo.qa.util.LogHelper;
 import java.io.File;
+import java.util.Arrays;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.TrustManagerFactory;
 import lombok.AllArgsConstructor;
@@ -90,24 +92,31 @@ public class MqttClientBlocking extends AbstractMqttClient {
     logger.info(LogHelper.buildMsg(client.getConfig().getClientIdentifier().get().toString(),
         "Connect Simple", broker.getAuth().getUsername()));
 
+    try {
+      Mqtt5ConnAck ack = client.connectWith()
+          .simpleAuth()
+          .username(username)
+          .password(password.getBytes())
+          .applySimpleAuth()
+          .willPublish()
+          .topic("virtual/device")
+          .payload(String.format("device %s gone", id).getBytes())
+          .applyWillPublish()
+          .send();
 
-    Mqtt5ConnAck ack = client.connectWith()
-        .simpleAuth()
-        .username(username)
-        .password(password.getBytes())
-        .applySimpleAuth()
-        .willPublish()
-        .topic("home/will")
-        .payload(String.format("device %s gone", id).getBytes())
-        .applyWillPublish()
-        .send();
+      logger.debug(LogHelper.buildMsg(client.getConfig().getClientIdentifier().get().toString(),
+          "ACK Connect",
+          ack.toString()));
+      logger.debug(LogHelper.buildMsg(client.getConfig().getClientIdentifier().get().toString(),
+          "Current state",
+          client.getState().toString()));
 
-    logger.debug(LogHelper.buildMsg(client.getConfig().getClientIdentifier().get().toString(),
-        "ACK Connect",
-        ack.toString()));
-    logger.debug(LogHelper.buildMsg(client.getConfig().getClientIdentifier().get().toString(),
-        "Current state",
-        client.getState().toString()));
+    } catch (Mqtt5MessageException e) {
+      logger.error(LogHelper.buildMsg(client.getConfig().getClientIdentifier().get().toString(),
+          "Connect failed",
+          String.format("Failed to connect as %s: %s", username, e.getMqttMessage())));
+      System.exit(1);
+    }
 
     return this;
   }
