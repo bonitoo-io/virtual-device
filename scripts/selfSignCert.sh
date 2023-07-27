@@ -31,7 +31,11 @@ if [ -f /sys/hypervisor/uuid ]; then
       IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)
   fi
 else
-  IP=$(ip -br a | awk '$1 !~ "lo|vir|wl|br|do" { print $1 " " $2 " " $3}' | awk '$2 ~ "UP" { print $3}' | cut -d/ -f1)
+  TARGET_IFACE=$(ifconfig -s | awk '{print $1 " " $3}' | awk '$2+0 > 0' | awk '$1 !~ "lo|vir|wl|br|do|If"' | awk '{print $1}')
+  echo "DEBUG TARGET_IFACE ${TARGET_IFACE}"
+  IP=$(ifconfig $TARGET_IFACE | grep "inet " | awk '{print $2}')
+  echo "DEBUG IP $IP"
+  # IP=$(ip -br a | awk '$1 !~ "lo|vir|wl|br|do" { print $1 " " $2 " " $3}' | awk '$2 ~ "UP" { print $3}' | cut -d/ -f1)
 fi
 
 echo debug IP ${IP}
