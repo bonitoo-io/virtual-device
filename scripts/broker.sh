@@ -13,7 +13,7 @@ SERVER_CERT_FILE="${KEYS_DIR}/${SERVER_CERT}"
 SERVER_KEY_FILE="${KEYS_DIR}/${SERVER_KEY}"
 
 if ! command -v docker > /dev/null; then
-  echo "This script requires docker, but it was not found in the system.\nExiting."
+  echo "This script requires docker, but it was not found in the system. Exiting."
   exit 1
 fi
 
