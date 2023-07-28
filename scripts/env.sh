@@ -18,6 +18,16 @@ DEFAULT_TRUSTSTORE_PASSWORD=${VD_TRUSTSTORE_PASSWORD:-"changeit"}
 
 # echo "DEBUG env.sh START_DIR ${START_DIR}"
 
+function error_exit(){
+  echo "ERROR: $1";
+  do_exit 1
+}
+
+function do_exit(){
+  cd "${START_DIR}" || exit 1
+  exit "$1"
+}
+
 if ! command -v $OPENSSL_CMD > /dev/null; then
   error_exit "This script requires $OPENSSL_CMD, but it was not found in the system.\nExiting."
 fi
@@ -33,12 +43,3 @@ if ! command -v $KEYTOOL_CMD > /dev/null; then
   error_exit "This script requires $KEYTOOL_CMD, but it was not found in the system.\nExiting."
 fi
 
-function error_exit(){
-  echo "ERROR: $1";
-  do_exit 1
-}
-
-function do_exit(){
-  cd "${START_DIR}" || exit 1
-  exit "$1"
-}
