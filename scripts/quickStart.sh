@@ -78,6 +78,10 @@ function setup(){
   nc -vz 127.0.0.1 1883
   if [[ $? -ne 0 ]]; then
     echo "local Mosquitto not started.  Starting it."
+    # REMOVE ANY STALE LOG
+    if [[ -e $MOSQUITTO_LOG ]]; then
+      rm $MOSQUITTO_LOG
+    fi
     scripts/broker.sh start > $MOSQUITTO_LOG 2>&1 &
     timeout 22 sh -c 'until nc -z $0 $1; do sleep 1; done' 127.0.0.1 1883
     sleep 1
@@ -143,6 +147,10 @@ function setup_tls(){
      if [[ $? -ne 0 ]]; then
        echo "Local mosquitto not listening at traditional TLS port (8883)."
        echo "starting mosquitto in TLS mode."
+       # REMOVE ANY STALE LOG
+       if [[ -e $MOSQUITTO_LOG ]]; then
+         rm $MOSQUITTO_LOG
+       fi
        scripts/broker.sh start -tls > $MOSQUITTO_LOG 2>&1 &
        timeout 22 sh -c 'until nc -z $0 $1; do sleep 1; done' 127.0.0.1 8883
        sleep 1
