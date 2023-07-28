@@ -106,11 +106,20 @@ function setup(){
     echo "Found Mosquitto at 1883"
   fi
 
+  echo "Starting Subscriber"
   mvn exec:java -Dmain.class="io.bonitoo.qa.Mqtt5Subscriber" > ${SUBSCRIBER_LOG} &
   MQTT5_PID=$!
   if [[ -z "$MQTT5_PID" ]]; then
     echo "ERROR: no PID for Mqtt5Subscriber"
     shutdown
+    exit 1
+  fi
+  timeout 15 bash -c 'until grep -q \"Subscribed to topic\" $0 > /dev/null 2>&1; do sleep 1; done' $SUBSCRIBER_LOG
+  echo "SUBSCRIBER_LOG"
+  cat $SUBSCRIBER_LOG
+  grep "Subscribed to topic" $SUBSCRIBER_LOG
+  if [[ $? -gt 0 ]]; then
+    echo "Failed to start subscriber.  See $SUBSCRIBER_LOG. Exiting"
     exit 1
   fi
 
@@ -164,12 +173,21 @@ function setup_tls(){
        echo "No need to start."
      fi
 
+     echo "Starting Subscriber"
      mvn exec:java -Dmain.class="io.bonitoo.qa.Mqtt5Subscriber" -Dsub.tls=true > ${SUBSCRIBER_LOG} &
 
      MQTT5_PID=$!
      if [[ -z "$MQTT5_PID" ]]; then
        echo "ERROR: no PID for Mqtt5Subscriber"
        shutdown
+       exit 1
+     fi
+     timeout 15 bash -c 'until grep -q \"Subscribed to topic\" $0 > /dev/null 2>&1; do sleep 1; done' $SUBSCRIBER_LOG
+     echo "SUBSCRIBER_LOG"
+     cat $SUBSCRIBER_LOG
+     grep "Subscribed to topic" $SUBSCRIBER_LOG
+     if [[ $? -gt 0 ]]; then
+       echo "Failed to start subscriber.  See $SUBSCRIBER_LOG. Existing"
        exit 1
      fi
 
