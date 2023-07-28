@@ -114,7 +114,7 @@ function setup(){
     shutdown
     exit 1
   fi
-  timeout 15 bash -c 'until grep -q \"Subscribed to topic\" $0 > /dev/null 2>&1; do sleep 1; done' $SUBSCRIBER_LOG
+  timeout 30 bash -c 'until grep -q \"Subscribed to topic\" $0 > /dev/null 2>&1; do sleep 1; done' $SUBSCRIBER_LOG
   echo "SUBSCRIBER_LOG"
   cat $SUBSCRIBER_LOG
   grep "Subscribed to topic" $SUBSCRIBER_LOG
