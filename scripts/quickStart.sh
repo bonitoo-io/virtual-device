@@ -84,7 +84,7 @@ function setup(){
     fi
     scripts/broker.sh start > $MOSQUITTO_LOG 2>&1 &
     timeout 22 sh -c 'until nc -z $0 $1; do sleep 1; done' 127.0.0.1 1883
-    sleep 1
+    timeout 15 bash -c 'until grep "mosquitto.*running" $0; do sleep 1; done' $MOSQUITTO_LOG
     cat $MOSQUITTO_LOG
     grep "mosquitto.*running" $MOSQUITTO_LOG
     if [[ $? -gt 0 ]]; then
@@ -153,7 +153,7 @@ function setup_tls(){
        fi
        scripts/broker.sh start -tls > $MOSQUITTO_LOG 2>&1 &
        timeout 22 sh -c 'until nc -z $0 $1; do sleep 1; done' 127.0.0.1 8883
-       sleep 1
+       timeout 15 bash -c 'until grep "mosquitto.*running" $0; do sleep 1; done' $MOSQUITTO_LOG
        cat $MOSQUITTO_LOG
        grep "mosquitto.*running" $MOSQUITTO_LOG
        if [[ $? -gt 0 ]]; then
