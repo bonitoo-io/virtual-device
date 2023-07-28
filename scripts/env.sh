@@ -33,7 +33,6 @@ if ! command -v $OPENSSL_CMD > /dev/null; then
 fi
 
 OPENSSL_MAJ_VERSION=$(openssl version | awk '{print $2}' | sed 's/\..*//')
-echo "OPENSSL_MAJ_VERSION"
 
 if [[ $OPENSSL_MAJ_VERSION -lt 3 ]]; then
   error_exit "This script requires $OPENSSL_CMD version 3 or higher.  Detected $OPENSSL_MAJ_VERSION.\nExiting"
