@@ -79,6 +79,10 @@ function setup(){
   if [[ $? -ne 0 ]]; then
     echo "local Mosquitto not started.  Starting it."
     scripts/broker.sh start > $MOSQUITTO_LOG 2>&1 &
+    timeout 22 sh -c 'until nc -z $0 $1; do sleep 1; done' 127.0.0.1 1883
+    sleep 1
+    cat $MOSQUITTO_LOG
+    grep "mosquitto.*running" $MOSQUITTO_LOG
     if [[ $? -gt 0 ]]; then
       echo "failed to start mosquitto broker with docker.  Check $MOSQUITTO_LOG.  Exiting"
       exit 1
@@ -131,6 +135,10 @@ function setup_tls(){
        echo "Local mosquitto not listening at traditional TLS port (8883)."
        echo "starting mosquitto in TLS mode."
        scripts/broker.sh start -tls > $MOSQUITTO_LOG 2>&1 &
+       timeout 22 sh -c 'until nc -z $0 $1; do sleep 1; done' 127.0.0.1 8883
+       sleep 1
+       cat $MOSQUITTO_LOG
+       grep "mosquitto.*running" $MOSQUITTO_LOG
        if [[ $? -gt 0 ]]; then
          echo "failed to start mosquitto broker with docker. Check $MOSQUITTO_LOG  Exiting"
          exit 1
