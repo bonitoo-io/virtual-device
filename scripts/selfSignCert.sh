@@ -53,28 +53,46 @@ function generate_CA () {
    echo "Generating CA"
    echo "$SUBJECT_CA"
    $OPENSSL_CMD req -x509 -nodes -sha256 -newkey rsa:2048 -subj "$SUBJECT_CA"  -days 365 -keyout ${KEY_FILE} -out ${KEY_CERT}
+   if [[ $? -gt 0 ]]; then
+     echo "Failed to generate CA ${SUBJECT_CA}"
+     exit 1
+   fi
 }
 
 function generate_server () {
    echo "Generating Server Cert"
    echo "$SUBJECT_SERVER"
    $OPENSSL_CMD req -nodes -sha256 -new -subj "$SUBJECT_SERVER" -addext "$SAN_SERVER" -keyout $SERVER_KEY_FILE -out $SERVER_SIGN_REQ
+   if [[ $? -gt 0 ]]; then
+     echo "Failed to generate server signing request for $SUBJECT_CA"
+     exit 1
+   fi
    wait_file $SERVER_SIGN_REQ 10 || {
      echo "Generation of ${SERVER_SIGN_REQ} timed out. Exiting."
      exit 1;
    }
    $OPENSSL_CMD x509 -req -sha256 -in $SERVER_SIGN_REQ -CA $KEY_CERT -CAkey $KEY_FILE -CAcreateserial -out $SERVER_CERT  -days 365 -copy_extensions=copyall
+   if [[ $? -gt 0 ]]; then
+     echo "Failed to generate cert $SERVER_CERT"
+     exit 1;
+   fi
 }
 
 function generate_client () {
    echo "Generating Client Cert"
    echo "$SUBJECT_CLIENT"
    openssl req -new -nodes -sha256 -subj "$SUBJECT_CLIENT" -out $CLIENT_SIGN_REQ -keyout $CLIENT_KEY_FILE
+   if [[ $? -gt 0 ]]; then
+     echo "Failed to generate client signing request for $SUBJECT_CLIENT"
+   fi
       wait_file $CLIENT_SIGN_REQ || {
         echo "Generation of ${CLIENT_SIGN_REQ} timed out. Exiting."
         exit 1;
       }
    openssl x509 -req -sha256 -in $CLIENT_SIGN_REQ -CA ${KEY_CERT} -CAkey ${KEY_FILE} -CAcreateserial -out ${CLIENT_CERT} -days 365
+   if [[ $? -gt 0 ]]; then
+     echo "Failed to generate certificated  $CLIENT_CERT"
+   fi
 }
 
 function generate_keystore () {
