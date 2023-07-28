@@ -12,6 +12,7 @@ ITEM_PLUGIN_AVG_JAR=simpleMovingAverage-0.1-SNAPSHOT.jar
 ITEM_PLUGIN_AVG_PATH=plugins/examples/simpleMovingAvg/${ITEM_PLUGIN_AVG_JAR}
 SAMPLE_PLUGIN_JAR=lpFileReader-0.1-SNAPSHOT.jar
 SAMPLE_PLUGIN_PATH=plugins/examples/lpFileReader/${SAMPLE_PLUGIN_JAR}
+MOSQUITTO_LOG=mosquitto.log
 
 if [[ $START_DIR != *$PROJ_NAME* ]]; then
   echo $0 must be run within the project $PROJ_NAME
@@ -77,7 +78,11 @@ function setup(){
   nc -vz 127.0.0.1 1883
   if [[ $? -ne 0 ]]; then
     echo "local Mosquitto not started.  Starting it."
-    scripts/broker.sh start > /dev/null 2>&1 &
+    scripts/broker.sh start > $MOSQUITTO_LOG 2>&1 &
+    if [[ $? -gt 0 ]]; then
+      echo "failed to start mosquitto broker with docker.  Check $MOSQUITTO_LOG.  Exiting"
+      exit 1
+    fi
     now=$(date +%s)
     ttl=$(($now + 10))
     nc -vz 127.0.0.1 1883
@@ -125,7 +130,11 @@ function setup_tls(){
      if [[ $? -ne 0 ]]; then
        echo "Local mosquitto not listening at traditional TLS port (8883)."
        echo "starting mosquitto in TLS mode."
-       scripts/broker.sh start -tls > /dev/null 2>&1 &
+       scripts/broker.sh start -tls > $MOSQUITTO_LOG 2>&1 &
+       if [[ $? -gt 0 ]]; then
+         echo "failed to start mosquitto broker with docker. Check $MOSQUITTO_LOG  Exiting"
+         exit 1
+       fi
        now=$(date +%s)
        ttl=$(($now + 10))
        nc -vz 127.0.0.1 8883
