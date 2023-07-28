@@ -12,6 +12,9 @@ SERVER_CA_FILE="${KEYS_DIR}/${CA_CERT}"
 SERVER_CERT_FILE="${KEYS_DIR}/${SERVER_CERT}"
 SERVER_KEY_FILE="${KEYS_DIR}/${SERVER_KEY}"
 
+if ! command -v docker > /dev/null; then
+  error_exit "This script requires docker, but it was not found in the system.\nExiting."
+fi
 
 if [[ $START_DIR != *$PROJ_NAME* ]]; then
   echo $0 must be run within the project $PROJ_NAME
