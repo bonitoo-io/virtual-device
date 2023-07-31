@@ -18,6 +18,12 @@ done
 
 source scripts/env.sh "${START_DIR}"
 
+OPENSSL_MAJ_VERSION=$(openssl version | awk '{print $2}' | sed 's/\..*//')
+
+if [[ $OPENSSL_MAJ_VERSION -lt 3 ]]; then
+  error_exit "This script requires $OPENSSL_CMD version 3 or higher.  Detected $OPENSSL_MAJ_VERSION.\nExiting"
+fi
+
 if [[ ! -d ${KEYS_DIR}  ]]; then
   mkdir ${KEYS_DIR}
 fi
