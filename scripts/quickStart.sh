@@ -13,6 +13,7 @@ ITEM_PLUGIN_AVG_PATH=plugins/examples/simpleMovingAvg/${ITEM_PLUGIN_AVG_JAR}
 SAMPLE_PLUGIN_JAR=lpFileReader-0.1-SNAPSHOT.jar
 SAMPLE_PLUGIN_PATH=plugins/examples/lpFileReader/${SAMPLE_PLUGIN_JAR}
 MOSQUITTO_LOG=mosquitto.log
+SPINNER=("|" "/" "-" "\\")
 
 if [[ $START_DIR != *$PROJ_NAME* ]]; then
   echo $0 must be run within the project $PROJ_NAME
@@ -62,6 +63,96 @@ function check_build(){
   fi
 }
 
+# pass tls switch as $1
+function start_subscriber(){
+
+     echo "Starting Subscriber"
+     if [[ "$1" == "-tls" ]]; then
+        mvn exec:java -Dmain.class="io.bonitoo.qa.Mqtt5Subscriber" -Dsub.tls=true > ${SUBSCRIBER_LOG} &
+     else
+        mvn exec:java -Dmain.class="io.bonitoo.qa.Mqtt5Subscriber" > ${SUBSCRIBER_LOG} &
+     fi
+
+     MQTT5_PID=$!
+     if [[ -z "$MQTT5_PID" ]]; then
+       echo "ERROR: no PID for Mqtt5Subscriber"
+       shutdown
+       exit 1
+     fi
+     now=$(date +%s)
+     ttl=$(($now + 30))
+     grep -q "Subscribed to topic" $SUBSCRIBER_LOG
+     until [[ $? -eq 0 ]] || [[ $now -eq $ttl ]]; do
+         index=$(($now % 4))
+         printf "\r${SPINNER[index]}"
+         sleep 1
+         now=$(($now + 1))
+        grep -q "Subscribed to topic" $SUBSCRIBER_LOG
+     done
+     printf "\r \n"
+     echo "SUBSCRIBER_LOG"
+     cat $SUBSCRIBER_LOG
+     grep "Subscribed to topic" $SUBSCRIBER_LOG
+     if [[ $? -gt 0 ]]; then
+       echo "Failed to start subscriber.  See $SUBSCRIBER_LOG. Exiting"
+       exit 1
+     fi
+
+     echo "Mqtt5Subscriber started with PID $MQTT5_PID.  Output piped to ${SUBSCRIBER_LOG}"
+
+}
+
+# pass port as $1
+function start_mosquitto(){
+    # REMOVE ANY STALE LOG
+    if [[ -e $MOSQUITTO_LOG ]]; then
+      rm $MOSQUITTO_LOG
+    fi
+
+    if [[ $1 -eq 8883 ]]; then
+      scripts/broker.sh start -tls > $MOSQUITTO_LOG 2>&1 &
+    else
+      scripts/broker.sh start > $MOSQUITTO_LOG 2>&1 &
+    fi
+
+    now=$(date +%s)
+    ttl=$(($now + 30))
+    nc -z 127.0.0.1 $1
+    until [[  $? -eq 0 ]] || [[ $now -eq $ttl ]]
+    do
+      index=$(($(date +%s) % 4))
+      printf "\r${SPINNER[index]}"
+      sleep 1
+      now=$(date +%s)
+      nc -z 127.0.0.1 $1
+    done
+    printf "\r \n"
+
+    ttl=$(($now + 15))
+    grep "mosquitto.*running" $MOSQUITTO_LOG
+    until [[ $? -eq 0 ]] || [[ $now -eq $ttl ]]
+    do
+      index=$(($(date +%s) % 4))
+      printf "\r${SPINNER[index]}"
+      sleep 1
+      now=$(date +%s)
+      grep "mosquitto.*running" $MOSQUITTO_LOG
+    done
+    printf "\r \n"
+    cat $MOSQUITTO_LOG
+    grep "mosquitto.*running" $MOSQUITTO_LOG
+    if [[ $? -gt 0 ]]; then
+      echo "failed to start mosquitto broker with docker.  Check $MOSQUITTO_LOG.  Exiting"
+      exit 1
+    fi
+  printf "\r \n"
+
+  echo "Mosquitto started"
+
+  MSQTT_STARTED_HERE=true
+
+}
+
 function setup(){
 
   check_build
@@ -78,56 +169,12 @@ function setup(){
   nc -vz 127.0.0.1 1883
   if [[ $? -ne 0 ]]; then
     echo "local Mosquitto not started.  Starting it."
-    # REMOVE ANY STALE LOG
-    if [[ -e $MOSQUITTO_LOG ]]; then
-      rm $MOSQUITTO_LOG
-    fi
-    scripts/broker.sh start > $MOSQUITTO_LOG 2>&1 &
-    timeout 22 sh -c 'until nc -z $0 $1; do sleep 1; done' 127.0.0.1 1883
-    timeout 15 bash -c 'until grep "mosquitto.*running" $0; do sleep 1; done' $MOSQUITTO_LOG
-    cat $MOSQUITTO_LOG
-    grep "mosquitto.*running" $MOSQUITTO_LOG
-    if [[ $? -gt 0 ]]; then
-      echo "failed to start mosquitto broker with docker.  Check $MOSQUITTO_LOG.  Exiting"
-      exit 1
-    fi
-    now=$(date +%s)
-    ttl=$(($now + 10))
-    nc -vz 127.0.0.1 1883
-    rStatus=$?
-    sleep 1
-    until [[ $rStatus -eq 0 || $(date +%s) -gt ttl ]]; do
-      echo "waiting for Mosquitto"
-      sleep 1
-      nc -vz 127.0.0.1 1883
-      rStatus=$?
-    done
-
-  echo "Mosquitto started"
-
-  MSQTT_STARTED_HERE=true
+    start_mosquitto 1883
   else
     echo "Found Mosquitto at 1883"
   fi
 
-  echo "Starting Subscriber"
-  mvn exec:java -Dmain.class="io.bonitoo.qa.Mqtt5Subscriber" > ${SUBSCRIBER_LOG} &
-  MQTT5_PID=$!
-  if [[ -z "$MQTT5_PID" ]]; then
-    echo "ERROR: no PID for Mqtt5Subscriber"
-    shutdown
-    exit 1
-  fi
-  timeout 30 bash -c 'until grep -q \"Subscribed to topic\" $0 > /dev/null 2>&1; do sleep 1; done' $SUBSCRIBER_LOG
-  echo "SUBSCRIBER_LOG"
-  cat $SUBSCRIBER_LOG
-  grep "Subscribed to topic" $SUBSCRIBER_LOG
-  if [[ $? -gt 0 ]]; then
-    echo "Failed to start subscriber.  See $SUBSCRIBER_LOG. Exiting"
-    exit 1
-  fi
-
-  echo "Mqtt5Subscriber started with PID $MQTT5_PID.  Output piped to ${SUBSCRIBER_LOG}"
+  start_subscriber
 
 }
 
@@ -147,59 +194,14 @@ function setup_tls(){
      if [[ $? -ne 0 ]]; then
        echo "Local mosquitto not listening at traditional TLS port (8883)."
        echo "starting mosquitto in TLS mode."
-       # REMOVE ANY STALE LOG
-       if [[ -e $MOSQUITTO_LOG ]]; then
-         rm $MOSQUITTO_LOG
-       fi
-       scripts/broker.sh start -tls > $MOSQUITTO_LOG 2>&1 &
-       timeout 22 sh -c 'until nc -z $0 $1; do sleep 1; done' 127.0.0.1 8883
-       timeout 15 bash -c 'until grep "mosquitto.*running" $0; do sleep 1; done' $MOSQUITTO_LOG
-       cat $MOSQUITTO_LOG
-       grep "mosquitto.*running" $MOSQUITTO_LOG
-       if [[ $? -gt 0 ]]; then
-         echo "failed to start mosquitto broker with docker. Check $MOSQUITTO_LOG  Exiting"
-         exit 1
-       fi
-       now=$(date +%s)
-       ttl=$(($now + 10))
-       nc -vz 127.0.0.1 8883
-       rStatus=$?
-       sleep 1
-       until [[ $rStatus -eq 0 || $(date +%s) -gt ttl ]]; do
-         echo "waiting for Mosquitto"
-         sleep 1
-          nc -vz 127.0.0.1 8883
-          rStatus=$?
-       done
 
-       echo "Mosquitto started"
-
-       MSQTT_STARTED_HERE=true
-
+       start_mosquitto 8883
      else
        echo "Found mosquitto already listening at traditional TLS port (8883)."
        echo "No need to start."
      fi
 
-     echo "Starting Subscriber"
-     mvn exec:java -Dmain.class="io.bonitoo.qa.Mqtt5Subscriber" -Dsub.tls=true > ${SUBSCRIBER_LOG} &
-
-     MQTT5_PID=$!
-     if [[ -z "$MQTT5_PID" ]]; then
-       echo "ERROR: no PID for Mqtt5Subscriber"
-       shutdown
-       exit 1
-     fi
-     timeout 30 bash -c 'until grep -q \"Subscribed to topic\" $0 > /dev/null 2>&1; do sleep 1; done' $SUBSCRIBER_LOG
-     echo "SUBSCRIBER_LOG"
-     cat $SUBSCRIBER_LOG
-     grep "Subscribed to topic" $SUBSCRIBER_LOG
-     if [[ $? -gt 0 ]]; then
-       echo "Failed to start subscriber.  See $SUBSCRIBER_LOG. Existing"
-       exit 1
-     fi
-
-     echo "Mqtt5Subscriber started with PID $MQTT5_PID.  Output piped to ${SUBSCRIBER_LOG}"
+     start_subscriber "-tls"
 
 }
 
