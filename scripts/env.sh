@@ -19,7 +19,7 @@ DEFAULT_TRUSTSTORE_PASSWORD=${VD_TRUSTSTORE_PASSWORD:-"changeit"}
 # echo "DEBUG env.sh START_DIR ${START_DIR}"
 
 function error_exit(){
-  echo "ERROR: $1";
+  printf "\nERROR: $1\n";
   do_exit 1
 }
 
