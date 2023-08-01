@@ -211,6 +211,8 @@ function shutdown(){
     scripts/broker.sh stop
   else
     echo "Mosquitto not started by this script.  Leaving it running"
+    echo "Hint 1: To shut it down manually run $ scripts/broker.sh stop"
+    echo "Hint 2: To clean up logs and configs run $ scripts/broker.sh clean"
   fi
 
   if [[ -n "$MQTT5_PID" ]]; then

@@ -35,16 +35,14 @@ if [ -f /sys/hypervisor/uuid ]; then
   if [ `head -c 3 /sys/hypervisor/uuid` == "ec2" ]; then
       echo "Detected current host is EC2"
       IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)
+      echo "Will use EC2 resolved IP address $IP for certificate CN"
   fi
 else
-  TARGET_IFACE=$(ifconfig -s | awk '{print $1 " " $3}' | awk '$2+0 > 0' | awk '$1 !~ "lo|vir|wl|br|do|If"' | awk '{print $1}')
-  echo "DEBUG TARGET_IFACE ${TARGET_IFACE}"
+  TARGET_IFACE=$(ifconfig | grep "RUNNING" | awk '$1 !~ "lo|vir|wl|br|do|If"' | awk '{print $1}' | sed 's/://')
+  echo "Using IP address of interface ${TARGET_IFACE} for certificate CN"
   IP=$(ifconfig $TARGET_IFACE | grep "inet " | awk '{print $2}')
-  echo "DEBUG IP $IP"
-  # IP=$(ip -br a | awk '$1 !~ "lo|vir|wl|br|do" { print $1 " " $2 " " $3}' | awk '$2 ~ "UP" { print $3}' | cut -d/ -f1)
+  echo "Resolved IP address: $IP"
 fi
-
-echo debug IP ${IP}
 
 SUBJECT_CA="/C=CZ/ST=Praha/L=Harfa/O=bonitoo/OU=qa/CN=$IP"
 SUBJECT_SERVER="/C=CZ/ST=Praha/L=Harfa/O=bonitoo/OU=server/CN=$IP"
