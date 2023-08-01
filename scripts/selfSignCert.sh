@@ -28,36 +28,70 @@ if [[ ! -d ${KEYS_DIR}  ]]; then
   mkdir ${KEYS_DIR}
 fi
 
+function help(){
+  echo "${0##*/} - generate self signed certificate and add it to truststore"
+  echo "    intended for demoing and testing purposes only."
+  echo ""
+  echo "Arguments:"
+  echo "-c --cn       Value for final CN field of certificate.  It should be the"
+  echo "              IP address or hostname of the machine, were an MQTT server"
+  echo "              configured to use TLS will be running.  If not specified"
+  echo "              the script will attempt to get the ipV4 address of a running"
+  echo "              ethernet or wifi interface and use it as the CN."
+  echo "-h -? --help  This message."
+  echo ""
+  exit 1
+}
+
+case $1 in
+   "-c" | "--cn")
+   CN=$2
+   ;;
+   "-h" | "-?" | "--help")
+   help
+   ;;
+esac
+
 IP=""
 
-if [ -f /sys/hypervisor/uuid ]; then
-  # check if ec2 - TODO update for other types of AWS vms
-  if [ `head -c 3 /sys/hypervisor/uuid` == "ec2" ]; then
-      echo "Detected current host is EC2"
-      IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)
-      echo "Will use EC2 resolved IP address $IP for certificate CN"
-  fi
+if [[ -z $CN ]]; then
+   if [ -f /sys/hypervisor/uuid ]; then
+     # check if ec2 - TODO update for other types of AWS vms
+     if [ `head -c 3 /sys/hypervisor/uuid` == "ec2" ]; then
+         echo "Detected current host is EC2"
+         IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)
+         echo "Will use EC2 resolved IP address $IP for certificate CN"
+     fi
+   else
+     TARGET_IFACE=$(ifconfig | grep "RUNNING" | awk '$1 !~ "lo|vir|br|do|If"' | awk '{print $1}' | sed 's/://' | head -n 1)
+     if [[ -z $TARGET_IFACE ]]; then
+       error_exit "Failed to locate target interface for certificate CN value.\nExiting."
+     else
+       echo "Using IP address of interface ${TARGET_IFACE} for certificate CN"
+     fi
+     IP=$(ifconfig $TARGET_IFACE | grep "inet " | awk '{print $2}')
+     echo "Resolved IP address: $IP"
+   fi
+
+   if [[ -z $IP  ]]; then
+     echo "Failed to resolve IP address for any interface."
+     echo "IP address would be used for certificate CN."
+     error_exit "Exiting"
+   fi
+
+   CN=$IP
+fi
+
+SUBJECT_CA="/C=CZ/ST=Praha/L=Harfa/O=bonitoo/OU=qa/CN=$CN"
+SUBJECT_SERVER="/C=CZ/ST=Praha/L=Harfa/O=bonitoo/OU=server/CN=$CN"
+
+if [[ -n $IP ]]; then
+  SAN_SERVER="subjectAltName=IP:$IP,IP:127.0.0.1,DNS:localhost"
 else
-  TARGET_IFACE=$(ifconfig | grep "RUNNING" | awk '$1 !~ "lo|vir|br|do|If"' | awk '{print $1}' | sed 's/://' | head -n 1)
-  if [[ -z $TARGET_IFACE ]]; then
-    error_exit "Failed to locate target interface for certificate CN value.\nExiting."
-  else
-    echo "Using IP address of interface ${TARGET_IFACE} for certificate CN"
-  fi
-  IP=$(ifconfig $TARGET_IFACE | grep "inet " | awk '{print $2}')
-  echo "Resolved IP address: $IP"
+  SAN_SERVER="subjectAltName=IP:127.0.0.1,DNS:localhost"
 fi
 
-if [[ -z $IP  ]]; then
-  echo "Failed to resolve IP address for any interface."
-  echo "IP address would be used for certificate CN."
-  error_exit "Exiting"
-fi
-
-SUBJECT_CA="/C=CZ/ST=Praha/L=Harfa/O=bonitoo/OU=qa/CN=$IP"
-SUBJECT_SERVER="/C=CZ/ST=Praha/L=Harfa/O=bonitoo/OU=server/CN=$IP"
-SAN_SERVER="subjectAltName=IP:$IP,IP:127.0.0.1,DNS:localhost"
-SUBJECT_CLIENT="/C=CZ/ST=Praha/L=Harfa/O=bonitoo/OU=client/CN=$IP"
+SUBJECT_CLIENT="/C=CZ/ST=Praha/L=Harfa/O=bonitoo/OU=client/CN=$CN"
 
 function help_openssl () {
   $OPENSSL_CMD
