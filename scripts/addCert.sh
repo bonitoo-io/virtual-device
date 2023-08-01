@@ -18,6 +18,10 @@ done
 
 source scripts/env.sh "${START_DIR}"
 
+if [[ ! -d ${KEYS_DIR} ]]; then
+  mkdir -p ${KEYS_DIR}
+fi
+
 HOST="127.0.0.1"
 PORT=8883
 TEMPCERT="tempCert.pem"
