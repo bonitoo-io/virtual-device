@@ -38,10 +38,20 @@ if [ -f /sys/hypervisor/uuid ]; then
       echo "Will use EC2 resolved IP address $IP for certificate CN"
   fi
 else
-  TARGET_IFACE=$(ifconfig | grep "RUNNING" | awk '$1 !~ "lo|vir|wl|br|do|If"' | awk '{print $1}' | sed 's/://')
-  echo "Using IP address of interface ${TARGET_IFACE} for certificate CN"
+  TARGET_IFACE=$(ifconfig | grep "RUNNING" | awk '$1 !~ "lo|vir|br|do|If"' | awk '{print $1}' | sed 's/://' | head -n 1)
+  if [[ -z $TARGET_IFACE ]]; then
+    error_exit "Failed to locate target interface for certificate CN value.\nExiting."
+  else
+    echo "Using IP address of interface ${TARGET_IFACE} for certificate CN"
+  fi
   IP=$(ifconfig $TARGET_IFACE | grep "inet " | awk '{print $2}')
   echo "Resolved IP address: $IP"
+fi
+
+if [[ -z $IP  ]]; then
+  echo "Failed to resolve IP address for any interface."
+  echo "IP address would be used for certificate CN."
+  error_exit "Exiting"
 fi
 
 SUBJECT_CA="/C=CZ/ST=Praha/L=Harfa/O=bonitoo/OU=qa/CN=$IP"
