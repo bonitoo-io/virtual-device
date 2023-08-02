@@ -56,7 +56,7 @@ function check_build(){
     echo "$TARGET_DIR not found.  Building project"
     build
   fi
-  VIRDEV_JAR=$(find target -name "virtual-device-*.jar" -printf "%f")
+  VIRDEV_JAR=$(find target -name "virtual-device-*.jar" -print)
   if [[ "${VIRDEV_JAR}x" == "x" ]]; then
     echo "$VIRDEV_JAR not found.  Building project"
     build

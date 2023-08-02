@@ -29,7 +29,7 @@ if [[ "${1}" == "-?" || "${1}" == "--help" ]]; then
    help
 fi
 
-VIRDEV_JAR=$(find target -name "virtual-device-*.jar" -printf "%f")
+VIRDEV_JAR=$(find target -name "virtual-device-*.jar" -print)
 
 if [[ -z ${VIRDEV_JAR}  ]]; then
   echo "Could not locate virtual-device-*.jar in target directory."
@@ -48,7 +48,7 @@ if [[ -n ${CONFIG} ]]; then
   RUN_CMD="${RUN_CMD} -Drunner.conf=${CONFIG}"
 fi
 
-RUN_CMD="${RUN_CMD} -jar target/${VIRDEV_JAR}"
+RUN_CMD="${RUN_CMD} -jar ${VIRDEV_JAR}"
 
 ${RUN_CMD}
 
