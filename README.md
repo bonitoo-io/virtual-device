@@ -86,6 +86,8 @@ RUNNING BASIC EXAMPLE
 
 The `tlsBasic` scenario generates a self-signed certificate used to configure a mosquitto MQTT server running in a docker container.  The CN value of the generated certificates is defined as an IP address, which should match a host IP over which the mosquitto server is accessible.  The script `scripts/selfSignCert.sh` attempts to get such an IP address from a running ethernet or wifi interface, however this is not always reliable.  This value can also be declared using the environment variable `VD_HOST_IP`.  For example declare `$ export VD_HOST_IP=192.168.101.102` before running either `selfSignCert.sh` or `quickStart.sh`.  Other environment variables are available for setting subject values in certificates.  To view them run `scripts/selfSignCert.sh --help`.
 
+If the `tlsBasic` scenario fails, for example the subscriber fails to connect thus ending in an `SSLHandshakeException`, try stopping the mosquitto server and cleaning up the environment with these commands: `scripts/broker stop` and `sudo scripts/broker clean -certs`.  Then try and run it again.  
+
 ## Basic Tasks
 
 ### Build
