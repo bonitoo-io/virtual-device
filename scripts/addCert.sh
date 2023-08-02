@@ -37,7 +37,7 @@ function help(){
   echo "-h|--host        Target hostname. Default ${HOST}."
   echo "-p|--port        Target port. Default ${PORT}."
   echo "-s|--store       Target truststore.  Default ${DEFAULT_TRUSTSTORE}."
-  echo "-pw|-password    Target truststore password.  Default ${DEFAULT_TRUSTSTORE_PASSWORD}"
+  echo "-pw|--password   Target truststore password.  Default ${DEFAULT_TRUSTSTORE_PASSWORD}"
   echo "-a|--alias       Alias under which the certificate will be stored.  Default ${ALIAS}"
   echo "-f|--force       If Alias already exists, current certificate will be deleted from"
   echo "                 store and attempt to be replaced.  Default ${FORCE}."
