@@ -140,9 +140,9 @@ function start_mosquitto(){
   docker rm mosquito-mq > /dev/null 2>&1
 
   if [[ "$1" == "-tls" ]]; then
-    docker run --name mosquito-mq -p 8883:8883 -p 9001:9001 -v $(pwd)/mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf -v $(pwd)/mosquitto/data:/mosquitto/data -v $(pwd)/mosquitto/etc:/mosquitto/etc eclipse-mosquitto
+    docker run --user $UID --name mosquito-mq -p 8883:8883 -p 9001:9001 -v $(pwd)/mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf -v $(pwd)/mosquitto/data:/mosquitto/data -v $(pwd)/mosquitto/etc:/mosquitto/etc eclipse-mosquitto
   else
-    docker run --name mosquito-mq -p 1883:1883 -p 9001:9001 -v $(pwd)/mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf -v $(pwd)/mosquitto/data:/mosquitto/data eclipse-mosquitto
+    docker run --user $UID --name mosquito-mq -p 1883:1883 -p 9001:9001 -v $(pwd)/mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf -v $(pwd)/mosquitto/data:/mosquitto/data eclipse-mosquitto
   fi
 
 }
@@ -206,20 +206,13 @@ function clean_mosquitto(){
   docker rm mosquito-mq
 
   cd ${PROJ_DIR} || error_exit "Failed to return to ${PROJ_DIR}"
-#  sudo rm -rdf ${MQTT_DIR}
-  rm -rdf ${MQTT_DIR}/mosquitto/config
-  rm -rdf ${MQTT_DIR}/mosquitto/log
-
-  if [[ "$EUID" -eq 0 ]]; then
-    rm -rdf ${MQTT_DIR}/mosquitto/data
-    rm -rdf ${MQTT_DIR}/mosquitto/etc
+  rm -rdf ${MQTT_DIR}/mosquitto
+  if [[  $? -ne 0 ]]; then
+    echo "Failed to remove directory ${MQTT_DIR}/mosquitto."
+    echo "You may need to remove it manually."
   else
-    echo "${0} not run as sudo."
-    echo "Cannot delete ${MQTT_DIR}/mosquitto/data."
-    echo "Cannot delete ${MQTT_DIR}/mosquitto/etc."
-    echo "In order to delete them please run $ sudo ${0} clean"
+    echo "${MQTT_DIR}/mosquitto directory deleted."
   fi
-
 
   if [[  "$1" == "-certs" ]]; then
     cd scripts || error_exit "Failed to open directory ./scripts"
