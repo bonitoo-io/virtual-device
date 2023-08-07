@@ -33,7 +33,7 @@ When working with virtual devices in this project, keep in mind that the followi
 
 **Configurability**
 
-Devices are fully configurable using a runner configuration YAML file.  Internally devices can use a standard numeric or string generator to create values for primitive payload item fields.  More sophisticated random value generators can be added through the [Item Plugins](plugins/README.md#Item-plugins) API. The [Sample Plugins](plugins/README.md#Sample-plugins) API permits the creation of more sophisticated sample payloads.   
+Devices are fully configurable using a runner configuration YAML file.  Internally devices can use a standard numeric or string generator to create values for primitive payload item fields.  More sophisticated random value generators can be added through the [Item Plugins](plugins/README.md#Item-plugins) API. The [Sample Plugins](plugins/README.md#Sample-plugins) API permits the creation of more complex sample payloads.   
 
 ## System requirements
 
@@ -58,13 +58,14 @@ For a quick peek at what this project does and how it works, try  `scripts/quick
    1. remove any copied plugins. 
    1. tear down the listener and broker.
 
-It offers five simple scenarios. 
+It offers six simple scenarios. 
 
    * `no args` - runs a simple scenario without plugins.
    * `nrf9160` - runs with the `runner.conf` file set to `examples/nrf9160/thingy91.yml`
    * `itemPlugin` - runs a scenario with the accelerator item plugin.
    * `itemPluginRich` - runs a richer scenario with the simpleMovingAverage item plugin.
-   * `samplePlugin` - runs a scenario with the lpFileReader sample plugin. 
+   * `samplePlugin` - runs a scenario with the lpFileReader sample plugin.
+   * `tlsBasic` - runs the simple scenario without plugins but sets up mosquitto to accept only TLS connections at the default TLS port - 8883.
 
 For example: 
 
@@ -80,6 +81,12 @@ RUNNING BASIC EXAMPLE
 2023-05-26T14:59:07.698+0200 [main] INFO Config - config: Reading base config - virtualdevice.props
 ...
 ```
+
+**Note on tlsBasic**
+
+The `tlsBasic` scenario generates a self-signed certificate used to configure a mosquitto MQTT server running in a docker container.  The CN value of the generated certificates is defined as an IP address, which should match a host IP over which the mosquitto server is accessible.  The script `scripts/selfSignCert.sh` attempts to get such an IP address from a running ethernet or wifi interface, however this is not always reliable.  This value can also be declared using the environment variable `VD_HOST_IP`.  For example declare `$ export VD_HOST_IP=192.168.101.102` before running either `selfSignCert.sh` or `quickStart.sh`.  Other environment variables are available for setting subject values in certificates.  To view them run `scripts/selfSignCert.sh --help`.
+
+If the `tlsBasic` scenario fails, for example the subscriber fails to connect thus ending in an `SSLHandshakeException`, try stopping the mosquitto server and cleaning up the environment with these commands: `scripts/broker stop` and `sudo scripts/broker clean -certs`.  Then try and run it again.  
 
 ## Basic Tasks
 
@@ -102,6 +109,11 @@ MQTT5Subscriber is currently runnable only as a compiled class.  This is most ea
 ```sh
 mvn exec:java -Dmain.class="io.bonitoo.qa.Mqtt5Subscriber" 
 ```
+To run the subscriber against an MQTT server using TLS observe the following steps. 
+
+1. Add the certificate of the target server and port to the default truststore (`./scripts/keys/brokerTrust.jks`).  This can be done automatically with the script `scripts/addCert.sh`.
+2. When running the subscriber add the argument `-Dsub.tls=true` to the JVM startup command - e.g. `$ mvn exec:java -Dmain.class="io.bonitoo.qa.Mqtt5Subscriber" -Dsub.tls=true`.
+3. Note that when running `scripts/quickStart.sh tlsBasic` these steps area handled automatically. 
 
 ### Run Default Publisher
 
@@ -130,6 +142,31 @@ cp plugins/examples/accelerator/accelerator-0.1-SNAPSHOT.jar plugins; \
 java -Drunner.conf=plugins/examples/accelerator/sampleRunnerConfig.yml -jar target/virtual-device-0.1-SNAPSHOT-b012863.jar; \
 rm plugins/accelerator-0.1-SNAPSHOT.jar
 ```
+**Runner.sh**
+
+The script `scripts/runner.sh` simplifies launching a publisher.  It wraps the above commands, so that all that is needed is a command line argument for the path to the runner configuration file to be used. If a publisher requires a plugin, this needs to be added to the `plugins` directory before executing the script. 
+
+_example:_
+
+```bash
+scripts/runner.sh src/test/resources/simpleRunnerConfigTestbed.yml
+```
+
+**Note on TLS**
+
+When publishing to an MQTT server that uses TLS all the configuration is handled by the broker node in the YAML configuration file.  See the section [System Configuration](#system-configuration) below.  For example:
+
+```yaml
+broker:
+  host: 192.168.101.102
+  port: 8883
+  auth:
+  tls:
+    trustStore: "./scripts/keys/brokerTrust.jks"
+    trustPass: "ENCqTJZQarWDANjbiKQRH1R5/Dw3jNtSIYq12fIt67sIPEAAAAQmi6eCz/B3DynfmBHkC30s9n9/ynDhlcNo2yDA7ma90k="
+...
+```
+Server certificates can be added to the truststore with the script `scripts/addCert.sh`.  Truststore passwords can be encrypted with the script `scripts/encryptPass.sh`.
 
 ## Lifecycle
 
@@ -148,7 +185,7 @@ An alternate base property file can be defined through the environment variable 
 
 ## Configuring the Generic Device Runner
 
-The file indicated by the `runner.conf` property must be a valid YAML file. It needs to define the following fields.
+The file indicated by the `runner.conf` property must be a valid YAML file. It needs to define the following nodes.
 
 * `ttl` - time to live in milliseconds or how long the device runner should run.  
 * `broker` - a configuration for connecting to an MQTT5 broker (see [below](#broker)).
@@ -163,8 +200,17 @@ The broker represents a connection to an MQTT5 broker. It contains...
 * `host` - name of the broker host. Defaults to `localhost`.
 * `port` - port to which the host is listening. Defaults to `1883`
 * `auth` - a configuration for simple authentication.  To connect anonymously this property can be omitted, or the `username` can be left unset. It includes two fields.
-  * `username`
-  * `password` - currently stored in plain text.
+  * `username` - account name to use when connecting to the MQTT server
+  * `password` - can be stored in either plain text or using the encrypted value generated by `scripts/encryptPass.sh`.
+  * _ENV VARS for broker auth_ - note that the `auth` properties can also be declared as environment variables, which always have precedence over values declared in YAML configurations:
+     * `VD_BROKER_USER` - for the username.
+     * `VD_BROKER_PASSWORD` - for the password.
+* `tls` - (Optional) if present instructs the broker to connect over TLS.
+   * `trustStore` - location of a JKS truststore containing a certificate that can verify the certificate sent by the server.
+   * `trustPass` - password to the truststore.  Can be set encrypted.  Copy results from executing `scripts/encryptPass.sh` into this field.
+   * _ENV VARS for tls_ - note that the values for `trustStore` and `trustPass` can also be set using the following environment variables.
+      * `VD_TRUSTSTORE` - path to the truststore.
+      * `VD_TRUSTSTORE_PASSWORD` - truststore password.  Can be plain text or encrypted as described above. 
 
 ### Items
 
@@ -180,7 +226,7 @@ Items represent the primitive elements in a sample, whose values can be randomly
   * `BuiltInTemp` - a builtin temperature generator.
   * other builtins can be added.
 
-Item subtypes will expect additional configuration fields/
+Item subtypes will expect additional configuration fields.
 
 #### Numerical Items
 
@@ -366,6 +412,45 @@ devices:
             values:
               - "luminescence"
 ```
+## Connecting over TLS
+
+MQTT brokers used in the runner configuration can run over plain HTTP, which is simple but unsecure.  They can also be configured to connect over TLS.  The following steps are recommended.  
+
+   1. Import a certificate used for verifying the certificate from the MQTT server into a JKS truststore.  The script `scripts/addCert.sh` is available to simplify this step.  
+   2. Add a `tls` node to the broker config section using the following properties. 
+      1. `trustStore` - path to the truststore.
+      2. `trustPass` - password to the truststore - plain text or encrypted, see below .
+      3. `ENV VARS` - note that these properties can be omitted if the corresponding environment variables have been set.
+         1. `VD_TRUSTSTORE`
+         1. `VD_TRUSTSTORE_PASSWORD` 
+
+The `trustPass` value can be encrypted.  The utility `EncryptPass` is included to simplify this step.  
+   1. Run `scritps/encryptPass.sh`
+   2. When prompted provide the password. 
+   3. Copy the result to the `trustPass` node in the configuration file or use it when defining the environment variable `VD_TRUSTSTORE_PASSWORD`.
+
+**Adding a Remote Certificate to the Truststore**
+
+The script `scripts/addCert.sh` can be used to add a certificate to a truststore.  
+
+_example_
+
+```bash
+$ scripts/addCert.sh -h 192.168.101.102 -p 8883 -a myCertA
+Attempting to add alias <myCertA> to store ./scripts/keys/brokerTrust.jks
+Certificate was added to keystore
+```
+
+This basic script accepts the following arguments.
+
+   * `-h|--host` - MQTT server host to which a broker will attempt to connect.
+   * `-p|--port` - Port on host where MQTT is listening.  Defaults to 8883.
+   * `-a|--alias` - alias for the certificate in the store.
+   * `-s|--store` - target truststore.  Note that this can also be set using the environment variable `VD_TRUSTSTORE`.
+   * `-pw|--password` - truststore password.  Note that this can also be set using the environment variable `VD_TRUSTSTORE_PASSWORD`
+   * `-n|--certname` - name for the temporary certificate used between downlad and import to the truststore.  Deleted on exit by default. 
+   * `-k|--keep` - flag indicates that the temporary certificate should not be deleted.
+   * `-f|--force` - if the alias already exists in the truststore, delete the current certificate and replace it with a new one. 
 
 ## Architecture
 

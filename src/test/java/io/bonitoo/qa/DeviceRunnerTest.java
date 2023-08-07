@@ -58,7 +58,7 @@ public class DeviceRunnerTest {
 
         RunnerConfig conf = om.readValue(confFile, RunnerConfig.class);
 
-        assertEquals(new BrokerConfig("localhost", 1883, new AuthConfig("fred", "changeit")),
+        assertEquals(new BrokerConfig("localhost", 1883, new AuthConfig("fred", "changeit".toCharArray())),
                 conf.getBroker());
 
         assertEquals(2, conf.getDevices().size());
@@ -83,7 +83,7 @@ public class DeviceRunnerTest {
         DeviceConfig device = new DeviceConfig("random", "giraffe", "A test giraffe test device",
                 Arrays.asList(sample01, sample02), 1000l, 0l, 1);
 
-        BrokerConfig broker = new BrokerConfig("my.mqttserver.net", 1883, new AuthConfig("fred", "changeit"));
+        BrokerConfig broker = new BrokerConfig("my.mqttserver.net", 1883, new AuthConfig("fred", "changeit".toCharArray()));
 
         RunnerConfig runnerConf = new RunnerConfig(broker, Arrays.asList(device), 30000l);
 

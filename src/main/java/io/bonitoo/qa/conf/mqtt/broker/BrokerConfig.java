@@ -1,5 +1,6 @@
 package io.bonitoo.qa.conf.mqtt.broker;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,9 +22,27 @@ public class BrokerConfig {
 
   AuthConfig auth;
 
+  // optional
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  TlsConfig tls;
+
+  /**
+   * Base constructor for BrokerConfig without TLS.
+   *
+   * @param host - hostname.
+   * @param port - host port.
+   * @param auth - password auth structure.
+   */
+  public BrokerConfig(String host, int port, AuthConfig auth) {
+    this.host = host;
+    this.port = port;
+    this.auth = auth;
+    this.tls = null;
+  }
+
   @Override
   public String toString() {
-    return String.format("host=%s,port=%d,auth={%s}", host, port, auth);
+    return String.format("host=%s,port=%d,auth={%s},tls={%s}", host, port, auth, tls);
   }
 
   @Override
