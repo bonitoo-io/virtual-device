@@ -11,6 +11,7 @@ import io.bonitoo.qa.conf.mqtt.broker.AuthConfig;
 import io.bonitoo.qa.conf.mqtt.broker.BrokerConfig;
 import io.bonitoo.qa.data.GenericSample;
 import io.bonitoo.qa.data.ItemType;
+import io.bonitoo.qa.data.generator.NumGenerator;
 import io.bonitoo.qa.mqtt.client.MqttClientBlocking;
 import io.bonitoo.qa.conf.Config;
 import org.junit.jupiter.api.BeforeEach;
@@ -70,10 +71,10 @@ public class DeviceRunnerTest {
     @Test
     public void runnerConfigReflectionTest() throws JsonProcessingException {
 
-        ItemConfig itemA = new ItemNumConfig("alligator", "all", ItemType.Double, -10, 10, 2);
-        ItemConfig itemB = new ItemNumConfig("baboon", "bab", ItemType.Long, -50, 50, 1);
+        ItemConfig itemA = new ItemNumConfig("alligator", "all", ItemType.Double, -10, 10, 2.0, NumGenerator.DEFAULT_DEV);
+        ItemConfig itemB = new ItemNumConfig("baboon", "bab", ItemType.Long, -50, 50, 1.0, NumGenerator.DEFAULT_DEV);
         ItemConfig itemC = new ItemStringConfig("cockatoo", "too", ItemType.String, Arrays.asList("un", "deux", "trois"));
-        ItemConfig itemD = new ItemNumConfig("dingo", "din", ItemType.Double, 0, 60, 4);
+        ItemConfig itemD = new ItemNumConfig("dingo", "din", ItemType.Double, 0, 60, 4.0, NumGenerator.DEFAULT_DEV);
 
         SampleConfig sample01 = new SampleConfig("random", "elephant", "test/elephant",
                 Arrays.asList(itemA, itemB, itemC, itemD));

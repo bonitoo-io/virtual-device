@@ -7,6 +7,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.bonitoo.qa.conf.VirDevConfigException;
 import io.bonitoo.qa.data.Item;
 import io.bonitoo.qa.data.ItemType;
+import io.bonitoo.qa.data.generator.NumGenerator;
 import io.bonitoo.qa.plugin.*;
 import io.bonitoo.qa.plugin.eg.EmptyItemGenPlugin;
 import io.bonitoo.qa.plugin.item.ItemPluginMill;
@@ -36,8 +37,8 @@ public class ItemConfigDeserializerTest {
     static EmptyItemGenPlugin plugin = new EmptyItemGenPlugin(props, false);
 
 
-    static ItemConfig confDouble = new ItemNumConfig("doubleConf", "dbl", ItemType.Double, -5, 10, 1);
-    static ItemConfig confLong = new ItemNumConfig("longConf", "lng", ItemType.Long, 0, 100, 1);
+    static ItemConfig confDouble = new ItemNumConfig("doubleConf", "dbl", ItemType.Double, -5, 10, 1.0, NumGenerator.DEFAULT_DEV);
+    static ItemConfig confLong = new ItemNumConfig("longConf", "lng", ItemType.Long, 0, 100, 1.0, NumGenerator.DEFAULT_DEV);
 
     static ItemConfig confString = new ItemStringConfig("stringConf", "str", ItemType.String, Arrays.asList("Pepe", "Lance", "Bongo"));
 
@@ -179,12 +180,40 @@ public class ItemConfigDeserializerTest {
 
     @Test
     public void doubleDeserializedWithPrecision() throws JsonProcessingException {
-        ItemNumConfig configWPrec = new ItemNumConfig("doubleConf", "dbl", ItemType.Double, -5, 10, 1, 3);
+        ItemNumConfig configWPrec = new ItemNumConfig("doubleConf", "dbl", ItemType.Double, -5, 10, 1.0, NumGenerator.DEFAULT_DEV, 6);
         ObjectWriter yw = new ObjectMapper(new YAMLFactory()).writer().withDefaultPrettyPrinter();
         String configAsYaml = yw.writeValueAsString(configWPrec);
         ObjectMapper omy = new ObjectMapper(new YAMLFactory());
         ItemConfig configParsed = omy.readValue(configAsYaml, ItemConfig.class);
         assertEquals(configWPrec.getPrec(), ((ItemNumConfig)configParsed).getPrec());
+    }
+
+    @Test
+    public void doubleDeserializeWithDevAndPrec() throws JsonProcessingException {
+        ItemNumConfig configWDev = new ItemNumConfig("doubleConf", "dbl", ItemType.Double, -25, 50, 1.0, 0.17, 2);
+        ObjectWriter yw = new ObjectMapper(new YAMLFactory()).writer().withDefaultPrettyPrinter();
+        String configAsYaml = yw.writeValueAsString(configWDev);
+        System.out.printf("DEBUG config\n%s\n", configAsYaml);
+        ObjectMapper omy = new ObjectMapper(new YAMLFactory());
+        ItemConfig configParsed = omy.readValue(configAsYaml, ItemConfig.class);
+        assertEquals(configWDev, configParsed);
+    }
+
+    @Test
+    public void itemYamlDeserializeNoDev() throws JsonProcessingException {
+        String itemConfYaml = "---\n" +
+          "name: \"flowRate\"\n" +
+          "label: \"cmps\"\n" +
+          "type: Double\n" +
+          "max: 30\n" +
+          "min: 5\n" +
+          "period: 2";
+
+        ObjectMapper omy = new ObjectMapper(new YAMLFactory());
+        ItemConfig config = omy.readValue(itemConfYaml, ItemConfig.class);
+
+//        System.out.println("DEBUG config\n" + config);
+        assertEquals(NumGenerator.DEFAULT_DEV, ((ItemNumConfig) config).getDev());
     }
 
 

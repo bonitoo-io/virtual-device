@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.bonitoo.qa.conf.VirDevConfigException;
 import io.bonitoo.qa.data.ItemType;
+import io.bonitoo.qa.data.generator.NumGenerator;
 import io.bonitoo.qa.plugin.sample.SamplePluginConfig;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -19,8 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 @Tag("unit")
 public class SampleConfigDeserializerTest {
 
-    static ItemConfig confDouble = new ItemNumConfig("doubleConf", "foo",  ItemType.Double, -5, 10, 1);
-    static ItemConfig confLong = new ItemNumConfig("longConf", "bar", ItemType.Long, 0, 100, 1);
+    static ItemConfig confDouble = new ItemNumConfig("doubleConf", "foo",  ItemType.Double, -5, 10, 1.0, NumGenerator.DEFAULT_DEV);
+    static ItemConfig confLong = new ItemNumConfig("longConf", "bar", ItemType.Long, 0, 100, 1.0, NumGenerator.DEFAULT_DEV);
 
     static ItemConfig confString = new ItemStringConfig("stringConf", "wumpus", ItemType.String, Arrays.asList("Pepe", "Lance", "Bongo"));
 

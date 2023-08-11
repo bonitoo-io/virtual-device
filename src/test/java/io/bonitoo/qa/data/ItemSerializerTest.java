@@ -26,7 +26,7 @@ public class ItemSerializerTest {
 
   @Test
   public void simpleDoubleItemSerializeTest() throws JsonProcessingException {
-    ItemConfig conf = new ItemNumConfig("testConf", "test", ItemType.Double, -1.0, 1.0, 1);
+    ItemConfig conf = new ItemNumConfig("testConf", "test", ItemType.Double, -1.0, 1.0, 1.0, NumGenerator.DEFAULT_DEV);
     NumGenerator ng = (NumGenerator) DataGenerator.create(conf.getGenClassName());
 
     Item it = new Item(Double.parseDouble("2.71"), conf, conf.getLabel(), ng);
@@ -38,7 +38,7 @@ public class ItemSerializerTest {
 
   @Test
   public void simpleLongItemSerializeTest() throws JsonProcessingException {
-    ItemConfig conf = new ItemNumConfig("testConf", "test", ItemType.Long, -100, 100, 1);
+    ItemConfig conf = new ItemNumConfig("testConf", "test", ItemType.Long, -100, 100, 1.0, NumGenerator.DEFAULT_DEV);
     NumGenerator ng = (NumGenerator) DataGenerator.create(conf.getGenClassName());
 
     Item it = new Item(Long.parseLong("42"), conf, conf.getLabel(), ng);
@@ -107,8 +107,8 @@ public class ItemSerializerTest {
 
     int prec = 3;
 
-    ItemNumConfig configWPrec = new ItemNumConfig("confWPrec", "dbl", ItemType.Double, -5, 10, 1, prec);
-    ItemNumConfig configNoPrec = new ItemNumConfig("confWPrec", "dbl", ItemType.Double, -5, 10, 1);
+    ItemNumConfig configWPrec = new ItemNumConfig("confWPrec", "dbl", ItemType.Double, -5, 10, 1, NumGenerator.DEFAULT_DEV,  prec);
+    ItemNumConfig configNoPrec = new ItemNumConfig("confWPrec", "dbl", ItemType.Double, -5, 10, 1.0, NumGenerator.DEFAULT_DEV);
 
     Item itPrec = Item.of(configWPrec);
     Item itNoPrec = Item.of(configNoPrec);

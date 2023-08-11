@@ -8,6 +8,7 @@ import io.bonitoo.qa.conf.Config;
 import io.bonitoo.qa.conf.data.ItemNumConfig;
 import io.bonitoo.qa.conf.device.DeviceConfig;
 import io.bonitoo.qa.data.ItemType;
+import io.bonitoo.qa.data.generator.NumGenerator;
 import io.bonitoo.qa.device.GenericDevice;
 import io.bonitoo.qa.mqtt.client.MqttClientBlocking;
 import io.bonitoo.qa.plugin.*;
@@ -152,8 +153,8 @@ public class SamplePluginIntegrationTest {
 
     assertEquals(0, SamplePluginMill.size());
 
-    ItemNumConfig iConfigTemp = new ItemNumConfig("temp", "temperature", ItemType.Double, 10, 40, 1, 4);
-    ItemNumConfig iConfigPress = new ItemNumConfig("press", "pressure", ItemType.Double, 26, 32, 1, 4);
+    ItemNumConfig iConfigTemp = new ItemNumConfig("temp", "temperature", ItemType.Double, 10, 40, 1, 0.1, 4);
+    ItemNumConfig iConfigPress = new ItemNumConfig("press", "pressure", ItemType.Double, 26, 32, 1, 0.1, 4);
 
     File pluginFile = new File(testJarName);
 
@@ -193,10 +194,10 @@ public class SamplePluginIntegrationTest {
     assertTrue(ts1.timestamp.matches("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"));
     assertEquals("foodie", ts1.tags.foo);
     assertEquals("barfly", ts1.tags.bar);
-    assertTrue(ts1.fields.temperature > iConfigTemp.getMin() &&
-      ts1.fields.temperature < iConfigTemp.getMax());
-    assertTrue(ts1.fields.pressure > iConfigPress.getMin() &&
-      ts1.fields.pressure < iConfigPress.getMax());
+    assertTrue(ts1.fields.temperature > iConfigTemp.getMin() - 3 &&
+      ts1.fields.temperature < iConfigTemp.getMax() + 3);
+    assertTrue(ts1.fields.pressure > iConfigPress.getMin() - 0.6 &&
+      ts1.fields.pressure < iConfigPress.getMax() + 0.6 );
 
     LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(1000));
 
@@ -215,8 +216,8 @@ public class SamplePluginIntegrationTest {
   @Test
   public void runSamplePlugin() throws InterruptedException {
 
-    ItemNumConfig iConfigTemp = new ItemNumConfig("temp", "temperature", ItemType.Double, 10, 40, 1, 4);
-    ItemNumConfig iConfigPress = new ItemNumConfig("press", "pressure", ItemType.Double, 26, 32, 1, 4);
+    ItemNumConfig iConfigTemp = new ItemNumConfig("temp", "temperature", ItemType.Double, 10, 40, 1, 0.1, 4);
+    ItemNumConfig iConfigPress = new ItemNumConfig("press", "pressure", ItemType.Double, 26, 32, 1, 0.1, 4);
 
     File pluginFile = new File(testJarName);
 
@@ -265,8 +266,8 @@ public class SamplePluginIntegrationTest {
   @Test
   public void deviceConfigWithSamplePluginDeserializeTest() throws JsonProcessingException, InterruptedException {
 
-    ItemNumConfig iConfigTemp = new ItemNumConfig("temp", "temperature", ItemType.Double, 10, 40, 1, 4);
-    ItemNumConfig iConfigPress = new ItemNumConfig("press", "pressure", ItemType.Double, 26, 32, 1, 4);
+    ItemNumConfig iConfigTemp = new ItemNumConfig("temp", "temperature", ItemType.Double, 10, 40, 1, 0.1,4);
+    ItemNumConfig iConfigPress = new ItemNumConfig("press", "pressure", ItemType.Double, 26, 32, 1, 0.1, 4);
 
     File pluginFile = new File(testJarName);
 
@@ -322,8 +323,8 @@ public class SamplePluginIntegrationTest {
     double temp1 = dev.getSampleList().get(0).getItems().get("temp").asDouble();
     double press1 = dev.getSampleList().get(0).getItems().get("press").asDouble();
 
-    assertTrue(temp1 >= iConfigTemp.getMin() && temp1 <= iConfigTemp.getMax());
-    assertTrue(press1 >= iConfigPress.getMin() && press1 <= iConfigPress.getMax());
+    assertTrue(temp1 >= iConfigTemp.getMin() - 3 && temp1 <= iConfigTemp.getMax() + 3);
+    assertTrue(press1 >= iConfigPress.getMin() - 0.6 && press1 <= iConfigPress.getMax() + 0.6);
 
     LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(1000));
 

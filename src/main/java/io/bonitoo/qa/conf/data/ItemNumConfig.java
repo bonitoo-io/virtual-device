@@ -19,7 +19,8 @@ public class ItemNumConfig extends ItemConfig {
 
   double max;
   double min;
-  long period;
+  double period;
+  double dev;
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
   Integer prec; // can be null
@@ -38,11 +39,13 @@ public class ItemNumConfig extends ItemConfig {
                        ItemType type,
                        double min,
                        double max,
-                       long period) {
+                       double period,
+                       double dev) {
     super(name, label, type, NumGenerator.class.getName());
     this.max = max;
     this.min = min;
     this.period = period;
+    this.dev = dev;
     ItemConfigRegistry.add(this.name, this);
   }
 
@@ -51,14 +54,15 @@ public class ItemNumConfig extends ItemConfig {
                        ItemType type,
                        double min,
                        double max,
-                       long period,
+                       double period,
+                       double dev,
                        Integer prec) {
-    this(name, label, type, min, max, period);
+    this(name, label, type, min, max, period, dev);
     this.prec = prec;
   }
 
   /**
-   * Copy constructor user primarily when coupling configs to new item instances.
+   * Copy constructor used primarily when coupling configs to new item instances.
    *
    * @param orig - the original configuration.
    */
@@ -67,6 +71,7 @@ public class ItemNumConfig extends ItemConfig {
     this.max = orig.max;
     this.min = orig.min;
     this.period = orig.period;
+    this.dev = orig.dev;
     if (orig.prec != null) {
       this.prec = orig.prec;
     }
@@ -75,8 +80,8 @@ public class ItemNumConfig extends ItemConfig {
   @Override
   public String toString() {
     return String.format("name=%s,label=%s,max=%.2f,min=%.2f,"
-        + "period=%d,type=%s,prec=%s\n",
-      name, label, max, min, period, type, prec);
+        + "period=%.2f,dev=%.2f,type=%s,prec=%s\n",
+      name, label, max, min, period, dev, type, prec);
   }
 
   @Override
@@ -95,6 +100,7 @@ public class ItemNumConfig extends ItemConfig {
     }
     return max == conf.max
       && min == conf.min
-      && period == conf.period;
+      && period == conf.period
+      && dev == conf.dev;
   }
 }

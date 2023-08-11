@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.bonitoo.qa.conf.data.*;
+import io.bonitoo.qa.data.generator.NumGenerator;
 import io.bonitoo.qa.data.generator.SimpleStringGenerator;
 import io.bonitoo.qa.plugin.eg.CounterItemPlugin;
 import io.bonitoo.qa.plugin.PluginProperties;
@@ -29,8 +30,8 @@ public class SampleTest {
     @Test
     public void buildGenericSampleTest() throws JsonProcessingException {
 
-        ItemConfig iConfA = new ItemNumConfig("Testak", "test", ItemType.Double, -40, 60, 10);
-        ItemConfig iConfB = new ItemNumConfig("Betaak", "beta", ItemType.Long, 0, 100, 30);
+        ItemConfig iConfA = new ItemNumConfig("Testak", "test", ItemType.Double, -40, 60, 10.0, NumGenerator.DEFAULT_DEV);
+        ItemConfig iConfB = new ItemNumConfig("Betaak", "beta", ItemType.Long, 0, 100, 30.0, NumGenerator.DEFAULT_DEV);
         ItemConfig builtIn = new ItemConfig("TempAk", "temp", ItemType.BuiltInTemp, SimpleStringGenerator.class.getName());
         ItemConfig iConfString = new ItemStringConfig("Stringak", "colod", ItemType.String, Arrays.asList("RED","BLUE","GREEN"));
         SampleConfig sConf = new SampleConfig("random", "fooSample", "test/items", Arrays.asList(iConfA,iConfB,builtIn,iConfString));
@@ -76,7 +77,7 @@ Example from Scientio
                 .truncatedTo(ChronoUnit.SECONDS)
                 .format(DateTimeFormatter.ISO_INSTANT);
 
-        ItemConfig dataConf = new ItemNumConfig("data", "foo", ItemType.Double, 0, 100, 1);
+        ItemConfig dataConf = new ItemNumConfig("data", "foo", ItemType.Double, 0, 100, 1.0, NumGenerator.DEFAULT_DEV);
         ItemConfig messageTypeConf = new ItemStringConfig("messageType", "data", ItemType.String, Arrays.asList("DATA"));
         ItemConfig datestampConf = new ItemStringConfig("datestamp", "datestamp", ItemType.String,
                 Arrays.asList(nowString));
@@ -107,10 +108,10 @@ Example from Scientio
     @Test
     public void noDuplicateFieldNamesTest() throws JsonProcessingException {
         ItemConfig badTsConf = new ItemStringConfig("timestamp", "timestamp", ItemType.String, Arrays.asList("SHOULD NOT APPEAR"));
-        ItemConfig badTopicConf = new ItemNumConfig("topic", "topic", ItemType.Long,0, 0, 1 );
-        ItemConfig badIdConf = new ItemNumConfig("id", "id", ItemType.Long,0, 0, 1 );
+        ItemConfig badTopicConf = new ItemNumConfig("topic", "topic", ItemType.Long,0, 0, 1.0, NumGenerator.DEFAULT_DEV );
+        ItemConfig badIdConf = new ItemNumConfig("id", "id", ItemType.Long,0, 0, 1.0, NumGenerator.DEFAULT_DEV );
 
-        ItemConfig okConf = new ItemNumConfig("data", "data", ItemType.Double, 0, 100, 1);
+        ItemConfig okConf = new ItemNumConfig("data", "data", ItemType.Double, 0, 100, 1.0, NumGenerator.DEFAULT_DEV);
 
         SampleConfig sampConf = new SampleConfig("Test Sample", "fooSample", "test/sample",
                 Arrays.asList(badTsConf,badTopicConf,badIdConf,okConf));
@@ -141,8 +142,8 @@ Example from Scientio
 
     @Test
     public void copySampleTest(){
-        ItemConfig itemConfA = new ItemNumConfig("size", "size", ItemType.Double, 1, 15, 2);
-        ItemConfig itemConfB = new ItemNumConfig("incidents", "inc", ItemType.Long, 0l, 20l, 1);
+        ItemConfig itemConfA = new ItemNumConfig("size", "size", ItemType.Double, 1, 15, 2.0, NumGenerator.DEFAULT_DEV);
+        ItemConfig itemConfB = new ItemNumConfig("incidents", "inc", ItemType.Long, 0l, 20l, 1.0, NumGenerator.DEFAULT_DEV);
         ItemConfig itemConfC = new ItemStringConfig("alert", "alert", ItemType.String, Arrays.asList("OK", "INFO", "WARN", "CRIT"));
 
         SampleConfig origSConf = new SampleConfig("random", "testing", "test/copy",
@@ -187,7 +188,7 @@ Example from Scientio
 
     @Test
     public void sampleGenericUpdateTest(){
-        ItemConfig itemConf = new ItemNumConfig("size", "size", ItemType.Double, 1, 15, 2);
+        ItemConfig itemConf = new ItemNumConfig("size", "size", ItemType.Double, 1, 15, 2.0, NumGenerator.DEFAULT_DEV);
 
         SampleConfig sampleConf = new SampleConfig("random", "testing", "test/copy",
           Arrays.asList(itemConf));
