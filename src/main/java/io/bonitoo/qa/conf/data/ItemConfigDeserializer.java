@@ -66,8 +66,7 @@ public class ItemConfigDeserializer extends VirDevDeserializer<ItemConfig> {
       case Double:
         max = safeGetNode(node, "max").asDouble();
         min = safeGetNode(node, "min").asDouble();
-        period = safeGetNode(node, "period").asLong();
-//        dev = safeGetNode(node, "dev").asDouble();
+        period = safeGetNode(node, "period").asDouble();
         dev = getDefaultDoubleNode(node,"dev", NumGenerator.DEFAULT_DEV).asDouble();
         JsonNode precNode = node.get("prec");
         Integer prec = precNode == null ? null : precNode.asInt();
