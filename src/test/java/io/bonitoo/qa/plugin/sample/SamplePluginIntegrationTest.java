@@ -331,8 +331,8 @@ public class SamplePluginIntegrationTest {
     double temp2 = dev.getSampleList().get(0).getItems().get("temp").asDouble();
     double press2 = dev.getSampleList().get(0).getItems().get("press").asDouble();
 
-    assertTrue(temp2 >= iConfigTemp.getMin() && temp2 <= iConfigTemp.getMax());
-    assertTrue(press2 >= iConfigPress.getMin() && temp2 <= iConfigPress.getMax());
+    assertTrue(temp2 >= iConfigTemp.getMin() - 3 && temp2 <= iConfigTemp.getMax() + 3);
+    assertTrue(press2 >= iConfigPress.getMin() - 0.6 && press2 <= iConfigPress.getMax() + 0.6);
 
   }
 

@@ -1,18 +1,13 @@
 package io.bonitoo.qa.data.generator;
 
 import io.bonitoo.qa.VirtualDeviceRuntimeException;
-import io.bonitoo.qa.conf.VirDevConfigException;
-import lombok.val;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.function.DoubleSupplier;
-import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -33,31 +28,22 @@ public class NumGeneratorTest {
         assertTrue(result <= max && result >= min);
     }
 
-    static DoubleStream genDoubles(){
-
-        double[] vals = new double[10];
-        vals[0] = 0.01;
-        for(int i = 1; i < vals.length; i++){
-            vals[i] = vals[i-1] + 0.1;
+    static Stream<Arguments> paramStream(){
+        // double[] doubles = genDoubles().toArray();
+        double[] doubles = new double[10];
+        doubles[0] = 0.01;
+        for(int i = 1; i < doubles.length; i++){
+            doubles[i] = doubles[i-1] + 0.1;
         }
 
-        return DoubleStream.of(vals);
-
-    }
-
-    static LongStream genMillis(){
-        long[] vals = new long[5];
+        long[] millis = new long[5];
         long millis6H = 6 * 60 * 60 * 1000;
         long now = System.currentTimeMillis();
-        for(int i = -2; i < vals.length - 2; i++){
-            vals[i+2] = now + (millis6H * i);
+        for(int i = -2; i < millis.length - 2; i++){
+            millis[i+2] = now + (millis6H * i);
         }
-        return LongStream.of(vals);
-    }
 
-    static Stream<Arguments> paramStream(){
-        double[] doubles = genDoubles().toArray();
-        long[] millis = genMillis().toArray();
+        // long[] millis = genMillis().toArray();
         Arguments[] args = new Arguments[doubles.length * millis.length];
         int index = 0;
         for(double d : doubles){
@@ -82,14 +68,6 @@ public class NumGeneratorTest {
         long millis12H = 12 * 60 * 60 * 1000;
 
         double result = NumGenerator.genDoubleValSin(1.0, val, min, max, millis);
-
- /*       System.out.printf("DEBUG val: %.3f, result: %.6f, spread: %.3f, spreadMin: %.3f, spreadMax: %.3f, millis: %d \n",
-          val,
-          result,
-          spread,
-          spreadMin,
-          spreadMax,
-          millis); */
 
         assertTrue(result <= spreadMax && result >= spreadMin);
 

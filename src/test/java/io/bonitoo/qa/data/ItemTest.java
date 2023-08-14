@@ -65,7 +65,12 @@ public class ItemTest {
         Item item = Item.of(conf);
 
         assertInstanceOf(Double.class, item.getVal());
-        assertTrue(item.asDouble() > 0 && item.asDouble() < 40);
+        try {
+            assertTrue(item.asDouble() > 0 && item.asDouble() < 40);
+        }catch(AssertionError e){
+            System.out.println("DEBUG item.asDouble() " + item.asDouble());
+            throw e;
+        }
     }
 
     @Test
