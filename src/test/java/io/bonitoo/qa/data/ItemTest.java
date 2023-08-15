@@ -243,4 +243,25 @@ public class ItemTest {
 
     }
 
+    @Test
+    public void generateNegativeNumbers(){
+        double min = -40;
+        double max = -1;
+        double dev = 0.1;
+        double spread = max - min;
+        double spreadMax = max + (spread * dev);
+        double spreadMin = min - (spread * dev);
+
+        ItemConfig configNum = new ItemNumConfig("testDouble", "someVal", ItemType.Double, min, max, 0.5, 0.1);
+
+        Item itNum = Item.of(configNum);
+
+        for(int i = 0; i < 100; i++){
+            itNum.update();
+            assertTrue(itNum.asDouble() >= spreadMin && itNum.asDouble() <= spreadMax);
+        }
+
+
+    }
+
 }
