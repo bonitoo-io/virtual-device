@@ -12,15 +12,23 @@ import java.time.LocalDateTime;
  * <p>The core method is genDoubleValSin().  Other methods simply call
  * this method with reasonable bounding, frequency(period) and deviation values.
  */
+
 public class NumGenerator extends DataGenerator<DataConfig> {
 
   private static final long DAY_MILLIS = 24 * 60 * 60 * 1000;
 
   public static final double DEFAULT_DEV = 0.25;
 
+  /**
+   * Calculates the number of milliseconds elapsed since midnight.
+   *
+   * @return - milliseconds elapsed since midnight.
+   */
   public static long millisSince0Hour() {
     LocalDateTime now = LocalDateTime.now();
-    return (((now.getHour() * 60 * 60) + (now.getMinute() * 60) + now.getSecond()) * 1000) + (now.getNano() / 1000000);
+    return (((now.getHour() * 60 * 60)
+      + (now.getMinute() * 60)
+      + now.getSecond()) * 1000) + (now.getNano() / 1000000);
   }
 
   public static double pctOfDay(long millis) {
@@ -134,48 +142,47 @@ public class NumGenerator extends DataGenerator<DataConfig> {
    * @param max - maximum target value.
    * @return - random double value.
    */
-  @SuppressWarnings("checkstyle:LocalVariableName")
   public static double gaussNormalFilter(double min, double max) {
     double spread = max - min;
     double mid = spread / 2;
     double sigma3Max = spread * 0.997;
     double sigma3Min = max - sigma3Max;
-    double sigma2_5Max = spread * 0.987;
-    double sigma2_5Min = max - sigma2_5Max;
+    double sigma2dot5Max = spread * 0.987;
+    double sigma2dot5Min = max - sigma2dot5Max;
     double sigma2Max = spread * 0.95;
     double sigma2Min = max - sigma2Max;
-    double sigma1_5Max = spread * 0.87;
-    double sigma1_5Min = max - sigma1_5Max;
+    double sigma1dot5Max = spread * 0.87;
+    double sigma1dot5Min = max - sigma1dot5Max;
     double sigma1Max = spread * 0.68;
     double sigma1Min = max - sigma1Max;
-    double sigma0_5Max = max - (spread * 0.38);
-    double sigma0_5Min = max - sigma0_5Max;
+    double sigma0dot5Max = max - (spread * 0.38);
+    double sigma0dot5Min = max - sigma0dot5Max;
 
     double d = (Math.random() * spread) + min;
 
     while (true) {
       double check = Math.random();
-      if ((d > sigma0_5Min && d < sigma0_5Max)
+      if ((d > sigma0dot5Min && d < sigma0dot5Max)
           && check < CHANCE_0_5SIGMA) {
         break;
-      } else if (((d > sigma1Min && d < sigma0_5Min)
-          || (d < sigma1Max && d > sigma0_5Max))
+      } else if (((d > sigma1Min && d < sigma0dot5Min)
+          || (d < sigma1Max && d > sigma0dot5Max))
           && check < CHANCE_1SIGMA) {
         break;
-      } else if (((d > sigma1_5Min && d < sigma1Min)
-          || (d < sigma1_5Max && d > sigma1Max))
+      } else if (((d > sigma1dot5Min && d < sigma1Min)
+          || (d < sigma1dot5Max && d > sigma1Max))
           && check < CHANCE_1_5SIGMA) {
         break;
-      } else if (((d > sigma2Min && d < sigma1_5Min)
-          || (d < sigma2Max && d > sigma2_5Max))
+      } else if (((d > sigma2Min && d < sigma1dot5Min)
+          || (d < sigma2Max && d > sigma2dot5Max))
           && check < CHANCE_2SIGMA) {
         break;
-      } else if (((d > sigma2_5Min && d < sigma2Min)
-          || (d < sigma2_5Max && d > sigma2Max))
+      } else if (((d > sigma2dot5Min && d < sigma2Min)
+          || (d < sigma2dot5Max && d > sigma2Max))
           && check < CHANCE_2_5SIGMA) {
         break;
-      } else if (((d > sigma3Min && d < sigma2_5Min)
-          || (d < sigma3Max && d > sigma2_5Max))
+      } else if (((d > sigma3Min && d < sigma2dot5Min)
+          || (d < sigma3Max && d > sigma2dot5Max))
           && check < CHANCE_3SIGMA) {
         break;
       } else if (check < CHANCE_OUTLIER) {

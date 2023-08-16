@@ -32,7 +32,7 @@ public class AuthConfigDeserializer extends VirDevDeserializer<AuthConfig> {
 
     JsonNode node = jsonParser.getCodec().readTree(jsonParser);
     String username = envUser == null ? safeGetNode(node, "username").asText()
-      : envUser;
+        : envUser;
 
     char[] password = envPassword == null ? safeGetNode(node, "password").asText().toCharArray()
         : envPassword;
