@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
  * <p>Handles:</p>
  * <ul>
  *   <li>{@link ItemType#Double}</li>
- *   <li>{@link ItemType#BuiltInTemp}</li>
  *   <li>{@link ItemType#Long}</li>
  *   <li>{@link ItemType#String}</li>
  *   <li>{@link ItemType#Plugin}</li>
@@ -45,9 +44,6 @@ public class ItemSerializer extends StdSerializer<Item> {
                         SerializerProvider serializerProvider)
       throws IOException {
     switch (item.getConfig().getType()) {
-      case BuiltInTemp:
-        jsonGen.writeNumber(item.asDouble());
-        break;
       case Double:
         Integer dprec = ((ItemNumConfig) item.getConfig()).getPrec();
         if (dprec != null) {

@@ -1,6 +1,7 @@
 package io.bonitoo.qa.data.generator;
 
 import io.bonitoo.qa.VirtualDeviceRuntimeException;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -14,19 +15,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("unit")
 public class NumGeneratorTest {
-
-    static IntStream genInts(){
-        return IntStream.range(-10, 100);
-    }
-
-    @ParameterizedTest
-    @MethodSource("genInts")
-    public void basicGeneratorTest(Integer period){
-        double max = 10;
-        double min = 0;
-        double result = NumGenerator.genDoubleVal(period, min, max, System.currentTimeMillis());
-        assertTrue(result <= max && result >= min);
-    }
 
     static Stream<Arguments> paramStream(){
         // double[] doubles = genDoubles().toArray();
@@ -74,16 +62,6 @@ public class NumGeneratorTest {
     }
 
     @Test
-    public void period0Test(){
-        double zeroResult = NumGenerator.genDoubleVal(0, -10, 10, System.currentTimeMillis());
-        assertEquals(0, zeroResult);
-        double midNegResult = NumGenerator.genDoubleVal(0, -15, -5, System.currentTimeMillis());
-        assertEquals(-10, midNegResult);
-        double midPosResult = NumGenerator.genDoubleVal(0, 10, 50, System.currentTimeMillis());
-        assertEquals(30, midPosResult);
-    }
-
-    @Test
     public void dev0GenSinTest(){
         double zeroResult = NumGenerator.genDoubleValSin(1, 0, -10, 10, System.currentTimeMillis());
         System.out.println("DEBUG zeroResult " + zeroResult );
@@ -107,7 +85,6 @@ public class NumGeneratorTest {
             double illegalPos = NumGenerator.genDoubleValSin(1, Math.PI, -0.5, 1.5, System.currentTimeMillis());
         });
         assertEquals("The deviation value 'dev' is 3.142.  But must be between 0.0 and 1.0", exp2.getMessage());
-
 
     }
 }

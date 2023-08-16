@@ -1,21 +1,20 @@
 package io.bonitoo.qa.data.generator;
 
 import io.bonitoo.qa.VirtualDeviceRuntimeException;
+import io.bonitoo.qa.conf.data.DataConfig;
 import io.bonitoo.qa.conf.data.ItemConfig;
 import io.bonitoo.qa.conf.data.ItemNumConfig;
-
 import java.time.LocalDateTime;
 
 /**
  * Generates random numerical values based on a sinusoidal attractor.
  *
- * <p>The core method is genDoubleVal().  Other methods simply call
- * this method with reasonable bounding and frequency values.
+ * <p>The core method is genDoubleValSin().  Other methods simply call
+ * this method with reasonable bounding, frequency(period) and deviation values.
  */
-public class NumGenerator extends DataGenerator {
+public class NumGenerator extends DataGenerator<DataConfig> {
 
   private static final long DAY_MILLIS = 24 * 60 * 60 * 1000;
-  private static final long MONTH_MILLIS = DAY_MILLIS * 30;
 
   public static final double DEFAULT_DEV = 0.25;
 
@@ -80,96 +79,22 @@ public class NumGenerator extends DataGenerator {
     // Use a negative period value (-1) to get set similar to temperature model
     // the lowest values occur around 06h and highest values around 18h
     // on or around the equinox.
-    double attr = Math.sin(radiansOfClock(time) * period)/2.0 + 0.5;
+    double attr = Math.sin(radiansOfClock(time) * period) / 2.0 + 0.5;
     double spread = max - min;
 
     // Narrows down the band to take into account standard dev
-    double sigmaFictif = dev <= 0 ? spread * DEFAULT_DEV : spread * dev;
+    double sigmaFictif = spread * dev;
     double localMax = ((attr * spread) + sigmaFictif) + min;
     double localMin = ((attr * spread) - sigmaFictif) + min;
 
     return gaussNormalFilter(localMin, localMax);
   }
 
-  /**
-   * Generates a random double value.
-   *
-   * @param period - sinusoidal period used for the model.
-   * @param min - minimum possible value.
-   * @param max - maximum possible value.
-   * @param time - time in milliseconds for which the value is to be generated.
-   * @return - the generated double value.
-   */
-  public static double genDoubleVal(double period, double min, double max, long time) {
-
-    if (period == 0) {
-      if (0 < min || 0 > max) {
-        return (max + min) / 2;
-      } else {
-        return 0;
-      }
-    }
-
-    double dp = (double) period;
-    final double diff = max - min;
-    final double periodVal = (diff / 4.0)
-        * Math.sin(((time / DAY_MILLIS) % period / dp) * 2.0 * Math.PI);
-    final double dayVal = (diff / 4.0)
-        * Math.sin(((time % DAY_MILLIS) / DAY_MILLIS) * 2 * Math.PI - Math.PI / 2);
-    return min + diff / 2 + periodVal + dayVal + Math.random();
-  }
-
-  public static double genTemperature(long time) {
-    return (long) (genDoubleVal(30, 0, 40, time) * 1e1) / 1e1;
-  }
-
-  public static double genHumidity(long time) {
-    return (long) (genDoubleVal(10, 0, 99, time) * 1e1) / 1e1;
-  }
-
-  public static double genPressure(long time) {
-    return (long) (genDoubleVal(20, 970, 1050, time) * 1e1) / 1e1;
-  }
-
-  public static double genCo2(long time) {
-    return (long) (genDoubleVal(1, 400, 3000, time) * 1e2) / 1e2;
-  }
-
-  public static double genTvoc(long time) {
-    return (long) (genDoubleVal(1, 250, 2000, time) * 1e2) / 1e2;
-  }
-
-  public static double precision(double val, double prec) {
-    return (long) (val * prec) / prec;
-  }
-
   @Override
   public Object genData() {
     ItemConfig conf = item.getConfig();
     switch (conf.getType()) {
-      case BuiltInTemp:
-        return genTemperature(System.currentTimeMillis());
       case Double:
-/*
-        return genDoubleVal(
-          ((ItemNumConfig) conf).getPeriod(),
-          ((ItemNumConfig) conf).getMin(),
-          ((ItemNumConfig) conf).getMax(),
-          System.currentTimeMillis());
-
- */
-
-/*
-        System.out.println("DEBUG generating Double from " + ((ItemNumConfig)conf));
-        double d = genDoubleValSin(
-          ((ItemNumConfig) conf).getPeriod(),
-          ((ItemNumConfig) conf).getDev(),
-          ((ItemNumConfig) conf).getMin(),
-          ((ItemNumConfig) conf).getMax(),
-          System.currentTimeMillis());
-        System.out.println("DEBUG generated d := " + d);
-        return d;
-*/
         return genDoubleValSin(
           ((ItemNumConfig) conf).getPeriod(),
           ((ItemNumConfig) conf).getDev(),
@@ -178,16 +103,6 @@ public class NumGenerator extends DataGenerator {
           System.currentTimeMillis());
 
       case Long:
-/*
-        return Math.round(genDoubleVal(
-          ((ItemNumConfig) conf).getPeriod(),
-          ((ItemNumConfig) conf).getMin(),
-          ((ItemNumConfig) conf).getMax(),
-          System.currentTimeMillis())
-        );
-
- */
-        System.out.println("DEBUG generating Long");
         return Math.round(genDoubleValSin(
           ((ItemNumConfig) conf).getPeriod(),
           ((ItemNumConfig) conf).getDev(),
@@ -211,7 +126,16 @@ public class NumGenerator extends DataGenerator {
   private static final double CHANCE_0_5SIGMA = 0.380;
   private static final double CHANCE_OUTLIER = 0.003;
 
-  public static double gaussNormalFilter(double min, double max){
+  /**
+   * Generates a random double based on the spread between min and max
+   * and using a normal gaussian distribution of possible values.
+   *
+   * @param min - minimum target value.
+   * @param max - maximum target value.
+   * @return - random double value.
+   */
+  @SuppressWarnings("checkstyle:LocalVariableName")
+  public static double gaussNormalFilter(double min, double max) {
     double spread = max - min;
     double mid = spread / 2;
     double sigma3Max = spread * 0.997;
@@ -254,14 +178,11 @@ public class NumGenerator extends DataGenerator {
           || (d < sigma3Max && d > sigma2_5Max))
           && check < CHANCE_3SIGMA) {
         break;
-      }else if (check < CHANCE_OUTLIER) {
+      } else if (check < CHANCE_OUTLIER) {
         break;
       }
       d = (Math.random() * spread) + min;
     }
-
     return d;
   }
-
-
 }

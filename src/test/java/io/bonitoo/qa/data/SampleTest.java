@@ -32,9 +32,8 @@ public class SampleTest {
 
         ItemConfig iConfA = new ItemNumConfig("Testak", "test", ItemType.Double, -40, 60, 10.0, NumGenerator.DEFAULT_DEV);
         ItemConfig iConfB = new ItemNumConfig("Betaak", "beta", ItemType.Long, 0, 100, 30.0, NumGenerator.DEFAULT_DEV);
-        ItemConfig builtIn = new ItemConfig("TempAk", "temp", ItemType.BuiltInTemp, SimpleStringGenerator.class.getName());
         ItemConfig iConfString = new ItemStringConfig("Stringak", "colod", ItemType.String, Arrays.asList("RED","BLUE","GREEN"));
-        SampleConfig sConf = new SampleConfig("random", "fooSample", "test/items", Arrays.asList(iConfA,iConfB,builtIn,iConfString));
+        SampleConfig sConf = new SampleConfig("random", "fooSample", "test/items", Arrays.asList(iConfA,iConfB,iConfString));
 
        // GenericSample gs = GenericSample.genSample(sConf);
         List<GenericSample> samples = new ArrayList<>();
@@ -46,15 +45,13 @@ public class SampleTest {
         }
 
         for(GenericSample sample : samples){
-            assertEquals(4, sample.getItems().size());
+            assertEquals(3, sample.getItems().size());
             assertTrue(sample.getItems().containsKey(iConfA.getName()));
             assertTrue(sample.getItems().containsKey(iConfB.getName()));
             assertTrue(sample.getItems().containsKey(iConfString.getName()));
-            assertTrue(sample.getItems().containsKey(builtIn.getName()));
             assertTrue(sample.item("Testak").getVal() instanceof Double);
             assertTrue(sample.item("Betaak").getVal() instanceof Long);
             assertTrue(sample.item("Stringak").getVal() instanceof String);
-            assertTrue(sample.item("TempAk").getVal() instanceof Double);
             assertNotEquals("random", sample.getId());
         }
     }

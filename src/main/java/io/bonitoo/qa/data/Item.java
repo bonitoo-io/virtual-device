@@ -79,13 +79,6 @@ public class Item {
   public static Item of(ItemConfig config) {
     Item it;
     switch (config.getType()) {
-      case BuiltInTemp:
-        NumGenerator builtInNg = (NumGenerator) DataGenerator.create(NumGenerator.class.getName());
-        // ensure each new item has its own copy of config so changes impact only this item
-        it = new Item(new ItemConfig(config), 0.0, builtInNg);
-        builtInNg.setItem(it);
-        it.update();
-        break;
       case Double:
       case Long:
         NumGenerator ng = (NumGenerator) DataGenerator.create(config.getGenClassName());
@@ -195,7 +188,6 @@ public class Item {
           val = ensureLong(obj);
           break;
         case Double:
-        case BuiltInTemp:
           val = ensureDouble(obj);
           break;
         case String:

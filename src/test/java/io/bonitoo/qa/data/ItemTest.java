@@ -60,20 +60,6 @@ public class ItemTest {
     }
 
     @Test
-    public void builtInItemTest(){
-        ItemConfig conf = new ItemConfig("testBuiltIn", "temp", ItemType.BuiltInTemp, NumGenerator.class.getName());
-        Item item = Item.of(conf);
-
-        assertInstanceOf(Double.class, item.getVal());
-        try {
-            assertTrue(item.asDouble() > 0 && item.asDouble() < 40);
-        }catch(AssertionError e){
-            System.out.println("DEBUG item.asDouble() " + item.asDouble());
-            throw e;
-        }
-    }
-
-    @Test
     public void getInextistantItem(){
 
         assertThrowsExactly(RuntimeException.class,
