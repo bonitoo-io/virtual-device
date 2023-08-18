@@ -1,0 +1,27 @@
+---
+broker:
+  host: "localhost"
+  port: 1883
+  auth:
+    username: "fred"
+    password: "changeit"
+devices:
+  - id: "random"
+    name: "linearGaussTestDevice"
+    description: "testing linearGauss plugin"
+    samples:
+      - name: "linearGaussTestSample"
+        id: "random"
+        topic: "test/lg"
+        items:
+          - name: "linearGaussConf"
+            label: "lgVal"
+            type: "Plugin"
+            pluginName: "LinearGaussGen"
+            resultType: "Double"
+            min: -6.0
+            max: 55.0
+    interval: 500
+    jitter: 100
+    count: 1
+ttl: 60000
