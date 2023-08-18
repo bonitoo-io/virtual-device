@@ -23,10 +23,17 @@ public class ItemTest {
 
     @Test
     public void createDoubleItemTest() throws JsonProcessingException {
-        ItemConfig conf = new ItemNumConfig("testDouble", "someVal", ItemType.Double, 0, 10, 4);
+        ItemConfig conf = new ItemNumConfig("testDouble", "someVal", ItemType.Double, 0, 10, 4.0, NumGenerator.DEFAULT_DEV);
+
+//        System.out.println("DEBUG conf " + conf);
         Item item = Item.of(conf);
+//        double testD = NumGenerator.genDoubleValSin(4.0, NumGenerator.DEFAULT_DEV, 0, 10, System.currentTimeMillis());
+
+//        System.out.println("DEBUG testD " + testD);
 
         ObjectWriter ow = new ObjectMapper(new YAMLFactory()).writer();
+
+//        System.out.println("DEBUG item.val " + item.getVal());
 
         assertInstanceOf(Double.class, item.getVal());
         assertTrue(item.asDouble() < ((ItemNumConfig)conf).getMax());
@@ -35,7 +42,7 @@ public class ItemTest {
 
     @Test
     public void createLongItemTest(){
-        ItemConfig conf = new ItemNumConfig("testLong", "someVal", ItemType.Long, 0, 10, 4);
+        ItemConfig conf = new ItemNumConfig("testLong", "someVal", ItemType.Long, 0, 10, 4.0, NumGenerator.DEFAULT_DEV);
         Item item = Item.of(conf);
 
         assertInstanceOf(Long.class, item.getVal());
@@ -50,15 +57,6 @@ public class ItemTest {
 
         assertInstanceOf(String.class, item.getVal());
         assertEquals("TEST STRING", item.asString());
-    }
-
-    @Test
-    public void builtInItemTest(){
-        ItemConfig conf = new ItemConfig("testBuiltIn", "temp", ItemType.BuiltInTemp, NumGenerator.class.getName());
-        Item item = Item.of(conf);
-
-        assertInstanceOf(Double.class, item.getVal());
-        assertTrue(item.asDouble() > 0 && item.asDouble() < 40);
     }
 
     @Test
@@ -135,7 +133,7 @@ public class ItemTest {
 
     @Test
     public void numItemTestSeparateInstances(){
-        ItemConfig conf = new ItemNumConfig("testDouble", "someVal", ItemType.Double, 0, 10, 4);
+        ItemConfig conf = new ItemNumConfig("testDouble", "someVal", ItemType.Double, 0, 10, 4.0, NumGenerator.DEFAULT_DEV);
 
         Item item1 = Item.of(conf);
         Item item2 = Item.of(conf);
@@ -155,7 +153,7 @@ public class ItemTest {
           new Properties());
 
 
-        ItemConfig configNum = new ItemNumConfig("testDouble", "someVal", ItemType.Double, 0, 10, 4);
+        ItemConfig configNum = new ItemNumConfig("testDouble", "someVal", ItemType.Double, 0, 10, 4.0, NumGenerator.DEFAULT_DEV);
         ItemConfig configString = new ItemStringConfig("testString", "lalala", ItemType.String,
           Arrays.asList("Do", "Re", "Mi", "Fa", "Sol", "La", "Ti"));
         ItemConfig configPlugin = new ItemPluginConfig(props, "testPluginConf");
@@ -202,7 +200,7 @@ public class ItemTest {
           new Properties());
 
 
-        ItemConfig configNum = new ItemNumConfig("testDouble", "someVal", ItemType.Double, 0, 10, 4);
+        ItemConfig configNum = new ItemNumConfig("testDouble", "someVal", ItemType.Double, 0, 10, 4.0, NumGenerator.DEFAULT_DEV);
         ItemConfig configString = new ItemStringConfig("testString", "lalala", ItemType.String,
           Arrays.asList("Do", "Re", "Mi", "Fa", "Sol", "La", "Ti"));
         ItemConfig configPlugin = new ItemPluginConfig(props, "testPluginConf");
@@ -228,6 +226,27 @@ public class ItemTest {
         assertEquals(configPlugin.hashCode(), ItemConfigRegistry.get(configPlugin.getName()).hashCode());
         // item received a copy of master
         assertNotEquals(ItemConfigRegistry.get(configPlugin.getName()).hashCode(), itPlugin.getConfig().hashCode());
+
+    }
+
+    @Test
+    public void generateNegativeNumbers(){
+        double min = -40;
+        double max = -1;
+        double dev = 0.1;
+        double spread = max - min;
+        double spreadMax = max + (spread * dev);
+        double spreadMin = min - (spread * dev);
+
+        ItemConfig configNum = new ItemNumConfig("testDouble", "someVal", ItemType.Double, min, max, 0.5, 0.1);
+
+        Item itNum = Item.of(configNum);
+
+        for(int i = 0; i < 100; i++){
+            itNum.update();
+            assertTrue(itNum.asDouble() >= spreadMin && itNum.asDouble() <= spreadMax);
+        }
+
 
     }
 

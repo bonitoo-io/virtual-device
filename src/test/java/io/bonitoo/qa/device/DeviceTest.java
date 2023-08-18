@@ -6,6 +6,7 @@ import io.bonitoo.qa.conf.data.ItemNumConfig;
 import io.bonitoo.qa.conf.data.ItemStringConfig;
 import io.bonitoo.qa.conf.data.SampleConfig;
 import io.bonitoo.qa.conf.device.DeviceConfig;
+import io.bonitoo.qa.data.generator.NumGenerator;
 import io.bonitoo.qa.mqtt.client.MqttClientBlocking;
 import io.bonitoo.qa.conf.Config;
 import org.junit.jupiter.api.*;
@@ -53,7 +54,7 @@ public class DeviceTest {
     @Test
     public void genericDeviceBaseTest() throws InterruptedException {
 
-        ItemConfig iConf = new ItemNumConfig("testItem", "anyVal", ItemType.Double, 0, 100, 1);
+        ItemConfig iConf = new ItemNumConfig("testItem", "anyVal", ItemType.Double, 0, 100, 1.0, NumGenerator.DEFAULT_DEV);
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -85,7 +86,7 @@ public class DeviceTest {
     @Test
     public void genericDeviceThreeSampleTest() throws InterruptedException {
 
-        ItemConfig iConf = new ItemNumConfig("testItem", "anyVal", ItemType.Double, 0, 100, 1);
+        ItemConfig iConf = new ItemNumConfig("testItem", "anyVal", ItemType.Double, 0, 100, 1.0, NumGenerator.DEFAULT_DEV);
 
         assertEquals(2, Config.getSampleConfs(0).size());
         Config.sampleConf(0, 0).setTopic("test/sample0");
@@ -127,7 +128,7 @@ public class DeviceTest {
     @Test
     public void runThreeDevicesTest() throws InterruptedException {
 
-        ItemConfig itemA = new ItemNumConfig("widget", "dbl", ItemType.Double, 0, 100, 1);
+        ItemConfig itemA = new ItemNumConfig("widget", "dbl", ItemType.Double, 0, 100, 1.0, NumGenerator.DEFAULT_DEV);
         ItemConfig itemB = new ItemStringConfig("bird", "tweeter", ItemType.String,
                 Arrays.asList("Albatross","Jay","Magpie"));
 
@@ -175,10 +176,10 @@ public class DeviceTest {
         MqttClientBlocking mockClientB = mock(MqttClientBlocking.class);
         MqttClientBlocking mockClientC = mock(MqttClientBlocking.class);
 
-        ItemConfig itemAA = new ItemNumConfig("tribble", "trb", ItemType.Double, 0, 100, 1);
+        ItemConfig itemAA = new ItemNumConfig("tribble", "trb", ItemType.Double, 0, 100, 1.0, NumGenerator.DEFAULT_DEV);
         ItemConfig itemAB = new ItemStringConfig("cat", "felix", ItemType.String,
                 Arrays.asList("Manx","Siamese","Calico"));
-        ItemConfig itemBA = new ItemNumConfig("whatsit", "double", ItemType.Double, -1, 1, 2);
+        ItemConfig itemBA = new ItemNumConfig("whatsit", "double", ItemType.Double, -1, 1, 2.0, NumGenerator.DEFAULT_DEV);
         ItemConfig itemBB = new ItemStringConfig("dog", "canus", ItemType.String,
                 Arrays.asList("Labrador","Collie","Beagle"));
 
@@ -229,7 +230,7 @@ public class DeviceTest {
 
     @Test
     public void jitterTest() throws InterruptedException {
-        ItemConfig iConf = new ItemNumConfig("testItem", "aval", ItemType.Double, 0, 100, 1);
+        ItemConfig iConf = new ItemNumConfig("testItem", "aval", ItemType.Double, 0, 100, 1.0, NumGenerator.DEFAULT_DEV);
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -260,8 +261,8 @@ public class DeviceTest {
 
     @Test
     public void deviceCopyTest(){
-        ItemConfig itemConfA = new ItemNumConfig("volt", "volt", ItemType.Double, 1, 15, 2);
-        ItemConfig itemConfB = new ItemNumConfig("pulses", "pulse", ItemType.Long, 0l, 20l, 1);
+        ItemConfig itemConfA = new ItemNumConfig("volt", "volt", ItemType.Double, 1, 15, 2.0, NumGenerator.DEFAULT_DEV);
+        ItemConfig itemConfB = new ItemNumConfig("pulses", "pulse", ItemType.Long, 0l, 20l, 1.0, NumGenerator.DEFAULT_DEV);
         ItemConfig itemConfC = new ItemStringConfig("state", "state", ItemType.String, Arrays.asList("OK", "WARN", "CRIT"));
 
         SampleConfig sampConfA = new SampleConfig("random", "testSample", "test/copy",

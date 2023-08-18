@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.bonitoo.qa.conf.VirDevConfigException;
 import io.bonitoo.qa.conf.VirDevDeserializer;
 import io.bonitoo.qa.data.ItemType;
+import io.bonitoo.qa.data.generator.NumGenerator;
 import io.bonitoo.qa.plugin.PluginProperties;
 import io.bonitoo.qa.plugin.PluginResultType;
 import io.bonitoo.qa.plugin.item.ItemGenPlugin;
@@ -57,22 +58,25 @@ public class ItemConfigDeserializer extends VirDevDeserializer<ItemConfig> {
     String plugin;
     Object max;
     Object min;
-    long period;
+    double period;
+    double dev;
     List<String> vals;
 
     switch (type) {
       case Double:
         max = safeGetNode(node, "max").asDouble();
         min = safeGetNode(node, "min").asDouble();
-        period = safeGetNode(node, "period").asLong();
+        period = safeGetNode(node, "period").asDouble();
+        dev = getDefaultDoubleNode(node, "dev", NumGenerator.DEFAULT_DEV).asDouble();
         JsonNode precNode = node.get("prec");
         Integer prec = precNode == null ? null : precNode.asInt();
-        return new ItemNumConfig(name, label, type, (Double) min, (Double) max, period, prec);
+        return new ItemNumConfig(name, label, type, (Double) min, (Double) max, period, dev, prec);
       case Long:
         max = safeGetNode(node, "max").asLong();
         min = safeGetNode(node, "min").asLong();
-        period = safeGetNode(node, "period").asLong();
-        return new ItemNumConfig(name, label, type, (Long) min, (Long) max, period);
+        period = safeGetNode(node, "period").asDouble();
+        dev = getDefaultDoubleNode(node, "dev", NumGenerator.DEFAULT_DEV).asDouble();
+        return new ItemNumConfig(name, label, type, (Long) min, (Long) max, period, dev);
       case String:
         vals = new ArrayList<>();
         for (Iterator<JsonNode> it = safeGetNode(node, "values").elements(); it.hasNext(); ) {

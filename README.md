@@ -14,9 +14,9 @@ This project offers virtual devices for testing IoT frameworks communicating thr
      "lumens":691.7
 }
 ```
-The project is designed to be extensible through plugins.  With an Item plugin it is possible to use custom data generators for values in payload fields.  With a Sample plugin it is possible to design all together custom payloads, that need not conform to the default structure.
+The project is designed to be extensible through plugins.  Two types of plugins are supported: Item and Sample.  With an Item plugin it is possible to use custom data generators for values in payload fields.  With a Sample plugin it is possible to design all together custom payloads, that need not conform to the default structure.
 
-The project is drawn together through the base `DeviceRunner` class.  It also provides a subscriber utility.
+The project is drawn together through the base `DeviceRunner` class.  A simple subscriber utility, for verifying publishing, has also been provided.
 
 * `DeviceRunner` - sets up and runs a list of devices.
 * `Mqtt5Subscriber` - included as a simple utility for subscribing to topics and inspecting MQTT broker messaging.
@@ -27,7 +27,7 @@ When working with virtual devices in this project, keep in mind that the followi
 
    * _Data Generator_ - generates primitive values of type Long, Double or String.
    * _Item_ - encapsulates the results of a Data Generator adding to them a label and a name, so that the item can be handled elsewhere. 
-   * _Sample_ - encapsulates a set of Items adding with them an MQTT topic and a timestamp of when they were generated.
+   * _Sample_ - encapsulates a set of Items adding with them an MQTT topic and a timestamp of when the item data was generated.
    * _Device_ - encapsulates a set of Samples, schedules the value updates and handles communication with the MQTT broker. 
    * _DeviceRunner_ - encapsulates a set of Devices, manages their threads and sets up the broker client.  
 
@@ -44,7 +44,7 @@ This project relies upon:
 
 For best results it should be built with these versions or higher of these platforms.  Please ensure that they are installed before proceeding. 
 
-Support scripts are written in bash to be run on linux.  Bash version 5.1.16 was used. 
+Support scripts are written in bash to be run on Linux or Mac.  Bash version 5.1.16 was used. 
 
 ## Quick Start
 
@@ -154,7 +154,7 @@ scripts/runner.sh src/test/resources/simpleRunnerConfigTestbed.yml
 
 **Note on TLS**
 
-When publishing to an MQTT server that uses TLS all the configuration is handled by the broker node in the YAML configuration file.  See the section [System Configuration](#system-configuration) below.  For example:
+When publishing to an MQTT server that uses TLS all the configuration is handled by the `broker` node in the YAML configuration file.  See the section [System Configuration](#system-configuration) below.  For example:
 
 ```yaml
 broker:
@@ -214,7 +214,7 @@ The broker represents a connection to an MQTT5 broker. It contains...
 
 ### Items
 
-Items represent the primitive elements in a sample, whose values can be randomly generated.  All items require the following:
+Items represent the primitive elements in a sample whose values can be randomly generated.  All items require the following:
 
 * `name`
 * `label`
@@ -223,8 +223,6 @@ Items represent the primitive elements in a sample, whose values can be randomly
   * `Long`
   * `String`
   * `Plugin` - generates a primitive type from an Item Plugin.
-  * `BuiltInTemp` - a builtin temperature generator.
-  * other builtins can be added.
 
 Item subtypes will expect additional configuration fields.
 
@@ -235,7 +233,7 @@ Item subtypes will expect additional configuration fields.
 * `min` - a minimum potential value.
 * `max` - a maximum potential value.
 * `period` - a sinusoid period to regulate the range of generated values.  A value of 0 will generate no random values and will return either 0 or the mid-range of the max and min values if the spread does not include the value 0.
-* Constants - to set a constant value set max and min to the same value and the period to 0.
+* Constants - to set a constant value set max and min to the same value and the period or dev to 0.
 
 _Double Item configuration example_
 ```yaml
@@ -245,11 +243,16 @@ _Double Item configuration example_
     max: 2.0
     min: -1.0
     period: 1
+    dev: 0.07
 ```
 
 The `Double` type also allows an optional field:
 
    * `prec` - for setting the decimal precision used when serializing values.  It takes an  integer.
+
+The __Builtin numerical generator__ follows a sinusoidal curve beginning at midnight of the current day.  It's behaviour is influenced by two key properties.   
+   * `period` - A period value of `1` indicates that one full sinusoidal period will be observed in 1 day.  A period value of `24` then implies a full cycle being completed in an hour, while a period value of `0.5` implies a half cycle completed in one day.  A negative period value implies `-sin()` values will be generated, in other words the shape of the curve will be inverted.
+   * `dev` - Values are generated based on the middle value of the spread between `max` and `min` as that middle value passes along the sinusoidal curve.  Any random value must pass through a Gaussian shaped distribution filter before it is returned.  This also implies that true absolute max and min values generated will be one deviation above or below the declared extrema, however the odds of such an outlier value being returned are less than 3 in 1000.  Note if no `dev` value is provided a default value of `0.25` will be supplied.  
 
 #### String Items
 
@@ -412,6 +415,32 @@ devices:
             values:
               - "luminescence"
 ```
+## Writing and verifying configurations
+
+Once a configuration has been written it can be verified using a dockerized mosquitto broker deployed to `localhost`.  The script `scripts/broker.sh` simplifies this deployment. 
+
+```bash
+$ scripts/broker.sh start
+```
+
+The default subscriber can be started, as described above.  Alternately, a `mosquitto_sub` session can be initiated if `mosquitto_sub` has been installed on the machine.  
+
+```bash
+$ mosquitto_sub -h 127.0.0.1 -p 1883 -t "test/#"
+```
+
+Use the script `scripts/runner.sh` to check if the config works. 
+
+```bash
+scripts/runner.sh local/MyConfig.yml
+```
+
+__Common Issues__
+
+When adding an `auth` node to the `broker` section of the config, the field `username` needs to be supplied.  A shortened key name such as `name` will result in a configuration exception. 
+
+If items are not appearing in the generated payloads as expected, make sure that their names were added to a `sample` node under the `items` section.
+
 ## Connecting over TLS
 
 MQTT brokers used in the runner configuration can run over plain HTTP, which is simple but unsecure.  They can also be configured to connect over TLS.  The following steps are recommended.  
