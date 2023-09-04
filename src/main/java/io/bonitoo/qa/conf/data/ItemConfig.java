@@ -3,7 +3,7 @@ package io.bonitoo.qa.conf.data;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.bonitoo.qa.data.ItemType;
 import java.lang.reflect.Field;
-import java.util.Vector;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,6 +22,10 @@ public class ItemConfig extends DataConfig {
   protected ItemType type;
 
   protected String genClassName;
+
+  int count = 1;
+
+  ItemArType arType = ItemArType.Undefined;
 
   /**
    * Constructor wich adds an empty vector for updateArgs.
@@ -55,6 +59,8 @@ public class ItemConfig extends DataConfig {
     this.label = orig.getLabel();
     this.type = orig.getType();
     this.genClassName = orig.getGenClassName();
+    this.count = orig.getCount();
+    this.arType = orig.getArType();
   }
 
   /**
@@ -87,13 +93,14 @@ public class ItemConfig extends DataConfig {
 
     return (name.equals(conf.name)
       && type.equals(conf.type)
+      && count == conf.count
       && genClassName.equals(conf.genClassName));
   }
 
   @Override
   public String toString() {
-    return String.format("name:%s,label:%s,type:%s,className:%s",
-      name, label, type, genClassName);
+    return String.format("name:%s,label:%s,type:%s,count:%d,className:%s,arType:%s",
+      this.name, this.label, this.type, this.count, this.genClassName,this.arType);
   }
 
 }

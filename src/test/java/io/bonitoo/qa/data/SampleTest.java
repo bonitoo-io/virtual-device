@@ -3,9 +3,9 @@ package io.bonitoo.qa.data;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.bonitoo.qa.VirtualDeviceRuntimeException;
 import io.bonitoo.qa.conf.data.*;
 import io.bonitoo.qa.data.generator.NumGenerator;
-import io.bonitoo.qa.data.generator.SimpleStringGenerator;
 import io.bonitoo.qa.plugin.eg.CounterItemPlugin;
 import io.bonitoo.qa.plugin.PluginProperties;
 import io.bonitoo.qa.plugin.PluginResultType;
@@ -14,6 +14,7 @@ import io.bonitoo.qa.plugin.item.ItemPluginMill;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -21,6 +22,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -198,5 +200,97 @@ Example from Scientio
         assertNotEquals(originalVal, gs.item("size").asDouble());
         assertTrue(originalVal < gs.getTimestamp());
 
+    }
+
+    // These statements to SampleTest
+    //  Note from sample config deserializer test with multiple ItemConfigs
+//        GenericSample gs = GenericSample.ofExperim(sc);
+
+    //        System.out.println("DEBUG gs " + gs.toJson());
+    @Test
+    public void sampleWithSampleItems() throws JsonProcessingException {
+
+        ItemConfig ic01 = new ItemNumConfig("foo", "bar", ItemType.Double, 0.0, 100.0, 1.0, 0.17, 3);
+
+        ic01.setCount(2);
+
+        SampleConfig sc = new SampleConfig("random", "testing", "test/pokus", Arrays.asList(ic01));
+
+        GenericSample gs = GenericSample.of(sc);
+
+        System.out.println("DEBUG gs " + gs);
+
+        gs.update();
+        System.out.println("DEBUG gs.toJson() " + gs.toJson());
+
+    }
+
+    @Test
+    public void sampleWithZeroItemCount(){
+
+        ItemConfig ic01 = new ItemNumConfig("foo", "bar", ItemType.Double, 0.0, 100.0, 1.0, 0.17, 3);
+
+        ic01.setCount(0);
+
+        SampleConfig sc = new SampleConfig("random", "testing", "test/pokus", Arrays.asList(ic01));
+
+        VirtualDeviceRuntimeException exp = assertThrows(VirtualDeviceRuntimeException.class,
+          () -> { GenericSample gs = GenericSample.of(sc); });
+
+        assertEquals("Encountered ItemConfig foo with count less than 1. Count is 0.", exp.getMessage());
+
+    }
+
+    @Test
+    public void sampleExperim() throws JsonProcessingException {
+
+        ItemConfig ic01 = new ItemNumConfig("foo", "bar", ItemType.Double, 0.0, 100.0, 1.0, 0.17, 3);
+        ic01.setCount(3);
+        ic01.setArType(ItemArType.Array);
+        ItemConfig ic02 = new ItemNumConfig("goo", "car", ItemType.Double, 0.0, 100.0, 1.0, 0.17, 3);
+        ItemConfig icString = new ItemStringConfig("hoo", "dar", ItemType.String, Arrays.asList("cat", "dog", "mouse", "tweety", "rooster"));
+        icString.setCount(10);
+        icString.setArType(ItemArType.Object);
+        ItemConfig ic03 = new ItemNumConfig("loo", "lar", ItemType.Long, -1, 20, 1.0, 0.33);
+        ic03.setCount(5);
+        ic03.setArType(ItemArType.Flat);
+        SampleConfig sc = new SampleConfig("random", "testing", "test/pokus", Arrays.asList(ic01,ic02,icString, ic03));
+        sc.setArType(ItemArType.Object);
+        GenericSample gs = GenericSample.of(sc);
+
+        for(String key : gs.getItems().keySet()){
+            for(Item item : gs.getItems().get(key)){
+                System.out.println("DEBUG item " + item.getLabel() + ": " + item.getVal());
+            }
+        }
+
+
+        System.out.println("DEBUG toJson\n" + gs.toJson());
+
+        gs.update();
+        System.out.println("");
+
+     /*   for(String key : gs.getItems().keySet()){
+            for(Item item : gs.getItems().get(key)){
+                System.out.println("DEBUG item " + item.getLabel() + ": " + item.getVal());
+            }
+        } */
+
+        System.out.println("DEBUG toJson\n" + gs.toJson());
+/*
+        ObjectMapper om = new ObjectMapper();
+        SimpleModule sMod = new SimpleModule("GenericSampleExperimSerializer", new Version(0,1,0,null,null,null));
+        om.disable(MapperFeature.USE_ANNOTATIONS);
+
+        sMod.addSerializer(GenericSample.class, new GenericSampleExperimSerializer());
+        sMod.addSerializer(Item.class, new ItemSerializer());
+        om.registerModule(sMod);
+        for(Object modId : om.getRegisteredModuleIds()){
+            System.out.println("DEBUG modID " + modId);
+        }
+        String jsonVal = om.writer().withDefaultPrettyPrinter().writeValueAsString(gs);
+
+        System.out.println("DEBUG jsonVal\n" + jsonVal);
+*/
     }
 }

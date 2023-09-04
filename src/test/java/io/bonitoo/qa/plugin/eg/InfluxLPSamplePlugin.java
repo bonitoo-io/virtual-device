@@ -52,7 +52,7 @@ public class InfluxLPSamplePlugin extends SamplePlugin {
   public Sample update() {
     super.update();
     for(String itemName : this.getItems().keySet()){
-      this.getItems().get(itemName).update();
+      this.getItems().get(itemName).get(0).update();
     }
     return this;
   }

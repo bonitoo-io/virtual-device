@@ -40,4 +40,25 @@ public abstract class VirDevDeserializer<T> extends StdDeserializer<T> {
     }
     return subNode;
   }
+
+  protected static JsonNode getDefaultIntNode(JsonNode node,
+                                                 String subName,
+                                                 int defVal) {
+    JsonNode subNode = node.get(subName);
+    if (subNode == null) {
+      return JsonNodeFactory.instance.numberNode(defVal);
+    }
+    return subNode;
+  }
+
+  protected static JsonNode getDefaultStringNode(JsonNode node,
+                                              String subName,
+                                              String defVal) {
+    JsonNode subNode = node.get(subName);
+    if (subNode == null) {
+      return JsonNodeFactory.instance.textNode(defVal);
+    }
+    return subNode;
+  }
+
 }

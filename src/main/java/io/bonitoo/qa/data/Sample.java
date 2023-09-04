@@ -34,9 +34,15 @@ public abstract class Sample {
 
   public long timestamp;
 
-  @JsonIgnore // use only flattened values
-  @JsonAnyGetter // flatten values
-  public Map<String, Item> items;
+//  @JsonIgnore // use only flattened values
+//  @JsonAnyGetter // flatten values
+//  public Map<String, Item> items;
+
+  // Test field to be explicitly serialized
+  // TODO remove once testing complete
+  @JsonIgnore
+  @JsonAnyGetter
+  public Map<String, List<Item>> items;
 
   public abstract Sample update();
 
@@ -45,11 +51,11 @@ public abstract class Sample {
   }
 
   public Item item(String name) {
-    return items.get(name);
+    return items.get(name).get(0);
   }
 
   public Object itemVal(String name) {
-    return items.get(name).getVal();
+    return items.get(name).get(0).getVal();
   }
 
   @Override
@@ -59,12 +65,12 @@ public abstract class Sample {
         String.format("id=%s,timestamp=%d,items=[", id, timestamp)
     );
     for (String key : items.keySet()) {
-      if (items.get(key).getVal() instanceof Double) {
-        result.append(String.format("name:%s,val:%.2f,", key, items.get(key).asDouble()));
-      } else if (items.get(key).getVal() instanceof String) {
+      if (items.get(key).get(0).getVal() instanceof Double) {
+        result.append(String.format("name:%s,val:%.2f,", key, items.get(key).get(0).asDouble()));
+      } else if (items.get(key).get(0).getVal() instanceof String) {
         result.append(String.format("name:%s,val:%s,", key, items.get(key)));
       } else {
-        result.append(String.format("name:%s,val:%d,", key, items.get(key).asLong()));
+        result.append(String.format("name:%s,val:%d,", key, items.get(key).get(0).asLong()));
       }
     }
     return result.append("]\n").toString();

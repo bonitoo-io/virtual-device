@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.bonitoo.qa.conf.VirDevConfigException;
+import io.bonitoo.qa.data.GenericSample;
 import io.bonitoo.qa.data.ItemType;
+import io.bonitoo.qa.data.Sample;
 import io.bonitoo.qa.data.generator.NumGenerator;
 import io.bonitoo.qa.plugin.sample.SamplePluginConfig;
 import org.junit.jupiter.api.BeforeAll;
@@ -13,6 +15,8 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
@@ -146,7 +150,7 @@ public class SampleConfigDeserializerTest {
     }
 
     @Test
-    void nullIdSerializeTest() throws JsonProcessingException {
+    public void nullIdSerializeTest() throws JsonProcessingException {
         String badYaml = "---\n" +
            "name: \"foo\"";
 
@@ -155,6 +159,155 @@ public class SampleConfigDeserializerTest {
         assertThrowsExactly(VirDevConfigException.class,
           () -> om.readValue(badYaml, SampleConfig.class), "property \"id\" " +
             "for node {\"name\":\"foo\"} is null.  Cannot parse any further");
+    }
+
+    @Test
+    public void itemConfigWithCountTest() throws JsonProcessingException {
+
+     /*   String sampleItemConfigYaml01 = "---\n" +
+          "itemConf:\n" +
+          "  name: \"Foo\"\n" +
+          "  label: \"bar\"\n" +
+          "  type: \"Double\"\n" +
+          "  genClassName: \"io.bonitoo.qa.data.generator.NumGenerator\"\n" +
+          "  max: 100.0\n" +
+          "  min: 0.0\n" +
+          "  period: 1.0\n" +
+          "  dev: 0.17\n" +
+          "count: 1";
+          */
+
+        String icConfigYaml = "---\n" +
+          "name: \"Foo\"\n" +
+          "label: \"bar\"\n" +
+          "type: \"Double\"\n" +
+          "genClassName: \"io.bonitoo.qa.data.generator.NumGenerator\"\n" +
+          "count: 3\n" +
+          "max: 100.0\n" +
+          "min: 0.0\n" +
+          "period: 1.0\n" +
+          "dev: 0.17";
+
+        //SampleItemConfig siConfig = new SampleItemConfig(
+        //  new ItemNumConfig("Foo", "bar", ItemType.Double, 0, 100, 1.0, 0.17)
+        //);
+
+        ItemNumConfig inc = new ItemNumConfig("Foo", "bar", ItemType.Double, 0, 100, 1.0, 0.17);
+        inc.setCount(3);
+
+       // System.out.println("DEBUG siConfig.getItemConf() " + siConfig.getItemConf());
+       // System.out.println("DEBUG siConfig.getCount() " + siConfig.getCount());
+
+        ObjectMapper om = new ObjectMapper(new YAMLFactory());
+
+        String incString = om.writeValueAsString(inc);
+
+        System.out.println("DEBUG incString " + incString);
+
+
+        ItemNumConfig parsedConf = (ItemNumConfig) om.readValue(icConfigYaml, ItemConfig.class);
+
+        System.out.println("DEBUG parsedConf.count " + parsedConf);
+
+    }
+
+    @Test
+    public void withItemArray() throws JsonProcessingException {
+
+        // TODO add ItemPluginType to config test
+
+        ItemNumConfig inc = new ItemNumConfig("Foo", "bar", ItemType.Double, 0, 100, 1.0, 0.17);
+        ItemNumConfig rabbit = new ItemNumConfig("Rabbit", "mrkev", ItemType.Double, 1.0, 5.0, 1.0, 0.21);
+
+        String testSampleYaml = "---\n" +
+          "id: ffffffff\n" +
+          "name: sampleConf\n" +
+          "topic: test/sample\n" +
+          "items:\n" +
+          "  - Foo\n" +
+          "  - Foo\n" +
+          "  - Foo\n" +
+          "  - from: \"Rabbit\"\n" +
+          "    count: 5\n" +
+          "  - name: \"Krtek\"\n" +
+          "    label: \"ktk\"\n" +
+          "    type: \"Double\" \n" +
+          "    count: 3\n" +
+          "    max: 100.0\n" +
+          "    min: 0.0\n" +
+          "    period: 1.0\n" +
+          "    dev: 0.17\n" +
+          "  - name: \"Jezek\"\n" +
+          "    label: \"jzk\"\n" +
+          "    type: \"Double\" \n" +
+          "    max: 10.0\n" +
+          "    min: -10.0\n" +
+          "    period: 0.5\n" +
+          "    dev: 0.17";
+
+        ObjectMapper om = new ObjectMapper(new YAMLFactory());
+
+        SampleConfig sc = om.readValue(testSampleYaml, SampleConfig.class);
+
+        assertEquals(4, sc.getItems().size());
+
+        List<ItemConfig> fooItems = sc.getItems().stream().filter(ic -> ic.getName().equals("Foo")).collect(Collectors.toList());
+        System.out.println("DEBUG fooItems " + fooItems.size());
+        assertEquals(1, fooItems.size());
+        assertEquals(3, fooItems.get(0).getCount());
+
+        List<ItemConfig> rabbitItems = sc.getItems().stream().filter(ic -> ic.getName().equals("Rabbit")).collect(Collectors.toList());
+        System.out.println("DEBUG rabbitItems " + rabbitItems.size());
+        assertEquals(1, rabbitItems.size());
+        assertEquals(5, rabbitItems.get(0).getCount());
+
+        List<ItemConfig> krtekItems = sc.getItems().stream().filter(ic -> ic.getName().equals("Krtek")).collect(Collectors.toList());
+        System.out.println("DEBUG krtekItems " + krtekItems.size());
+        assertEquals(1, krtekItems.size());
+        assertEquals(3, krtekItems.get(0).getCount());
+
+        List<ItemConfig> jezekItems = sc.getItems().stream().filter(ic -> ic.getName().equals("Jezek")).collect(Collectors.toList());
+        System.out.println("DEBUG jezekItems " + jezekItems.size());
+        assertEquals(1, jezekItems.size());
+        assertEquals(1, jezekItems.get(0).getCount());
+
+        for(ItemConfig ic : sc.getItems()){
+            System.out.println("DEBUG ic " + ic.getName());
+        }
+
+        System.out.println("DEBUG sc:\n" + om.writeValueAsString(sc));
+
+// These statements to SampleTest
+//        GenericSample gs = GenericSample.ofExperim(sc);
+
+//        System.out.println("DEBUG gs " + gs.toJson());
+
+    }
+
+    @Test
+    public void withArTypeTest() throws JsonProcessingException {
+
+        String testSampleYaml = "---\n" +
+          "id: ffffffff\n" +
+          "name: sampleConf\n" +
+          "topic: test/sample\n" +
+          "arType: \"Flat\"\n" +
+          "items:\n" +
+          "  - name: \"Krtek\"\n" +
+          "    label: \"ktk\"\n" +
+          "    type: \"Double\"\n" +
+          "    count: 3\n" +
+          "    max: 100.0\n" +
+          "    min: 0.0\n" +
+          "    period: 1.0\n" +
+          "    dev: 0.17";
+
+        ObjectMapper om = new ObjectMapper(new YAMLFactory());
+
+        SampleConfig sc = om.readValue(testSampleYaml, SampleConfig.class);
+
+        System.out.println("DEBUG sc.arType " + sc.getArType());
+
     }
 
 }

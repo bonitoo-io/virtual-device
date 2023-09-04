@@ -10,6 +10,7 @@ import io.bonitoo.qa.plugin.Plugin;
 import io.bonitoo.qa.plugin.PluginProperties;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.function.Function;
@@ -83,8 +84,11 @@ public abstract class SamplePlugin extends Sample implements Plugin {
     this.id = config.getId();
     this.topic = config.getTopic();
     this.items = new HashMap<>();
+    // TODO better support for arrays of items
     for (ItemConfig itemConfig : config.getItems()) {
-      this.items.put(itemConfig.getName(), Item.of(itemConfig));
+      this.items.put(itemConfig.getName(), new ArrayList<>());
+      this.items.get(itemConfig.getName()).add(Item.of(itemConfig));
+//      this.items.put(itemConfig.getName(), Item.of(itemConfig));
     }
     this.timestamp = System.currentTimeMillis();
   }

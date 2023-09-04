@@ -323,6 +323,8 @@ public class PluginIntegrationTest {
 
     GenericDevice avgTestDevice = GenericDevice.singleDevice(mockClient, Config.deviceConf(0));
 
+    System.out.println("DEBUG avgTestDevice.samples " + avgTestDevice.getSampleList().size());
+
     ObjectMapper omj = new ObjectMapper();
 
     FooSample fsStart = omj.readValue(avgTestDevice.getSampleList().get(0).toJson(), FooSample.class);
@@ -362,6 +364,101 @@ public class PluginIntegrationTest {
 
     SampleConfig sampConf = Config.getSampleConfs(0).get(0);
     verify(mockClient, times(17)).publish(eq(sampConf.getTopic()), anyString());
+
+  }
+
+  @Getter
+  @Setter
+  @AllArgsConstructor
+  @NoArgsConstructor
+  public static class FooArraySample extends GenericSample {
+    double foo00;
+    double foo01;
+    double foo02;
+  }
+
+  @Test
+  @Tag("intg")
+  public void itemPluginWithMultipleItemsBasic() throws JsonProcessingException {
+
+    final String simpleMovingAvgClassName = "io.bonitoo.virdev.plugin.SimpleMovingAvg";
+    final String simpleMovingAvgName = "SimpleMovingAvg";
+    final String sampleID = "fooSample2050";
+    final double min = 0.0;
+    final double max = 99.9;
+    final int prec = 3;
+
+    File[] pluginFiles = new File("plugins/examples/simpleMovingAvg").listFiles((dir, name) ->
+      name.toLowerCase().endsWith(".jar")
+    );
+    assertNotNull(pluginFiles);
+    assertEquals(1, pluginFiles.length);
+
+    for(File f : pluginFiles){
+      assertEquals("simpleMovingAverage-0.1-SNAPSHOT.jar", f.getName());
+      try {
+        @SuppressWarnings("unchecked")
+        Class<ItemGenPlugin> clazz = (Class<ItemGenPlugin>) PluginLoader.loadPlugin(f);
+        assertNotNull(clazz);
+        assertEquals(simpleMovingAvgClassName, clazz.getName());
+      } catch (IOException | PluginConfigException |
+               ClassNotFoundException | NoSuchFieldException |
+               IllegalAccessException e) {
+        throw new VirDevConfigException(e);
+      }
+    }
+
+    assertTrue(ItemPluginMill.getKeys().contains(simpleMovingAvgName));
+
+    Class<?> clazz = ItemPluginMill.getPluginClass(simpleMovingAvgName);
+    assertEquals(simpleMovingAvgClassName, clazz.getName());
+
+    String deviceTestConfig = "---\n" +
+      "id: \"random\"\n" +
+      "name: \"simpleMovingAvgTestDevice\"\n" +
+      "description: \"testing simpleMovingAvg plugin\"\n" +
+      "samples:\n" +
+      "- name: \"simpleMovingAvgTestSample\"\n" +
+      "  id: \"" + sampleID + "\"\n" +
+      "  topic: \"test/foo\"\n" +
+      "  items:\n" +
+      "  - name: \"simpleMovingAvgConf\"\n" +
+      "    label: \"foo\"\n" +
+      "    type: \"Plugin\"\n" +
+      "    count: 3\n" +
+      "    pluginName: \"SimpleMovingAvg\"\n" +
+      "    resultType: \"Double\"\n" +
+      "    prec: " + prec +  "\n" +
+      "    window: 5\n" +
+      "    min: " + min + "\n" +
+      "    max: " + max + "\n" +
+      "interval: 500\n" +
+      "jitter: 100\n" +
+      "count: 1";
+
+    ObjectMapper omy = new ObjectMapper(new YAMLFactory());
+
+    DeviceConfig devConf = omy.readValue(deviceTestConfig, DeviceConfig.class);
+
+    System.out.println("DEBUG devConf.getSamples() " + devConf.getSamples().size());
+    System.out.println("DEBUG devConf.getSamples(0) " + devConf.getSamples().get(0).getItems().size());
+    System.out.println("DEBUG devConf.getSamples(0).toString " + devConf.getSamples().get(0));
+
+    Config.getRunnerConfig().setDevices(Collections.singletonList(devConf));
+
+    GenericDevice avgTestDevice = GenericDevice.singleDevice(mockClient, Config.deviceConf(0));
+
+    ObjectMapper omj = new ObjectMapper();
+
+    System.out.println("DEBUG avgTestDevice.getSampleList() " + avgTestDevice.getSampleList().size());
+    for(Sample s : avgTestDevice.getSampleList()){
+      System.out.println("    DEBUG sample " + s.getId() + "  " + s.getTopic());
+    }
+
+    System.out.println("DEBUG sampleList.get(0).toJson \n" + avgTestDevice.getSampleList().get(0).toJson());
+    // N.B. no longer matches Foo Sample
+
+    FooArraySample fasStart = omj.readValue(avgTestDevice.getSampleList().get(0).toJson(), FooArraySample.class);
 
   }
 }

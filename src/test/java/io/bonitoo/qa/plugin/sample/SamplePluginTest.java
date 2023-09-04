@@ -197,6 +197,9 @@ public class SamplePluginTest {
     fsp
       .update()
       .update();
+
+    System.out.println("DEBUG fsp.toJson() " + fsp.toJson());
+
     assertTrue(
       fsp.toJson().matches("\\{\"id\":\"ASDF-1234\",\"timestamp\":[0-9]*,\"value\":\"PropertyVal\",\"count\":2\\}")
     );

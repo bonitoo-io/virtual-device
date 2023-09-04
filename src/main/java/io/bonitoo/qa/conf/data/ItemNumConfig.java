@@ -79,9 +79,9 @@ public class ItemNumConfig extends ItemConfig {
 
   @Override
   public String toString() {
-    return String.format("name=%s,label=%s,max=%.2f,min=%.2f,"
-        + "period=%.2f,dev=%.2f,type=%s,prec=%s\n",
-      name, label, max, min, period, dev, type, prec);
+    return String.format("%s,max: %.2f,min: %.2f,"
+        + "period: %.2f,dev: %.2f,type: %s,prec: %s\n",
+      super.toString(), max, min, period, dev, type, prec);
   }
 
   @Override

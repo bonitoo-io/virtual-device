@@ -66,6 +66,10 @@ public class Item {
     this.generator = generator;
   }
 
+  public void setLabel(String label) {
+    this.label = label;
+  }
+
   public ItemType getType() {
     return config.getType();
   }

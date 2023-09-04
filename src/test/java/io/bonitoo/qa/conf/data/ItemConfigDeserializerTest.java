@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.bonitoo.qa.conf.VirDevConfigException;
-import io.bonitoo.qa.data.Item;
 import io.bonitoo.qa.data.ItemType;
 import io.bonitoo.qa.data.generator.NumGenerator;
 import io.bonitoo.qa.plugin.*;
@@ -215,6 +214,134 @@ public class ItemConfigDeserializerTest {
 //        System.out.println("DEBUG config\n" + config);
         assertEquals(NumGenerator.DEFAULT_DEV, ((ItemNumConfig) config).getDev());
     }
+
+    @Test
+    public void itemConfigWithCount() throws JsonProcessingException {
+
+        String itemConfYaml = "---\n" +
+          "name: \"flowRate\"\n" +
+          "label: \"cmps\"\n" +
+          "type: Double\n" +
+          "max: 30\n" +
+          "min: 5\n" +
+          "period: 2\n" +
+          "count: 3";
+
+        ObjectMapper omy = new ObjectMapper(new YAMLFactory());
+        ItemConfig config = omy.readValue(itemConfYaml, ItemConfig.class);
+
+        System.out.println("DEBUG config.count " + config.getCount());
+
+    }
+
+    @Test
+    public void itemConfigWithSerialTypeArray() throws JsonProcessingException {
+
+        String itemConfYaml = "---\n" +
+          "name: \"flowRate\"\n" +
+          "label: \"cmps\"\n" +
+          "type: Double\n" +
+          "max: 30\n" +
+          "min: 5\n" +
+          "period: 2\n" +
+          "count: 3\n" +
+          "arType: Array";
+
+        ObjectMapper omy = new ObjectMapper(new YAMLFactory());
+        ItemConfig config = omy.readValue(itemConfYaml, ItemConfig.class);
+
+        System.out.println("DEBUG config.getSerialType " + config.getArType());
+
+        assertEquals(ItemArType.Array, config.getArType());
+
+    }
+
+    @Test
+    public void itemConfigWithSerialTypeObject() throws JsonProcessingException {
+
+        String itemConfYaml = "---\n" +
+          "name: \"flowRate\"\n" +
+          "label: \"cmps\"\n" +
+          "type: Double\n" +
+          "max: 30\n" +
+          "min: 5\n" +
+          "period: 2\n" +
+          "count: 3\n" +
+          "arType: Object";
+
+        ObjectMapper omy = new ObjectMapper(new YAMLFactory());
+        ItemConfig config = omy.readValue(itemConfYaml, ItemConfig.class);
+
+        System.out.println("DEBUG config.getSerialType " + config.getArType());
+
+        assertEquals(ItemArType.Object, config.getArType());
+
+    }
+
+    @Test
+    public void itemConfigWithSerialTypeFlat() throws JsonProcessingException {
+
+        String itemConfYaml = "---\n" +
+          "name: \"flowRate\"\n" +
+          "label: \"cmps\"\n" +
+          "type: Double\n" +
+          "max: 30\n" +
+          "min: 5\n" +
+          "period: 2\n" +
+          "count: 3\n" +
+          "arType: Flat";
+
+        ObjectMapper omy = new ObjectMapper(new YAMLFactory());
+        ItemConfig config = omy.readValue(itemConfYaml, ItemConfig.class);
+
+        System.out.println("DEBUG config.getSerialType " + config.getArType());
+
+        assertEquals(ItemArType.Flat, config.getArType());
+
+    }
+
+    @Test
+    public void itemConfigWithSerialTypeDefault() throws JsonProcessingException {
+
+        String itemConfYaml = "---\n" +
+          "name: \"flowRate\"\n" +
+          "label: \"cmps\"\n" +
+          "type: Double\n" +
+          "max: 30\n" +
+          "min: 5\n" +
+          "period: 2\n" +
+          "count: 3\n";
+
+        ObjectMapper omy = new ObjectMapper(new YAMLFactory());
+        ItemConfig config = omy.readValue(itemConfYaml, ItemConfig.class);
+
+        System.out.println("DEBUG config.getSerialType " + config.getArType());
+
+        assertEquals(ItemArType.Undefined, config.getArType());
+
+    }
+
+    @Test
+    public void itemConfigWithSerialTypeInvalid() throws JsonProcessingException {
+
+        String itemConfYaml = "---\n" +
+          "name: \"flowRate\"\n" +
+          "label: \"cmps\"\n" +
+          "type: Double\n" +
+          "max: 30\n" +
+          "min: 5\n" +
+          "period: 2\n" +
+          "count: 3\n" +
+          "arType: Invalid";
+
+        ObjectMapper omy = new ObjectMapper(new YAMLFactory());
+
+        assertThrows(IllegalArgumentException.class, () -> {
+           ItemConfig config = omy.readValue(itemConfYaml, ItemConfig.class);
+        });
+
+    }
+
 
 
 }

@@ -320,16 +320,16 @@ public class SamplePluginIntegrationTest {
 
     assertEquals(tags, ((InfluxLPSamplePlugin)dev.getSampleList().get(0)).getTags());
 
-    double temp1 = dev.getSampleList().get(0).getItems().get("temp").asDouble();
-    double press1 = dev.getSampleList().get(0).getItems().get("press").asDouble();
+    double temp1 = dev.getSampleList().get(0).getItems().get("temp").get(0).asDouble();
+    double press1 = dev.getSampleList().get(0).getItems().get("press").get(0).asDouble();
 
     assertTrue(temp1 >= iConfigTemp.getMin() - 3 && temp1 <= iConfigTemp.getMax() + 3);
     assertTrue(press1 >= iConfigPress.getMin() - 0.6 && press1 <= iConfigPress.getMax() + 0.6);
 
     LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(1000));
 
-    double temp2 = dev.getSampleList().get(0).getItems().get("temp").asDouble();
-    double press2 = dev.getSampleList().get(0).getItems().get("press").asDouble();
+    double temp2 = dev.getSampleList().get(0).getItems().get("temp").get(0).asDouble();
+    double press2 = dev.getSampleList().get(0).getItems().get("press").get(0).asDouble();
 
     assertTrue(temp2 >= iConfigTemp.getMin() - 3 && temp2 <= iConfigTemp.getMax() + 3);
     assertTrue(press2 >= iConfigPress.getMin() - 0.6 && press2 <= iConfigPress.getMax() + 0.6);
