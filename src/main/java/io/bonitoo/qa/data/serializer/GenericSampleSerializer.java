@@ -23,7 +23,10 @@ public class GenericSampleSerializer extends StdSerializer<GenericSample> {
   }
 
   @Override
-  public void serialize(GenericSample gs, JsonGenerator jsonGen, SerializerProvider serProvider) throws IOException {
+  public void serialize(GenericSample gs,
+                        JsonGenerator jsonGen,
+                        SerializerProvider serProvider)
+      throws IOException {
 
     jsonGen.writeStartObject();
     jsonGen.writeStringField("id", gs.getId());
@@ -52,7 +55,9 @@ public class GenericSampleSerializer extends StdSerializer<GenericSample> {
               + arType);
         }
         for (Item it : gs.getItems().get(key)) {
-          String labelFormat = "%s%0" + (((int) Math.ceil(Math.log10(gs.getItems().get(key).size()))) + 1) + "d";
+          String labelFormat = "%s%0"
+              + (((int) Math.ceil(Math.log10(gs.getItems().get(key).size()))) + 1)
+              + "d";
           int index = gs.getItems().get(key).indexOf(it);
           switch (arType) {
             case Flat:

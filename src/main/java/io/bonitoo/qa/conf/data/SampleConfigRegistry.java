@@ -1,7 +1,6 @@
 package io.bonitoo.qa.conf.data;
 
 import io.bonitoo.qa.conf.VirDevConfigException;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -30,7 +29,9 @@ public class SampleConfigRegistry {
     SampleConfig sample = registry.get(key);
 
     if (sample == null) {
-      throw new VirDevConfigException(String.format("Sample Configuration named %s not found", key));
+      throw new VirDevConfigException(
+        String.format("Sample Configuration named %s not found", key)
+      );
     }
 
     return registry.get(key);

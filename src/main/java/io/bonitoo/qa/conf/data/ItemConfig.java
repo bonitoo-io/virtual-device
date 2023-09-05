@@ -3,7 +3,6 @@ package io.bonitoo.qa.conf.data;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.bonitoo.qa.data.ItemType;
 import java.lang.reflect.Field;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -100,7 +99,7 @@ public class ItemConfig extends DataConfig {
   @Override
   public String toString() {
     return String.format("name:%s,label:%s,type:%s,count:%d,className:%s,arType:%s",
-      this.name, this.label, this.type, this.count, this.genClassName,this.arType);
+      this.name, this.label, this.type, this.count, this.genClassName, this.arType);
   }
 
 }

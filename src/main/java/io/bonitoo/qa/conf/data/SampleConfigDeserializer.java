@@ -68,7 +68,9 @@ public class SampleConfigDeserializer extends VirDevDeserializer<SampleConfig> {
           ItemConfig ic = ItemConfigRegistry.get(from);
           ic.count = count;
           // if arType not defined use default arType for Sample.
-          ic.arType = ItemArType.valueOf(getDefaultStringNode(itemNode, "arType", arType.toString()).asText());
+          ic.arType = ItemArType.valueOf(
+            getDefaultStringNode(itemNode, "arType", arType.toString()).asText()
+          );
           items.add(ic);
         } else {
           items.add(ctx.readValue(itemNode.traverse(jsonParser.getCodec()), ItemConfig.class));

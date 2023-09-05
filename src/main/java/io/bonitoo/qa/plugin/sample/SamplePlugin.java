@@ -88,7 +88,7 @@ public abstract class SamplePlugin extends Sample implements Plugin {
     for (ItemConfig itemConfig : config.getItems()) {
       this.items.put(itemConfig.getName(), new ArrayList<>());
       this.items.get(itemConfig.getName()).add(Item.of(itemConfig));
-//      this.items.put(itemConfig.getName(), Item.of(itemConfig));
+      // this.items.put(itemConfig.getName(), Item.of(itemConfig));
     }
     this.timestamp = System.currentTimeMillis();
   }

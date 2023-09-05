@@ -53,7 +53,9 @@ public class ItemConfigDeserializer extends VirDevDeserializer<ItemConfig> {
     String name = safeGetNode(node, "name").asText();
     String label = safeGetNode(node, "label").asText();
     int count = getDefaultIntNode(node, "count", 1).asInt();
-    ItemArType serialType = ItemArType.valueOf(getDefaultStringNode(node, "arType", "Undefined").asText());
+    ItemArType serialType = ItemArType.valueOf(
+        getDefaultStringNode(node, "arType", "Undefined").asText()
+    );
     String plugin;
     Object max;
     Object min;
@@ -69,7 +71,8 @@ public class ItemConfigDeserializer extends VirDevDeserializer<ItemConfig> {
         dev = getDefaultDoubleNode(node, "dev", NumGenerator.DEFAULT_DEV).asDouble();
         JsonNode precNode = node.get("prec");
         Integer prec = precNode == null ? null : precNode.asInt();
-        ItemNumConfig dblConf = new ItemNumConfig(name, label, type, (Double) min, (Double) max, period, dev, prec);
+        ItemNumConfig dblConf = new ItemNumConfig(name, label, type, (Double) min,
+            (Double) max, period, dev, prec);
         if (count > 1) {
           dblConf.setCount(count);
           dblConf.setArType(serialType);
@@ -80,7 +83,8 @@ public class ItemConfigDeserializer extends VirDevDeserializer<ItemConfig> {
         min = safeGetNode(node, "min").asLong();
         period = safeGetNode(node, "period").asDouble();
         dev = getDefaultDoubleNode(node, "dev", NumGenerator.DEFAULT_DEV).asDouble();
-        ItemNumConfig longConf = new ItemNumConfig(name, label, type, (Long) min, (Long) max, period, dev);
+        ItemNumConfig longConf = new ItemNumConfig(name, label, type,
+            (Long) min, (Long) max, period, dev);
         if (count > 1) {
           longConf.setCount(count);
           longConf.setArType(serialType);

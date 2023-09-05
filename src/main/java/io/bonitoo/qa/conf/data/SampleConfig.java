@@ -26,14 +26,10 @@ public class SampleConfig extends DataConfig {
 
   List<ItemConfig> items;
 
- // List<SampleItemConfig> sampleItems;
-
   ItemArType arType = ItemArType.Undefined;
 
   // optional - if set plugin will be used to generated samples
   String plugin;
-  //String name;
-
 
   /**
    * Basic all arguments constructor.
