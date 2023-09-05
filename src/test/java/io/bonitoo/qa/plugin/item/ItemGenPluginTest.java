@@ -33,6 +33,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @Tag("intg")
 public class ItemGenPluginTest {
 
+  // TODO add test of ItemPluginType with array of items
+
   static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private static final String DEFAULT_VALUE = "Foo";

@@ -34,12 +34,6 @@ public abstract class Sample {
 
   public long timestamp;
 
-//  @JsonIgnore // use only flattened values
-//  @JsonAnyGetter // flatten values
-//  public Map<String, Item> items;
-
-  // Test field to be explicitly serialized
-  // TODO remove once testing complete
   @JsonIgnore
   @JsonAnyGetter
   public Map<String, List<Item>> items;
@@ -102,11 +96,5 @@ public abstract class Sample {
    * @return - a JSON string.
    * @throws JsonProcessingException - thrown when object cannot be serialized.
    */
-  /*  public String toJson() throws JsonProcessingException {
-    checkNameClash();
-    // todo add pretty print option.
-    ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
-    return objectWriter.writeValueAsString(this);
-  } */
   public abstract String toJson() throws JsonProcessingException;
 }

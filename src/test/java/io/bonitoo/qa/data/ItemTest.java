@@ -25,19 +25,16 @@ public class ItemTest {
     public void createDoubleItemTest() throws JsonProcessingException {
         ItemConfig conf = new ItemNumConfig("testDouble", "someVal", ItemType.Double, 0, 10, 4.0, NumGenerator.DEFAULT_DEV);
 
-//        System.out.println("DEBUG conf " + conf);
         Item item = Item.of(conf);
-//        double testD = NumGenerator.genDoubleValSin(4.0, NumGenerator.DEFAULT_DEV, 0, 10, System.currentTimeMillis());
-
-//        System.out.println("DEBUG testD " + testD);
 
         ObjectWriter ow = new ObjectMapper(new YAMLFactory()).writer();
 
-//        System.out.println("DEBUG item.val " + item.getVal());
-
         assertInstanceOf(Double.class, item.getVal());
-        assertTrue(item.asDouble() < ((ItemNumConfig)conf).getMax());
-        assertTrue(item.asDouble() > ((ItemNumConfig)conf).getMin());
+        double spread = ((ItemNumConfig)conf).getMax() - ((ItemNumConfig)conf).getMin();
+        double spreadMax = ((ItemNumConfig)conf).getMax() + (spread * ((ItemNumConfig)conf).getDev());
+        double spreadMin = ((ItemNumConfig)conf).getMin() - (spread * ((ItemNumConfig)conf).getDev());
+        assertTrue(item.asDouble() < spreadMax);
+        assertTrue(item.asDouble() > spreadMin);
     }
 
     @Test

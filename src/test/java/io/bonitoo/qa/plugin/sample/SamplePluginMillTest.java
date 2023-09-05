@@ -112,9 +112,6 @@ public class SamplePluginMillTest {
     fsp.update();
 
     assertEquals(101, fsp.count);
-
-    System.out.println("DEBUG fsp.toJson() " + fsp.toJson());
-
     assertTrue(
       fsp.toJson().matches("\\{\"id\":\"ASDF-1234\",\"timestamp\":[0-9]*,\"value\":\"PropertyVal\",\"count\":101\\}")
     );

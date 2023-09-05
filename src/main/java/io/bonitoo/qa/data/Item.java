@@ -3,11 +3,7 @@ package io.bonitoo.qa.data;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.bonitoo.qa.VirtualDeviceRuntimeException;
 import io.bonitoo.qa.conf.VirDevConfigException;
-import io.bonitoo.qa.conf.data.DataConfig;
-import io.bonitoo.qa.conf.data.ItemConfig;
-import io.bonitoo.qa.conf.data.ItemNumConfig;
-import io.bonitoo.qa.conf.data.ItemPluginConfig;
-import io.bonitoo.qa.conf.data.ItemStringConfig;
+import io.bonitoo.qa.conf.data.*;
 import io.bonitoo.qa.data.generator.DataGenerator;
 import io.bonitoo.qa.data.generator.NumGenerator;
 import io.bonitoo.qa.data.generator.SimpleStringGenerator;
@@ -72,6 +68,10 @@ public class Item {
 
   public ItemType getType() {
     return config.getType();
+  }
+
+  public ItemArType getArType() {
+    return config.getArType();
   }
 
   /**

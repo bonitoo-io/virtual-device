@@ -64,13 +64,10 @@ public class NumGeneratorTest {
     @Test
     public void dev0GenSinTest(){
         double zeroResult = NumGenerator.genDoubleValSin(1, 0, -10, 10, System.currentTimeMillis());
-        System.out.println("DEBUG zeroResult " + zeroResult );
         assertEquals(0, zeroResult);
         double midNegResult = NumGenerator.genDoubleValSin(1, 0, -15, -5, System.currentTimeMillis());
-        System.out.println("DEBUG midNegResult " + midNegResult);
         assertEquals(-10, midNegResult);
         double midPosResult = NumGenerator.genDoubleValSin(1, 0, 10, 50, System.currentTimeMillis());
-        System.out.println("DEBUG midPosResult " + midPosResult);
         assertEquals(30, midPosResult);
     }
 

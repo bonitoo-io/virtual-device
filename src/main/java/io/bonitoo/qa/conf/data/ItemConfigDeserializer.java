@@ -28,9 +28,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ItemConfigDeserializer extends VirDevDeserializer<ItemConfig> {
 
-  // TODO item label of "timestamp" should be discouraged as it used by samples as a default
-  // TODO item label of "id" should be discouraged as it used by samples as a default
-
   static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 

@@ -3,7 +3,6 @@ package io.bonitoo.qa.conf.data;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
-import io.bonitoo.qa.conf.VirDevConfigException;
 import io.bonitoo.qa.conf.VirDevDeserializer;
 import io.bonitoo.qa.data.GenericSample;
 import java.io.IOException;
@@ -24,12 +23,12 @@ public class SampleConfigDeserializer extends VirDevDeserializer<SampleConfig> {
     super(vc);
   }
 
-  private int getIndexOfItemConfigByName(List<ItemConfig> list, String name){
+  private int getIndexOfItemConfigByName(List<ItemConfig> list, String name) {
 
-    for( int i = 0; i < list.size(); i++){
-       if(list.get(i).getName().equals(name)){
-         return i;
-       }
+    for (int i = 0; i < list.size(); i++) {
+      if (list.get(i).getName().equals(name)) {
+        return i;
+      }
     }
     return -1;
   }
@@ -55,7 +54,6 @@ public class SampleConfigDeserializer extends VirDevDeserializer<SampleConfig> {
 
     for (JsonNode itemNode : itemsNode) {
       if (itemNode.isTextual()) {
-        System.out.println("DEBUG detected textual");
         ItemConfig tic = ItemConfigRegistry.get(itemNode.asText());
         int ticIndex = getIndexOfItemConfigByName(items, tic.getName());
         if (ticIndex > -1) {
@@ -65,28 +63,15 @@ public class SampleConfigDeserializer extends VirDevDeserializer<SampleConfig> {
         }
       } else {
         if (itemNode.has("from")) { // Using SampleItemNameConfig
-          System.out.println("DEBUG detected field 'from'");
           String from = itemNode.get("from").asText();
-          System.out.println("DEBUG getFrom " + from);
-          int count = itemNode.get("count").asInt();
-          System.out.println("DEBUG getCount " + itemNode.get("count").asInt());
+          int count = getDefaultIntNode(itemNode, "count", 1).asInt();
           ItemConfig ic = ItemConfigRegistry.get(from);
           ic.count = count;
           // if arType not defined use default arType for Sample.
           ic.arType = ItemArType.valueOf(getDefaultStringNode(itemNode, "arType", arType.toString()).asText());
           items.add(ic);
         } else {
-          //   SampleItemConfig siConfig = ctx.readValue(itemNode.traverse(jsonParser.getCodec()), SampleItemConfig.class);
-          //    if (siConfig.count < 1) {
-          //      throw new VirDevConfigException("Encountered a SampleItemConfig with a count less than 1");
-          //    }
-
-          //   if (siConfig.getItemConf() != null) {
-          System.out.println("DEBUG detected raw ItemConfig");
           items.add(ctx.readValue(itemNode.traverse(jsonParser.getCodec()), ItemConfig.class));
-          //   } else if(siConfig.getItemName() != null){
-          // adds item from registry as above
-          //   }
         }
       }
     }

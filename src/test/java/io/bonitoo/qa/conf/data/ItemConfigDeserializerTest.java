@@ -192,7 +192,7 @@ public class ItemConfigDeserializerTest {
         ItemNumConfig configWDev = new ItemNumConfig("doubleConf", "dbl", ItemType.Double, -25, 50, 1.0, 0.17, 2);
         ObjectWriter yw = new ObjectMapper(new YAMLFactory()).writer().withDefaultPrettyPrinter();
         String configAsYaml = yw.writeValueAsString(configWDev);
-        System.out.printf("DEBUG config\n%s\n", configAsYaml);
+//        System.out.printf("DEBUG config\n%s\n", configAsYaml);
         ObjectMapper omy = new ObjectMapper(new YAMLFactory());
         ItemConfig configParsed = omy.readValue(configAsYaml, ItemConfig.class);
         assertEquals(configWDev, configParsed);
@@ -218,19 +218,26 @@ public class ItemConfigDeserializerTest {
     @Test
     public void itemConfigWithCount() throws JsonProcessingException {
 
-        String itemConfYaml = "---\n" +
-          "name: \"flowRate\"\n" +
-          "label: \"cmps\"\n" +
-          "type: Double\n" +
-          "max: 30\n" +
-          "min: 5\n" +
-          "period: 2\n" +
-          "count: 3";
+        String icConfigYaml = "---\n" +
+          "name: \"Foo\"\n" +
+          "label: \"bar\"\n" +
+          "type: \"Double\"\n" +
+          "count: 3\n" +
+          "max: 100.0\n" +
+          "min: 0.0\n" +
+          "period: 1.0\n" +
+          "dev: 0.17";
 
-        ObjectMapper omy = new ObjectMapper(new YAMLFactory());
-        ItemConfig config = omy.readValue(itemConfYaml, ItemConfig.class);
+        ItemNumConfig inc = new ItemNumConfig("Foo", "bar", ItemType.Double, 0, 100, 1.0, 0.17);
+        inc.setCount(3);
 
-        System.out.println("DEBUG config.count " + config.getCount());
+        assertEquals(3, inc.getCount());
+
+        ObjectMapper om = new ObjectMapper(new YAMLFactory());
+
+        ItemNumConfig parsedConf = (ItemNumConfig) om.readValue(icConfigYaml, ItemConfig.class);
+
+        assertEquals(3, parsedConf.getCount());
 
     }
 
@@ -250,7 +257,7 @@ public class ItemConfigDeserializerTest {
         ObjectMapper omy = new ObjectMapper(new YAMLFactory());
         ItemConfig config = omy.readValue(itemConfYaml, ItemConfig.class);
 
-        System.out.println("DEBUG config.getSerialType " + config.getArType());
+//        System.out.println("DEBUG config.getSerialType " + config.getArType());
 
         assertEquals(ItemArType.Array, config.getArType());
 
@@ -272,7 +279,7 @@ public class ItemConfigDeserializerTest {
         ObjectMapper omy = new ObjectMapper(new YAMLFactory());
         ItemConfig config = omy.readValue(itemConfYaml, ItemConfig.class);
 
-        System.out.println("DEBUG config.getSerialType " + config.getArType());
+     //   System.out.println("DEBUG config.getSerialType " + config.getArType());
 
         assertEquals(ItemArType.Object, config.getArType());
 
@@ -294,7 +301,7 @@ public class ItemConfigDeserializerTest {
         ObjectMapper omy = new ObjectMapper(new YAMLFactory());
         ItemConfig config = omy.readValue(itemConfYaml, ItemConfig.class);
 
-        System.out.println("DEBUG config.getSerialType " + config.getArType());
+  //      System.out.println("DEBUG config.getSerialType " + config.getArType());
 
         assertEquals(ItemArType.Flat, config.getArType());
 
@@ -315,7 +322,7 @@ public class ItemConfigDeserializerTest {
         ObjectMapper omy = new ObjectMapper(new YAMLFactory());
         ItemConfig config = omy.readValue(itemConfYaml, ItemConfig.class);
 
-        System.out.println("DEBUG config.getSerialType " + config.getArType());
+ //       System.out.println("DEBUG config.getSerialType " + config.getArType());
 
         assertEquals(ItemArType.Undefined, config.getArType());
 
@@ -339,9 +346,5 @@ public class ItemConfigDeserializerTest {
         assertThrows(IllegalArgumentException.class, () -> {
            ItemConfig config = omy.readValue(itemConfYaml, ItemConfig.class);
         });
-
     }
-
-
-
 }

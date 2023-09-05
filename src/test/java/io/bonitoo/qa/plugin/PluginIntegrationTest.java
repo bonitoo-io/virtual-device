@@ -262,6 +262,8 @@ public class PluginIntegrationTest {
     throws PluginConfigException, InvocationTargetException, NoSuchMethodException,
     InstantiationException, IllegalAccessException, JsonProcessingException, InterruptedException {
 
+    // TODO review in light of new List<Item> structure and Item arrays API
+
     final String simpleMovingAvgClassName = "io.bonitoo.virdev.plugin.SimpleMovingAvg";
     final String simpleMovingAvgName = "SimpleMovingAvg";
     final String sampleID = "fooSample2050";
@@ -322,8 +324,6 @@ public class PluginIntegrationTest {
     Config.getRunnerConfig().setDevices(Collections.singletonList(devConf));
 
     GenericDevice avgTestDevice = GenericDevice.singleDevice(mockClient, Config.deviceConf(0));
-
-    System.out.println("DEBUG avgTestDevice.samples " + avgTestDevice.getSampleList().size());
 
     ObjectMapper omj = new ObjectMapper();
 
@@ -440,9 +440,9 @@ public class PluginIntegrationTest {
 
     DeviceConfig devConf = omy.readValue(deviceTestConfig, DeviceConfig.class);
 
-    System.out.println("DEBUG devConf.getSamples() " + devConf.getSamples().size());
-    System.out.println("DEBUG devConf.getSamples(0) " + devConf.getSamples().get(0).getItems().size());
-    System.out.println("DEBUG devConf.getSamples(0).toString " + devConf.getSamples().get(0));
+//    System.out.println("DEBUG devConf.getSamples() " + devConf.getSamples().size());
+//    System.out.println("DEBUG devConf.getSamples(0) " + devConf.getSamples().get(0).getItems().size());
+//    System.out.println("DEBUG devConf.getSamples(0).toString " + devConf.getSamples().get(0));
 
     Config.getRunnerConfig().setDevices(Collections.singletonList(devConf));
 
@@ -450,12 +450,12 @@ public class PluginIntegrationTest {
 
     ObjectMapper omj = new ObjectMapper();
 
-    System.out.println("DEBUG avgTestDevice.getSampleList() " + avgTestDevice.getSampleList().size());
-    for(Sample s : avgTestDevice.getSampleList()){
-      System.out.println("    DEBUG sample " + s.getId() + "  " + s.getTopic());
-    }
+//    System.out.println("DEBUG avgTestDevice.getSampleList() " + avgTestDevice.getSampleList().size());
+//    for(Sample s : avgTestDevice.getSampleList()){
+//      System.out.println("    DEBUG sample " + s.getId() + "  " + s.getTopic());
+//    }
 
-    System.out.println("DEBUG sampleList.get(0).toJson \n" + avgTestDevice.getSampleList().get(0).toJson());
+//    System.out.println("DEBUG sampleList.get(0).toJson \n" + avgTestDevice.getSampleList().get(0).toJson());
     // N.B. no longer matches Foo Sample
 
     FooArraySample fasStart = omj.readValue(avgTestDevice.getSampleList().get(0).toJson(), FooArraySample.class);

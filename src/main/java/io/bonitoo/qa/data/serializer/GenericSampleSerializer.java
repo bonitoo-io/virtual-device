@@ -7,9 +7,11 @@ import io.bonitoo.qa.VirtualDeviceRuntimeException;
 import io.bonitoo.qa.conf.data.ItemArType;
 import io.bonitoo.qa.data.GenericSample;
 import io.bonitoo.qa.data.Item;
-
 import java.io.IOException;
 
+/**
+ * A serializer for samples based on the Generic Sample class.
+ */
 public class GenericSampleSerializer extends StdSerializer<GenericSample> {
 
   public GenericSampleSerializer() {
@@ -23,21 +25,15 @@ public class GenericSampleSerializer extends StdSerializer<GenericSample> {
   @Override
   public void serialize(GenericSample gs, JsonGenerator jsonGen, SerializerProvider serProvider) throws IOException {
 
-    System.out.println("DEBUG serialize()");
-
     jsonGen.writeStartObject();
     jsonGen.writeStringField("id", gs.getId());
     jsonGen.writeNumberField("timestamp", gs.getTimestamp());
     for (String key : gs.getItems().keySet()) {
-      System.out.println("DEBUG key " + key);
       if (gs.getItems().get(key).size() == 1) {
-        System.out.println("DEBUG one item array");
         Item item = gs.getItems().get(key).get(0);
         serProvider.defaultSerializeField(item.getLabel(), item, jsonGen);
       } else {
-        System.out.println("DEBUG multi item array");
         ItemArType arType = gs.getItems().get(key).get(0).getConfig().getArType();
-        System.out.println("DEBUG arType " + arType);
         switch (arType) {
           case Array:
             jsonGen.writeFieldName(gs.getItems().get(key).get(0).getLabel());
