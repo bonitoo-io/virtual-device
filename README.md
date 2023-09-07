@@ -297,15 +297,7 @@ _Item Plugin example_
 
 ### Samples
 
-A sample represents a collection of data items to be published together using a specific topic.  The following properties are required.
-
-* `id` - an identifier for the sample.  The word `random` will result in the internal generation of a random UUID string.
-* `name` - a name for the sample, used primarily for handling and reusing samples in different devices.
-* `topic` - The MQTT topic under which the sample is published.
-* `items` - an array that can include:
-   * the names of previously defined items 
-   * an item type declared by item name using the `from` field, which makes it possible to define `count` and serialization type - `arType`.  See below.
-   * a new inline item definition as above.
+A sample represents a collection of data items to be published together using a specific topic.  
 
 _Basic Sample configuration example_
 ```yaml
@@ -316,6 +308,16 @@ _Basic Sample configuration example_
       - "tension"
       - "nuts"
 ```
+
+The following properties are required.
+
+* `id` - an identifier for the sample.  The word `random` will result in the internal generation of a random UUID string.
+* `name` - a name for the sample, used primarily for handling and reusing samples in different devices.
+* `topic` - The MQTT topic under which the sample is published.
+* `items` - an array that can include:
+   * the names of previously defined items 
+   * an item type declared by item name using the `from` field, which makes it possible to define `count` and serialization type - `arType`.  See below.
+   * a new inline item definition as above.
 
 __Item declaration using `from`__
 
