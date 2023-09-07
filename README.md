@@ -316,7 +316,7 @@ The following properties are required.
 * `topic` - The MQTT topic under which the sample is published.
 * `items` - an array that can include:
    * the names of previously defined items 
-   * an item type declared by item name using the `from` field, which makes it possible to define `count` and serialization type - `arType`.  See below.
+   * a previously defined item declared here as part of the array using the `from` field, which makes it possible to define `count` and serialization type - `arType`.  See below.
    * a new inline item definition as above.
 
 __Item declaration using `from`__
