@@ -304,7 +304,7 @@ A sample represents a collection of data items to be published together using a 
 * `topic` - The MQTT topic under which the sample is published.
 * `items` - an array that can include:
    * the names of previously defined items 
-   * an item type declared by item name using the `from` field 
+   * an item type declared by item name using the `from` field, which makes it possible to define `count` and serialization type - `arType`. 
    * a new inline item definitions as above.
 
 _Basic Sample configuration example_
@@ -329,7 +329,7 @@ With the `from` syntax additional array related fields `count` and `arType` can 
         arType: "Array"
 ...
 ```
-will result in a payload containing a JSON array, using the label `mm` originally declared in the `ultraSonSurface` item declaration. 
+... will result in a payload containing a JSON array, using the label `mm` originally declared in the `ultraSonSurface` item declaration. 
 
 ```json
 {
