@@ -304,8 +304,8 @@ A sample represents a collection of data items to be published together using a 
 * `topic` - The MQTT topic under which the sample is published.
 * `items` - an array that can include:
    * the names of previously defined items 
-   * an item type declared by item name using the `from` field, which makes it possible to define `count` and serialization type - `arType`. 
-   * a new inline item definitions as above.
+   * an item type declared by item name using the `from` field, which makes it possible to define `count` and serialization type - `arType`.  See below.
+   * a new inline item definition as above.
 
 _Basic Sample configuration example_
 ```yaml
