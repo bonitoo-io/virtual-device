@@ -100,7 +100,7 @@ public abstract class SamplePlugin extends Sample implements Plugin {
 
       // Sync any undefined arrayTypes with arrayType for sample
       if (itemConfig.getArType() == ItemArType.Undefined
-        && config.getArType() != ItemArType.Undefined) {
+          && config.getArType() != ItemArType.Undefined) {
         itemConfig.setArType(config.getArType());
       }
 

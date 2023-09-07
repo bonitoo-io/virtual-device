@@ -7,6 +7,8 @@ import io.bonitoo.qa.VirtualDeviceRuntimeException;
 import io.bonitoo.qa.conf.data.ItemConfig;
 import io.bonitoo.qa.conf.data.ItemPluginConfig;
 import io.bonitoo.qa.conf.data.SampleConfig;
+import io.bonitoo.qa.plugin.PluginConfigException;
+import io.bonitoo.qa.plugin.item.ItemPluginMill;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -14,9 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-
-import io.bonitoo.qa.plugin.PluginConfigException;
-import io.bonitoo.qa.plugin.item.ItemPluginMill;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
