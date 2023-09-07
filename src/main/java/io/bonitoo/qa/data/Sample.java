@@ -3,13 +3,20 @@ package io.bonitoo.qa.data;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.bonitoo.qa.VirtualDeviceRuntimeException;
+import io.bonitoo.qa.conf.data.ItemConfig;
+import io.bonitoo.qa.conf.data.ItemPluginConfig;
 import io.bonitoo.qa.conf.data.SampleConfig;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+
+import io.bonitoo.qa.plugin.PluginConfigException;
+import io.bonitoo.qa.plugin.item.ItemPluginMill;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
@@ -50,6 +57,22 @@ public abstract class Sample {
 
   public Object itemVal(String name) {
     return items.get(name).get(0).getVal();
+  }
+
+  protected static Item getItemFromConfig(ItemConfig ic) {
+    if (ic instanceof ItemPluginConfig) {
+      try {
+        return ItemPluginMill.genNewInstance(
+          ((ItemPluginConfig) ic).getPluginName(),
+          (ItemPluginConfig) ic).getItem();
+      } catch (PluginConfigException | NoSuchMethodException | InvocationTargetException
+               | InstantiationException | IllegalAccessException e) {
+        throw new VirtualDeviceRuntimeException(
+          String.format("Failed to generate item plugin %s for config %s",
+            ((ItemPluginConfig) ic).getPluginName(), ic.getName()), e);
+      }
+    }
+    return Item.of(ic);
   }
 
   @Override

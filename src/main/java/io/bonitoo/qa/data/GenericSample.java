@@ -21,22 +21,6 @@ import java.util.HashMap;
 @JsonSerialize(using = GenericSampleSerializer.class)
 public class GenericSample extends Sample {
 
-  private static Item getItemFromConfig(ItemConfig ic) {
-    if (ic instanceof ItemPluginConfig) {
-      try {
-        return ItemPluginMill.genNewInstance(
-          ((ItemPluginConfig) ic).getPluginName(),
-          (ItemPluginConfig) ic).getItem();
-      } catch (PluginConfigException | NoSuchMethodException | InvocationTargetException
-               | InstantiationException | IllegalAccessException e) {
-        throw new VirtualDeviceRuntimeException(
-          String.format("Failed to generate item plugin %s for config %s",
-            ((ItemPluginConfig) ic).getPluginName(), ic.getName()), e);
-      }
-    }
-    return Item.of(ic);
-  }
-
   /**
    * A method for generating a sample based on a SampleConfig.
    *
