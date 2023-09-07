@@ -1,0 +1,74 @@
+---
+ttl: 30000
+broker:
+  host: localhost
+  port: 1883
+  auth:
+    username: fred
+    password: changeit
+items:
+  - name: "ultraSonSurface"
+    type: "Double"
+    label: "mm"
+    max: 200
+    min: 20
+    period: 1
+    dev: 0.1
+    prec: 3
+  - name: "accelVert"
+    type: "Double"
+    label: "g"
+    max: 2
+    min: -2
+    period: 0.25
+    dev: 0.9
+    count: 2
+    arType: "Flat"
+  - name: "deformation"
+    type: "String"
+    label: "deform"
+    values:
+      - "none"
+      - "none"
+      - "none"
+      - "none"
+      - "none"
+      - "none"
+      - "none"
+      - "none"
+      - "centerCrack"
+      - "alligatorCrack"
+      - "potHole"
+      - "utilCut"
+samples:
+  - id: "random"
+    name: "AsArray"
+    topic: "test/asArray"
+    items:
+      - from: "ultraSonSurface"
+        count: 12
+        arType: "Array"
+  - id: "random"
+    name: "AsObject"
+    topic: "test/asObject"
+    arType: "Object"
+    items:
+      - "deformation"
+      - "deformation"
+      - "deformation"
+  - id: "random"
+    name: "Flat"
+    topic: "test/flat"
+    items:
+      - "accelVert"
+devices:
+  - id: "random"
+    name: "Testing Arrays Device"
+    description: "Testing Array Configurations"
+    interval: 1000
+    jitter: 0
+    count: 1
+    samples:
+      - "AsArray"
+      - "AsObject"
+      - "Flat"
