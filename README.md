@@ -302,7 +302,10 @@ A sample represents a collection of data items to be published together using a 
 * `id` - an identifier for the sample.  The word `random` will result in the internal generation of a random UUID string.
 * `name` - a name for the sample, used primarily for handling and reusing samples in different devices.
 * `topic` - The MQTT topic under which the sample is published.
-* `items` - an array that can include either the names of previously defined items, an item type declared by item name using the `from` field, or new inline item definitions as above.
+* `items` - an array that can include:
+   * the names of previously defined items 
+   * an item type declared by item name using the `from` field 
+   * a new inline item definitions as above.
 
 _Basic Sample configuration example_
 ```yaml
