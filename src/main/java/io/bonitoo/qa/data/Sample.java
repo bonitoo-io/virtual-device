@@ -49,6 +49,9 @@ public abstract class Sample {
 
   public abstract Sample update();
 
+  /**
+   * Helper factory method.
+   */
   public static Sample of(Function<SampleConfig, Sample> init, SampleConfig config) {
     Sample s = init.apply(config);
     s.setConfig(config);

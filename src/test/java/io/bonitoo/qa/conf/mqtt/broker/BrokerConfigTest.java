@@ -8,8 +8,6 @@ import io.bonitoo.qa.conf.Constants;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("unit")

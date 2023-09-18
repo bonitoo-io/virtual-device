@@ -4,7 +4,6 @@ import io.bonitoo.qa.data.ItemType;
 import io.bonitoo.qa.data.generator.SimpleStringGenerator;
 import java.util.ArrayList;
 import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
