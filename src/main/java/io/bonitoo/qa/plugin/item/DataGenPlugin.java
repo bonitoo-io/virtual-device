@@ -2,13 +2,11 @@ package io.bonitoo.qa.plugin.item;
 
 import io.bonitoo.qa.conf.data.DataConfig;
 import io.bonitoo.qa.conf.data.ItemConfig;
-import io.bonitoo.qa.conf.data.ItemPluginConfig;
 import io.bonitoo.qa.data.generator.DataGenerator;
 import io.bonitoo.qa.plugin.Plugin;
 import io.bonitoo.qa.plugin.PluginProperties;
 import io.bonitoo.qa.plugin.PluginResultType;
 import io.bonitoo.qa.plugin.PluginType;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

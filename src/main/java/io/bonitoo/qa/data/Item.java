@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.bonitoo.qa.VirtualDeviceRuntimeException;
 import io.bonitoo.qa.conf.VirDevConfigException;
 import io.bonitoo.qa.conf.data.DataConfig;
+import io.bonitoo.qa.conf.data.ItemArType;
 import io.bonitoo.qa.conf.data.ItemConfig;
 import io.bonitoo.qa.conf.data.ItemNumConfig;
 import io.bonitoo.qa.conf.data.ItemPluginConfig;
@@ -66,8 +67,16 @@ public class Item {
     this.generator = generator;
   }
 
+  public void setLabel(String label) {
+    this.label = label;
+  }
+
   public ItemType getType() {
     return config.getType();
+  }
+
+  public ItemArType getArType() {
+    return config.getArType();
   }
 
   /**

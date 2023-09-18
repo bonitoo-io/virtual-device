@@ -28,9 +28,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ItemConfigDeserializer extends VirDevDeserializer<ItemConfig> {
 
-  // TODO item label of "timestamp" should be discouraged as it used by samples as a default
-  // TODO item label of "id" should be discouraged as it used by samples as a default
-
   static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 
@@ -55,6 +52,10 @@ public class ItemConfigDeserializer extends VirDevDeserializer<ItemConfig> {
     ItemType type = ItemType.valueOf(safeGetNode(node, "type").asText());
     String name = safeGetNode(node, "name").asText();
     String label = safeGetNode(node, "label").asText();
+    int count = getDefaultIntNode(node, "count", 1).asInt();
+    ItemArType serialType = ItemArType.valueOf(
+        getDefaultStringNode(node, "arType", "Undefined").asText()
+    );
     String plugin;
     Object max;
     Object min;
@@ -70,20 +71,37 @@ public class ItemConfigDeserializer extends VirDevDeserializer<ItemConfig> {
         dev = getDefaultDoubleNode(node, "dev", NumGenerator.DEFAULT_DEV).asDouble();
         JsonNode precNode = node.get("prec");
         Integer prec = precNode == null ? null : precNode.asInt();
-        return new ItemNumConfig(name, label, type, (Double) min, (Double) max, period, dev, prec);
+        ItemNumConfig dblConf = new ItemNumConfig(name, label, type, (Double) min,
+            (Double) max, period, dev, prec);
+        if (count > 1) {
+          dblConf.setCount(count);
+          dblConf.setArType(serialType);
+        }
+        return dblConf;
       case Long:
         max = safeGetNode(node, "max").asLong();
         min = safeGetNode(node, "min").asLong();
         period = safeGetNode(node, "period").asDouble();
         dev = getDefaultDoubleNode(node, "dev", NumGenerator.DEFAULT_DEV).asDouble();
-        return new ItemNumConfig(name, label, type, (Long) min, (Long) max, period, dev);
+        ItemNumConfig longConf = new ItemNumConfig(name, label, type,
+            (Long) min, (Long) max, period, dev);
+        if (count > 1) {
+          longConf.setCount(count);
+          longConf.setArType(serialType);
+        }
+        return longConf;
       case String:
         vals = new ArrayList<>();
         for (Iterator<JsonNode> it = safeGetNode(node, "values").elements(); it.hasNext(); ) {
           JsonNode elem = it.next();
           vals.add(elem.asText());
         }
-        return new ItemStringConfig(name, label, type, vals);
+        ItemStringConfig strConf = new ItemStringConfig(name, label, type, vals);
+        if (count > 1) {
+          strConf.setCount(count);
+          strConf.setArType(serialType);
+        }
+        return strConf;
       case Plugin:
         plugin = safeGetNode(node, "pluginName").asText();
         @SuppressWarnings("unchecked")
@@ -123,6 +141,8 @@ public class ItemConfigDeserializer extends VirDevDeserializer<ItemConfig> {
         result.type = type;
         result.label = label;
         result.name = name;
+        result.count = count;
+        result.arType = serialType;
 
         return result;
       default:

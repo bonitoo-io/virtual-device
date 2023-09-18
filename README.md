@@ -14,7 +14,7 @@ This project offers virtual devices for testing IoT frameworks communicating thr
      "lumens":691.7
 }
 ```
-The project is designed to be extensible through plugins.  Two types of plugins are supported: Item and Sample.  With an Item plugin it is possible to use custom data generators for values in payload fields.  With a Sample plugin it is possible to design all together custom payloads, that need not conform to the default structure.
+The project is designed to be extensible through plugins.  Two types of plugins are supported: Item and Sample.  With an Item plugin it is possible to use custom data generators for values in payload fields.  With a Sample plugin it is possible to design all together custom payloads, that need not conform to the generic structure.
 
 The project is drawn together through the base `DeviceRunner` class.  A simple subscriber utility, for verifying publishing, has also been provided.
 
@@ -117,7 +117,7 @@ To run the subscriber against an MQTT server using TLS observe the following ste
 
 ### Run Default Publisher
 
-After building the package through maven, the publisher can be run either directly as a class with Maven, or through the packaged jar.
+After building the package through maven, the publisher can be run either directly as a class with Maven, through the packaged jar or with the aid of the `runner.sh` script.
 
 Through Maven:
 
@@ -226,6 +226,16 @@ Items represent the primitive elements in a sample whose values can be randomly 
 
 Item subtypes will expect additional configuration fields.
 
+Multiple instances of the same type can be declared with the following fields 
+   * `count:` - sets the default number of instances to be created. 
+   * `arType` - defines how the item array will be serialized to the payload.  Valid values include:
+      * `Array` - values will be serialized into a JSON array. 
+      * `Object` - values will be serialized as a JSON object, in which case object field names will be generated from the index of an item in the array. 
+      * `Flat` - values will be serialized as if each item is its own field in the sample payload, in which case the index value will be appended to the item label. 
+      * `Undefined` - will default to the `arType` of a sample or to `Flat` if a sample has no `arType` field defined.
+
+N.B. see the configuration file `src/test/resources/itemArrayTest.yml` for examples. 
+
 #### Numerical Items
 
 `Double` and `Long` types require the following properties.
@@ -287,12 +297,7 @@ _Item Plugin example_
 
 ### Samples
 
-A sample represents a collection of data items to be published together using a specific topic.  The following properties are required.
-
-* `id` - an identifier for the sample.  The word `random` will result in the internal generation of a random UUID string.
-* `name` - a name for the sample, used primarily for handling and reusing samples in different devices.
-* `topic` - The MQTT topic under which the sample is published.
-* `items` - an array that can include either the names of previously defined items or new inline item definitions as above.
+A sample represents a collection of data items to be published together using a specific topic.  
 
 _Basic Sample configuration example_
 ```yaml
@@ -303,6 +308,40 @@ _Basic Sample configuration example_
       - "tension"
       - "nuts"
 ```
+
+The following properties are required.
+
+* `id` - an identifier for the sample.  The word `random` will result in the internal generation of a random UUID string.
+* `name` - a name for the sample, used primarily for handling and reusing samples in different devices.
+* `topic` - The MQTT topic under which the sample is published.
+* `items` - an array that can include:
+   * the names of previously defined items 
+   * a previously defined item declared here as part of the array using the `from` field, which makes it possible to define `count` and serialization type - `arType`.  See below.
+   * a new inline item definition as above.
+
+__Item declaration using `from`__
+
+With the `from` syntax additional array related fields `count` and `arType` can be used.  For example the following... 
+
+```yaml
+...
+    items:
+      - from: "ultraSonSurface"
+        count: 12
+        arType: "Array"
+...
+```
+... will result in a payload containing a JSON array, using the label `mm` originally declared in the `ultraSonSurface` item declaration. 
+
+```json
+{
+  "id" : "0e734ffa-cf81-485d-ace2-dc581599aad5",
+  "timestamp" : 1694088766935,
+  "mm" : [ 87.973, 92.352, 100.723, 103.995, 102.771, 89.605, 99.713, 96.923, 108.246, 106.034, 98.237, 95.96 ]
+}
+```
+
+N.B. see `src/test/resources/itemArrayTest.yml` for a working example. 
 
 ### Devices
 

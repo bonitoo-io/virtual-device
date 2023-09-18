@@ -11,7 +11,6 @@ import io.bonitoo.qa.conf.data.ItemConfig;
 import io.bonitoo.qa.conf.data.ItemNumConfig;
 import io.bonitoo.qa.conf.data.ItemStringConfig;
 import io.bonitoo.qa.conf.data.SampleConfig;
-import io.bonitoo.qa.conf.data.SampleConfigRegistry;
 import io.bonitoo.qa.data.generator.NumGenerator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;

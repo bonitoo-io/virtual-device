@@ -3,9 +3,10 @@ package io.bonitoo.qa.data;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.bonitoo.qa.VirtualDeviceRuntimeException;
+import io.bonitoo.qa.conf.VirDevConfigException;
 import io.bonitoo.qa.conf.data.*;
 import io.bonitoo.qa.data.generator.NumGenerator;
-import io.bonitoo.qa.data.generator.SimpleStringGenerator;
 import io.bonitoo.qa.plugin.eg.CounterItemPlugin;
 import io.bonitoo.qa.plugin.PluginProperties;
 import io.bonitoo.qa.plugin.PluginResultType;
@@ -45,6 +46,7 @@ public class SampleTest {
         }
 
         for(GenericSample sample : samples){
+            assertEquals("fooSample", sample.getName());
             assertEquals(3, sample.getItems().size());
             assertTrue(sample.getItems().containsKey(iConfA.getName()));
             assertTrue(sample.getItems().containsKey(iConfB.getName()));
@@ -53,6 +55,7 @@ public class SampleTest {
             assertTrue(sample.item("Betaak").getVal() instanceof Long);
             assertTrue(sample.item("Stringak").getVal() instanceof String);
             assertNotEquals("random", sample.getId());
+            System.out.println("DEBUG sample " + sample.toJson());
         }
     }
 
@@ -82,6 +85,9 @@ Example from Scientio
         SampleConfig sampConf = new SampleConfig("AIR_QUAL", "CNTSample", "test/airqual", Arrays.asList(dataConf, messageTypeConf, datestampConf));
 
         Sample sample = GenericSample.of(sampConf);
+
+        assertEquals("CNTSample", sample.getName());
+        assertEquals(sampConf, sample.getConfig());
 
         String sampleAsJson = sample.toJson();
         System.out.println(sample);
@@ -131,14 +137,14 @@ Example from Scientio
     @Test
     public void getInexistantSampleConf(){
 
-        assertThrowsExactly(java.lang.RuntimeException.class,
+        assertThrowsExactly(VirDevConfigException.class,
                 () -> SampleConfigRegistry.get("abcdefghijklmnopqrstuvwxyz"),
                 "Sample Configuration named abcdefghijklmnopqrstuvwxyz not found");
 
     }
 
     @Test
-    public void copySampleTest(){
+    public void copySampleConfigTest(){
         ItemConfig itemConfA = new ItemNumConfig("size", "size", ItemType.Double, 1, 15, 2.0, NumGenerator.DEFAULT_DEV);
         ItemConfig itemConfB = new ItemNumConfig("incidents", "inc", ItemType.Long, 0l, 20l, 1.0, NumGenerator.DEFAULT_DEV);
         ItemConfig itemConfC = new ItemStringConfig("alert", "alert", ItemType.String, Arrays.asList("OK", "INFO", "WARN", "CRIT"));
@@ -197,6 +203,115 @@ Example from Scientio
         gs.update();
         assertNotEquals(originalVal, gs.item("size").asDouble());
         assertTrue(originalVal < gs.getTimestamp());
+
+    }
+
+    @Test
+    public void sampleWithSampleItems() throws JsonProcessingException {
+
+        ItemNumConfig ic01 = new ItemNumConfig("foo", "bar", ItemType.Double, 0.0, 100.0, 1.0, 0.17, 3);
+
+        ic01.setCount(2);
+
+        SampleConfig sc = new SampleConfig("random", "testing", "test/pokus", Arrays.asList(ic01));
+
+        GenericSample gs = GenericSample.of(sc);
+
+        assertEquals("testing", gs.getName());
+        assertEquals(sc, gs.getConfig());
+        assertEquals(2, gs.getItems().get("foo").size());
+        double val0 = gs.getItems().get("foo").get(0).asDouble();
+        double val1 = gs.getItems().get("foo").get(1).asDouble();
+        assertNotEquals(val0, val1);
+        double spread = ic01.getMax() - ic01.getMin();
+        for(Item it : gs.getItems().get("foo")){
+            assertTrue(it.asDouble() < ic01.getMax() + (spread * ic01.getDev()));
+            assertTrue(it.asDouble() > ic01.getMin() - (spread * ic01.getDev()));
+        }
+
+        gs.update();
+
+        // verify values updated
+        assertNotEquals(val0, gs.getItems().get("foo").get(0).asDouble());
+        assertNotEquals(val1, gs.getItems().get("foo").get(1).asDouble());
+
+        for(Item it : gs.getItems().get("foo")){
+            assertTrue(it.asDouble() < ic01.getMax() + (spread * ic01.getDev()));
+            assertTrue(it.asDouble() > ic01.getMin() - (spread * ic01.getDev()));
+        }
+
+        String payload = gs.toJson();
+        // verify flat (default) serialization
+        assertTrue(payload.contains("\"" + ic01.getLabel() + "00\" :"));
+        assertTrue(payload.contains("\"" + ic01.getLabel() + "01\" :"));
+
+    }
+
+    @Test
+    public void sampleWithZeroItemCount(){
+
+        ItemConfig ic01 = new ItemNumConfig("foo", "bar", ItemType.Double, 0.0, 100.0, 1.0, 0.17, 3);
+
+        ic01.setCount(0);
+
+        SampleConfig sc = new SampleConfig("random", "testing", "test/pokus", Arrays.asList(ic01));
+
+        VirtualDeviceRuntimeException exp = assertThrows(VirtualDeviceRuntimeException.class,
+          () -> { GenericSample gs = GenericSample.of(sc); });
+
+        assertEquals("Encountered ItemConfig foo with count less than 1. Count is 0.", exp.getMessage());
+
+    }
+
+    @Test
+    public void sampleWithItemArrays() throws JsonProcessingException {
+
+        ItemConfig ic01 = new ItemNumConfig("foo", "bar", ItemType.Double, 0.0, 100.0, 1.0, 0.17, 3);
+        ic01.setCount(3);
+        ic01.setArType(ItemArType.Array);
+        ItemConfig ic02 = new ItemNumConfig("goo", "car", ItemType.Double, 0.0, 100.0, 1.0, 0.17, 3);
+        ItemConfig icString = new ItemStringConfig("hoo", "dar", ItemType.String, Arrays.asList("cat", "dog", "mouse", "tweety", "rooster"));
+        icString.setCount(10);
+        icString.setArType(ItemArType.Object);
+        ItemConfig ic03 = new ItemNumConfig("loo", "lar", ItemType.Long, -1, 20, 1.0, 0.33);
+        ic03.setCount(5);
+        ic03.setArType(ItemArType.Flat);
+        SampleConfig sc = new SampleConfig("random", "testing", "test/pokus", Arrays.asList(ic01,ic02,icString, ic03));
+        sc.setArType(ItemArType.Object);
+        GenericSample gs = GenericSample.of(sc);
+
+        for(String key : gs.getItems().keySet()){
+            for(Item item : gs.getItems().get(key)){
+                System.out.println("DEBUG item " + item.getLabel() + ": " + item.getVal());
+            }
+        }
+
+        assertEquals(3, gs.getItems().get("foo").size());
+        assertEquals(ItemArType.Array, gs.getItems().get("foo").get(0).getArType());
+        assertEquals(1, gs.getItems().get("goo").size());
+        // Note: Item should use default type of Sample - which is Object
+        assertEquals(ItemArType.Object, gs.getItems().get("goo").get(0).getArType());
+        assertEquals(10, gs.getItems().get("hoo").size());
+        assertEquals(ItemArType.Object, gs.getItems().get("hoo").get(0).getArType());
+        assertEquals(5, gs.getItems().get("loo").size());
+        assertEquals(ItemArType.Flat, gs.getItems().get("loo").get(0).getArType());
+
+
+        String payload = gs.toJson();
+
+        // singleton
+        assertTrue(payload.contains("\"car\" :"));
+
+        // array type start
+        assertTrue(payload.contains("\"bar\" : ["));
+
+        // object type start
+        assertTrue(payload.contains("\"dar\" : {\n"));
+
+        // flat type
+        assertTrue(payload.contains("\"lar00\" :"));
+        assertTrue(payload.contains("\"lar02\" :"));
+        assertTrue(payload.contains("\"lar04\" :"));
 
     }
 }

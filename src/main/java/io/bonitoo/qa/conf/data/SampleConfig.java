@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,10 +25,10 @@ public class SampleConfig extends DataConfig {
 
   List<ItemConfig> items;
 
+  ItemArType arType = ItemArType.Undefined;
+
   // optional - if set plugin will be used to generated samples
   String plugin;
-  //String name;
-
 
   /**
    * Basic all arguments constructor.
@@ -130,6 +129,7 @@ public class SampleConfig extends DataConfig {
     this.name = sampleConfig.getName();
     this.topic = sampleConfig.getTopic();
     this.items = sampleConfig.getItems();
+    this.arType = sampleConfig.getArType();
   }
 
   /**

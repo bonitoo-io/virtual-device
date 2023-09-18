@@ -3,8 +3,6 @@ package io.bonitoo.qa.conf.data;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.bonitoo.qa.data.ItemType;
 import io.bonitoo.qa.data.generator.NumGenerator;
-import java.util.Arrays;
-import java.util.Vector;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -79,9 +77,9 @@ public class ItemNumConfig extends ItemConfig {
 
   @Override
   public String toString() {
-    return String.format("name=%s,label=%s,max=%.2f,min=%.2f,"
-        + "period=%.2f,dev=%.2f,type=%s,prec=%s\n",
-      name, label, max, min, period, dev, type, prec);
+    return String.format("%s,max: %.2f,min: %.2f,"
+        + "period: %.2f,dev: %.2f,type: %s,prec: %s\n",
+      super.toString(), max, min, period, dev, type, prec);
   }
 
   @Override

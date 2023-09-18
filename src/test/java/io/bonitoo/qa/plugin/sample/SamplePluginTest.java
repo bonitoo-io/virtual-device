@@ -106,7 +106,8 @@ public class SamplePluginTest {
     assertEquals("unset", fsp.value);
     assertEquals("ASDF-1234", fsp.getId());
     assertEquals("test/foo", fsp.getTopic());
-    assertEquals("FooTestPlugin", fsp.getName());
+    assertEquals("FooTestPlugin", fsp.getPropsName());
+    assertEquals(conf.getName(), fsp.getName());
     assertEquals(FooSamplePlugin.class.getName(), fsp.getMain());
     assertEquals("A test sample plugin", fsp.getDescription());
     assertEquals("PropertyVal", fsp.getProperties().get("some.val"));
@@ -197,6 +198,7 @@ public class SamplePluginTest {
     fsp
       .update()
       .update();
+
     assertTrue(
       fsp.toJson().matches("\\{\"id\":\"ASDF-1234\",\"timestamp\":[0-9]*,\"value\":\"PropertyVal\",\"count\":2\\}")
     );
@@ -221,7 +223,7 @@ public class SamplePluginTest {
   @Test
   public void propHelpers(){
     FooSamplePlugin fsp = new FooSamplePlugin(defaultProps, conf);
-    assertEquals(defaultProps.getName(), fsp.getName());
+    assertEquals(defaultProps.getName(), fsp.getPropsName());
     assertEquals(defaultProps.getMain(), fsp.getMain());
     assertEquals(defaultProps.getDescription(), fsp.getDescription());
     assertEquals(defaultProps.getProperties(), fsp.getProperties());

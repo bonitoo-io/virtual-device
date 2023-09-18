@@ -13,9 +13,10 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("unit")
 public class SampleConfigDeserializerTest {
@@ -146,7 +147,7 @@ public class SampleConfigDeserializerTest {
     }
 
     @Test
-    void nullIdSerializeTest() throws JsonProcessingException {
+    public void nullIdSerializeTest() throws JsonProcessingException {
         String badYaml = "---\n" +
            "name: \"foo\"";
 
@@ -155,6 +156,217 @@ public class SampleConfigDeserializerTest {
         assertThrowsExactly(VirDevConfigException.class,
           () -> om.readValue(badYaml, SampleConfig.class), "property \"id\" " +
             "for node {\"name\":\"foo\"} is null.  Cannot parse any further");
+    }
+
+
+
+    @Test
+    public void withItemArrayTest() throws JsonProcessingException {
+
+        ItemNumConfig inc = new ItemNumConfig("Foo", "bar", ItemType.Double, 0, 100, 1.0, 0.17);
+        ItemNumConfig rabbit = new ItemNumConfig("Rabbit", "mrkev", ItemType.Double, 1.0, 5.0, 1.0, 0.21);
+
+        String testSampleYaml = "---\n" +
+          "id: ffffffff\n" +
+          "name: sampleConf\n" +
+          "topic: test/sample\n" +
+          "items:\n" +
+          "  - Foo\n" +
+          "  - Foo\n" +
+          "  - Foo\n" +
+          "  - from: \"Rabbit\"\n" +
+          "    count: 5\n" +
+          "  - name: \"Krtek\"\n" +
+          "    label: \"ktk\"\n" +
+          "    type: \"Double\" \n" +
+          "    count: 3\n" +
+          "    max: 100.0\n" +
+          "    min: 0.0\n" +
+          "    period: 1.0\n" +
+          "    dev: 0.17\n" +
+          "  - name: \"Jezek\"\n" +
+          "    label: \"jzk\"\n" +
+          "    type: \"Double\" \n" +
+          "    max: 10.0\n" +
+          "    min: -10.0\n" +
+          "    period: 0.5\n" +
+          "    dev: 0.17";
+
+        ObjectMapper om = new ObjectMapper(new YAMLFactory());
+
+        SampleConfig sc = om.readValue(testSampleYaml, SampleConfig.class);
+
+        assertEquals(4, sc.getItems().size());
+
+        List<ItemConfig> fooItems = sc.getItems().stream().filter(ic -> ic.getName().equals("Foo")).collect(Collectors.toList());
+        assertEquals(1, fooItems.size());
+        assertEquals(3, fooItems.get(0).getCount());
+
+        List<ItemConfig> rabbitItems = sc.getItems().stream().filter(ic -> ic.getName().equals("Rabbit")).collect(Collectors.toList());
+        assertEquals(1, rabbitItems.size());
+        assertEquals(5, rabbitItems.get(0).getCount());
+
+        List<ItemConfig> krtekItems = sc.getItems().stream().filter(ic -> ic.getName().equals("Krtek")).collect(Collectors.toList());
+        assertEquals(1, krtekItems.size());
+        assertEquals(3, krtekItems.get(0).getCount());
+
+        List<ItemConfig> jezekItems = sc.getItems().stream().filter(ic -> ic.getName().equals("Jezek")).collect(Collectors.toList());
+        assertEquals(1, jezekItems.size());
+        assertEquals(1, jezekItems.get(0).getCount());
+
+    }
+
+    @Test
+    public void withArTypeFlatTest() throws JsonProcessingException {
+
+        String testSampleYamlFlat = "---\n" +
+          "id: ffffffff\n" +
+          "name: sampleConf\n" +
+          "topic: test/sample\n" +
+          "arType: \"Flat\"\n" +
+          "items:\n" +
+          "  - name: \"Krtek\"\n" +
+          "    label: \"ktk\"\n" +
+          "    type: \"Double\"\n" +
+          "    count: 3\n" +
+          "    max: 100.0\n" +
+          "    min: 0.0\n" +
+          "    period: 1.0\n" +
+          "    dev: 0.17";
+
+        ObjectMapper om = new ObjectMapper(new YAMLFactory());
+
+        SampleConfig scf = om.readValue(testSampleYamlFlat, SampleConfig.class);
+        assertEquals(ItemArType.Flat, scf.getArType());
+
+    }
+
+    @Test
+    public void withArTypeArrayTest() throws JsonProcessingException {
+
+        String testSampleYamlArray = "---\n" +
+          "id: ffffffff\n" +
+          "name: sampleConf\n" +
+          "topic: test/sample\n" +
+          "arType: \"Array\"\n" +
+          "items:\n" +
+          "  - name: \"Krtek\"\n" +
+          "    label: \"ktk\"\n" +
+          "    type: \"Double\"\n" +
+          "    count: 3\n" +
+          "    max: 100.0\n" +
+          "    min: 0.0\n" +
+          "    period: 1.0\n" +
+          "    dev: 0.17";
+
+        ObjectMapper om = new ObjectMapper(new YAMLFactory());
+
+        SampleConfig sca = om.readValue(testSampleYamlArray, SampleConfig.class);
+        assertEquals(ItemArType.Array, sca.getArType());
+
+    }
+
+    @Test
+    public void withArTypeObjectTest() throws JsonProcessingException {
+
+        String testSampleYamlArray = "---\n" +
+          "id: ffffffff\n" +
+          "name: sampleConf\n" +
+          "topic: test/sample\n" +
+          "arType: \"Object\"\n" +
+          "items:\n" +
+          "  - name: \"Krtek\"\n" +
+          "    label: \"ktk\"\n" +
+          "    type: \"Double\"\n" +
+          "    count: 3\n" +
+          "    max: 100.0\n" +
+          "    min: 0.0\n" +
+          "    period: 1.0\n" +
+          "    dev: 0.17";
+
+        ObjectMapper om = new ObjectMapper(new YAMLFactory());
+
+        SampleConfig sco = om.readValue(testSampleYamlArray, SampleConfig.class);
+        assertEquals(ItemArType.Object, sco.getArType());
+    }
+
+    @Test
+    public void withArTypeUndefinedTest() throws JsonProcessingException {
+
+        String testSampleYamlArray = "---\n" +
+          "id: ffffffff\n" +
+          "name: sampleConf\n" +
+          "topic: test/sample\n" +
+          "items:\n" +
+          "  - name: \"Krtek\"\n" +
+          "    label: \"ktk\"\n" +
+          "    type: \"Double\"\n" +
+          "    count: 3\n" +
+          "    max: 100.0\n" +
+          "    min: 0.0\n" +
+          "    period: 1.0\n" +
+          "    dev: 0.17";
+
+        ObjectMapper om = new ObjectMapper(new YAMLFactory());
+
+        SampleConfig scu = om.readValue(testSampleYamlArray, SampleConfig.class);
+        assertEquals(ItemArType.Undefined, scu.getArType());
+    }
+
+    @Test
+    public void withArTypeIllegalTest() throws JsonProcessingException {
+
+        String testSampleYamlArray = "---\n" +
+          "id: ffffffff\n" +
+          "name: sampleConf\n" +
+          "topic: test/sample\n" +
+          "arType: \"DreamOn\"\n" +
+          "items:\n" +
+          "  - name: \"Krtek\"\n" +
+          "    label: \"ktk\"\n" +
+          "    type: \"Double\"\n" +
+          "    count: 3\n" +
+          "    max: 100.0\n" +
+          "    min: 0.0\n" +
+          "    period: 1.0\n" +
+          "    dev: 0.17";
+
+        ObjectMapper om = new ObjectMapper(new YAMLFactory());
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            SampleConfig sci = om.readValue(testSampleYamlArray, SampleConfig.class);
+        });
+
+    }
+
+    @Test
+    public void usingFromSyntax() throws JsonProcessingException {
+
+        ItemNumConfig rabbit = new ItemNumConfig("Rabbit", "mrkev", ItemType.Double, 1.0, 5.0, 1.0, 0.21);
+        ItemNumConfig hare = new ItemNumConfig("Hare", "turnip", ItemType.Double, 1.0, 5.0, 1.0, 0.21);
+
+        String testSampleYaml = "---\n" +
+          "id: ffffffff\n" +
+          "name: sampleConf\n" +
+          "topic: test/sample\n" +
+          "arType: \"Flat\"\n" +
+          "items:\n" +
+          "  - from: \"Rabbit\"\n" +
+          "  - from: \"Hare\"\n" +
+          "    count: 5";
+
+
+        ObjectMapper om = new ObjectMapper(new YAMLFactory());
+
+        SampleConfig scr = om.readValue(testSampleYaml, SampleConfig.class);
+
+        assertEquals(2, scr.getItems().size());
+
+        assertEquals("Rabbit", scr.getItems().get(0).getName());
+        assertEquals(1, scr.getItems().get(0).getCount());
+
+        assertEquals("Hare", scr.getItems().get(1).getName());
+        assertEquals(5, scr.getItems().get(1).getCount());
     }
 
 }

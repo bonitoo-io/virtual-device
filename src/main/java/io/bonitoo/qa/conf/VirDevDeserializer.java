@@ -3,8 +3,6 @@ package io.bonitoo.qa.conf;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.ValueNode;
 
 /**
  * Base class for deserializers.
@@ -40,4 +38,25 @@ public abstract class VirDevDeserializer<T> extends StdDeserializer<T> {
     }
     return subNode;
   }
+
+  protected static JsonNode getDefaultIntNode(JsonNode node,
+                                                 String subName,
+                                                 int defVal) {
+    JsonNode subNode = node.get(subName);
+    if (subNode == null) {
+      return JsonNodeFactory.instance.numberNode(defVal);
+    }
+    return subNode;
+  }
+
+  protected static JsonNode getDefaultStringNode(JsonNode node,
+                                              String subName,
+                                              String defVal) {
+    JsonNode subNode = node.get(subName);
+    if (subNode == null) {
+      return JsonNodeFactory.instance.textNode(defVal);
+    }
+    return subNode;
+  }
+
 }

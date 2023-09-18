@@ -3,9 +3,15 @@ package io.bonitoo.qa.data;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.bonitoo.qa.VirtualDeviceRuntimeException;
+import io.bonitoo.qa.conf.data.ItemConfig;
+import io.bonitoo.qa.conf.data.ItemPluginConfig;
 import io.bonitoo.qa.conf.data.SampleConfig;
+import io.bonitoo.qa.plugin.PluginConfigException;
+import io.bonitoo.qa.plugin.item.ItemPluginMill;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,22 +40,46 @@ public abstract class Sample {
 
   public long timestamp;
 
-  @JsonIgnore // use only flattened values
-  @JsonAnyGetter // flatten values
-  public Map<String, Item> items;
+  @JsonIgnore
+  private SampleConfig config;
+
+  @JsonIgnore
+  @JsonAnyGetter
+  public Map<String, List<Item>> items;
 
   public abstract Sample update();
 
+  /**
+   * Helper factory method.
+   */
   public static Sample of(Function<SampleConfig, Sample> init, SampleConfig config) {
-    return init.apply(config);
+    Sample s = init.apply(config);
+    s.setConfig(config);
+    return s;
   }
 
   public Item item(String name) {
-    return items.get(name);
+    return items.get(name).get(0);
   }
 
   public Object itemVal(String name) {
-    return items.get(name).getVal();
+    return items.get(name).get(0).getVal();
+  }
+
+  protected static Item getItemFromConfig(ItemConfig ic) {
+    if (ic instanceof ItemPluginConfig) {
+      try {
+        return ItemPluginMill.genNewInstance(
+          ((ItemPluginConfig) ic).getPluginName(),
+          (ItemPluginConfig) ic).getItem();
+      } catch (PluginConfigException | NoSuchMethodException | InvocationTargetException
+               | InstantiationException | IllegalAccessException e) {
+        throw new VirtualDeviceRuntimeException(
+          String.format("Failed to generate item plugin %s for config %s",
+            ((ItemPluginConfig) ic).getPluginName(), ic.getName()), e);
+      }
+    }
+    return Item.of(ic);
   }
 
   @Override
@@ -59,12 +89,12 @@ public abstract class Sample {
         String.format("id=%s,timestamp=%d,items=[", id, timestamp)
     );
     for (String key : items.keySet()) {
-      if (items.get(key).getVal() instanceof Double) {
-        result.append(String.format("name:%s,val:%.2f,", key, items.get(key).asDouble()));
-      } else if (items.get(key).getVal() instanceof String) {
+      if (items.get(key).get(0).getVal() instanceof Double) {
+        result.append(String.format("name:%s,val:%.2f,", key, items.get(key).get(0).asDouble()));
+      } else if (items.get(key).get(0).getVal() instanceof String) {
         result.append(String.format("name:%s,val:%s,", key, items.get(key)));
       } else {
-        result.append(String.format("name:%s,val:%d,", key, items.get(key).asLong()));
+        result.append(String.format("name:%s,val:%d,", key, items.get(key).get(0).asLong()));
       }
     }
     return result.append("]\n").toString();
@@ -90,17 +120,20 @@ public abstract class Sample {
     }
   }
 
+  public SampleConfig getConfig() {
+    return this.config;
+  }
+
+  @JsonIgnore
+  public String getName() {
+    return this.config.getName();
+  }
+
   /**
    * Serializes the Sample instance to a JSON string.
    *
    * @return - a JSON string.
    * @throws JsonProcessingException - thrown when object cannot be serialized.
    */
-  /*  public String toJson() throws JsonProcessingException {
-    checkNameClash();
-    // todo add pretty print option.
-    ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
-    return objectWriter.writeValueAsString(this);
-  } */
   public abstract String toJson() throws JsonProcessingException;
 }
