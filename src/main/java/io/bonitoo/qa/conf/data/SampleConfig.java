@@ -130,6 +130,7 @@ public class SampleConfig extends DataConfig {
     this.name = sampleConfig.getName();
     this.topic = sampleConfig.getTopic();
     this.items = sampleConfig.getItems();
+    this.arType = sampleConfig.getArType();
   }
 
   /**

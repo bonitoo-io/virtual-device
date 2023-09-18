@@ -42,7 +42,7 @@ public class BrokerConfigTest {
         AuthConfig conf = om.readValue(authConfigYaml, AuthConfig.class);
 
         assertEquals("musashi", conf.getUsername());
-        assertTrue(Arrays.equals("changeit".toCharArray(), conf.getPassword()));
+        assertArrayEquals("changeit".toCharArray(), conf.getPassword());
 
     }
 
