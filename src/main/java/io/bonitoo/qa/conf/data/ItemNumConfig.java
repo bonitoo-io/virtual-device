@@ -3,8 +3,6 @@ package io.bonitoo.qa.conf.data;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.bonitoo.qa.data.ItemType;
 import io.bonitoo.qa.data.generator.NumGenerator;
-import java.util.Arrays;
-import java.util.Vector;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

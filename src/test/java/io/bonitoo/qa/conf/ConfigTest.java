@@ -4,7 +4,6 @@ import io.bonitoo.qa.conf.Config;
 import io.bonitoo.qa.conf.data.ItemConfigRegistry;
 import io.bonitoo.qa.conf.data.SampleConfigRegistry;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 

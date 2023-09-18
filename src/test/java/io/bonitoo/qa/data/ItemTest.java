@@ -10,7 +10,6 @@ import io.bonitoo.qa.plugin.*;
 import io.bonitoo.qa.plugin.eg.CounterItemPlugin;
 import io.bonitoo.qa.plugin.eg.PiItemGenPlugin;
 import io.bonitoo.qa.plugin.item.ItemPluginMill;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 

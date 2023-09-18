@@ -10,7 +10,6 @@ import com.hivemq.client.util.KeyStoreUtil;
 import io.bonitoo.qa.conf.mqtt.broker.BrokerConfig;
 import io.bonitoo.qa.util.LogHelper;
 import java.io.File;
-import java.util.Arrays;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.TrustManagerFactory;
 import lombok.AllArgsConstructor;

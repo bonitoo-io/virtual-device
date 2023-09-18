@@ -38,7 +38,7 @@ public class Config {
     try (
         InputStream is = loader.getResourceAsStream(configFile) == null
             ? Files.newInputStream(new File(configFile).toPath()) :
-            loader.getResourceAsStream(configFile); ) {
+            loader.getResourceAsStream(configFile)) {
       props.load(is);
     } catch (IOException e) {
       logger.error(LogHelper.buildMsg("config", "Load failure",

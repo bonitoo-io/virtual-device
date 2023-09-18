@@ -3,9 +3,8 @@ package io.bonitoo.qa.conf.data;
 import io.bonitoo.qa.data.ItemType;
 import io.bonitoo.qa.data.generator.SimpleStringGenerator;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Vector;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

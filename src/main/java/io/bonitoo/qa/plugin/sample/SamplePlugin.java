@@ -86,7 +86,6 @@ public abstract class SamplePlugin extends Sample implements Plugin {
     this.id = config.getId();
     this.topic = config.getTopic();
     this.items = new HashMap<>();
-    // TODO better support for arrays of items
     for (ItemConfig itemConfig : config.getItems()) {
       this.items.put(itemConfig.getName(), new ArrayList<>());
       this.items.get(itemConfig.getName()).add(Item.of(itemConfig));

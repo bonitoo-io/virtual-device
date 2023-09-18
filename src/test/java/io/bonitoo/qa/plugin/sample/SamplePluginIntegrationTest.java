@@ -8,7 +8,6 @@ import io.bonitoo.qa.conf.Config;
 import io.bonitoo.qa.conf.data.ItemNumConfig;
 import io.bonitoo.qa.conf.device.DeviceConfig;
 import io.bonitoo.qa.data.ItemType;
-import io.bonitoo.qa.data.generator.NumGenerator;
 import io.bonitoo.qa.device.GenericDevice;
 import io.bonitoo.qa.mqtt.client.MqttClientBlocking;
 import io.bonitoo.qa.plugin.*;
@@ -32,14 +31,12 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 import java.util.jar.JarOutputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 @Tag("intg")

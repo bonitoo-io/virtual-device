@@ -1,6 +1,5 @@
 package io.bonitoo.qa.plugin.eg;
 
-import io.bonitoo.qa.conf.data.ItemConfig;
 import io.bonitoo.qa.plugin.item.ItemGenPlugin;
 import io.bonitoo.qa.plugin.PluginProperties;
 

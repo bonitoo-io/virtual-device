@@ -1,12 +1,10 @@
 package io.bonitoo.qa.data.generator;
 
-import io.bonitoo.qa.VirtualDeviceRuntimeException;
 import io.bonitoo.qa.conf.VirDevConfigException;
 import io.bonitoo.qa.conf.data.DataConfig;
 import io.bonitoo.qa.data.Item;
 import io.bonitoo.qa.plugin.item.ItemPluginMill;
 import java.lang.invoke.MethodHandles;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import lombok.Getter;
 import lombok.Setter;

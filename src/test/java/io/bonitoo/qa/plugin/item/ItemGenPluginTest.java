@@ -8,9 +8,7 @@ import io.bonitoo.qa.conf.data.ItemConfig;
 import io.bonitoo.qa.conf.data.ItemConfigRegistry;
 import io.bonitoo.qa.conf.data.ItemPluginConfig;
 import io.bonitoo.qa.conf.data.SampleConfig;
-import io.bonitoo.qa.data.GenericSample;
 import io.bonitoo.qa.data.Item;
-import io.bonitoo.qa.data.ItemType;
 import io.bonitoo.qa.plugin.*;
 import io.bonitoo.qa.plugin.eg.*;
 import io.bonitoo.qa.plugin.item.ItemPluginMill;
@@ -25,7 +23,6 @@ import java.io.StringReader;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
-import java.util.Vector;
 import java.util.jar.JarOutputStream;
 
 import static org.junit.jupiter.api.Assertions.*;

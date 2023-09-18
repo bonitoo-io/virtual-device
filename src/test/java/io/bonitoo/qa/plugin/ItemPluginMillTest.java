@@ -5,7 +5,6 @@ import io.bonitoo.qa.plugin.item.ItemPluginMill;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
 @Tag("unit")

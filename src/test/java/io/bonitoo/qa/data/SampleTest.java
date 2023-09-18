@@ -15,7 +15,6 @@ import io.bonitoo.qa.plugin.item.ItemPluginMill;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Field;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -23,7 +22,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -56,6 +54,7 @@ public class SampleTest {
             assertTrue(sample.item("Betaak").getVal() instanceof Long);
             assertTrue(sample.item("Stringak").getVal() instanceof String);
             assertNotEquals("random", sample.getId());
+            System.out.println("DEBUG sample " + sample.toJson());
         }
     }
 

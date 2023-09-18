@@ -6,12 +6,9 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.bonitoo.qa.VirtualDeviceRuntimeException;
 import io.bonitoo.qa.conf.data.ItemArType;
 import io.bonitoo.qa.conf.data.ItemConfig;
-import io.bonitoo.qa.conf.data.ItemPluginConfig;
 import io.bonitoo.qa.conf.data.SampleConfig;
 import io.bonitoo.qa.data.serializer.GenericSampleSerializer;
-import io.bonitoo.qa.plugin.PluginConfigException;
-import io.bonitoo.qa.plugin.item.ItemPluginMill;
-import java.lang.reflect.InvocationTargetException;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
