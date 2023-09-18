@@ -51,6 +51,7 @@ public abstract class SamplePlugin extends Sample implements Plugin {
     SamplePlugin sp = init.apply(config);
     sp.props = props;
     sp.applyProps(props);
+    sp.setConfig(config);
     return sp;
   }
 
@@ -68,6 +69,7 @@ public abstract class SamplePlugin extends Sample implements Plugin {
       sp.onLoad();
       sp.props = props;
       sp.applyProps(props);
+      sp.setConfig(config);
       return sp;
     } catch (IllegalAccessException | InvocationTargetException e) {
       throw new RuntimeException(e);
@@ -110,6 +112,8 @@ public abstract class SamplePlugin extends Sample implements Plugin {
 
     }
     this.timestamp = System.currentTimeMillis();
+    this.setConfig(config);
+    System.out.println("DEBUG this.config " + this.getConfig());
   }
 
 
@@ -135,8 +139,11 @@ public abstract class SamplePlugin extends Sample implements Plugin {
   @Override
   public abstract String toJson() throws JsonProcessingException;
 
+  /*
+  * N.B.
+  * */
   @JsonIgnore
-  public String getName() {
+  public String getPropsName() {
     return this.props.getName();
   }
 

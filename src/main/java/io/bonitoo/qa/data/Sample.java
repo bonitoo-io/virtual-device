@@ -41,13 +41,18 @@ public abstract class Sample {
   public long timestamp;
 
   @JsonIgnore
+  private SampleConfig config;
+
+  @JsonIgnore
   @JsonAnyGetter
   public Map<String, List<Item>> items;
 
   public abstract Sample update();
 
   public static Sample of(Function<SampleConfig, Sample> init, SampleConfig config) {
-    return init.apply(config);
+    Sample s = init.apply(config);
+    s.setConfig(config);
+    return s;
   }
 
   public Item item(String name) {
@@ -110,6 +115,15 @@ public abstract class Sample {
             key));
       items.remove(key);
     }
+  }
+
+  public SampleConfig getConfig() {
+    return this.config;
+  }
+
+  @JsonIgnore
+  public String getName() {
+    return this.config.getName();
   }
 
   /**

@@ -8,7 +8,6 @@ import io.bonitoo.qa.conf.data.ItemArType;
 import io.bonitoo.qa.conf.data.ItemConfig;
 import io.bonitoo.qa.conf.data.SampleConfig;
 import io.bonitoo.qa.data.serializer.GenericSampleSerializer;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -29,6 +28,7 @@ public class GenericSample extends Sample {
     gs.id = conf.getId();
     gs.topic = conf.getTopic();
     gs.items = new HashMap<>();
+    gs.setConfig(conf);
 
     for (ItemConfig ic : conf.getItems()) {
       if (ic.getCount() < 1) {

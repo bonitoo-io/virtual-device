@@ -46,6 +46,7 @@ public class SampleTest {
         }
 
         for(GenericSample sample : samples){
+            assertEquals("fooSample", sample.getName());
             assertEquals(3, sample.getItems().size());
             assertTrue(sample.getItems().containsKey(iConfA.getName()));
             assertTrue(sample.getItems().containsKey(iConfB.getName()));
@@ -84,6 +85,9 @@ Example from Scientio
         SampleConfig sampConf = new SampleConfig("AIR_QUAL", "CNTSample", "test/airqual", Arrays.asList(dataConf, messageTypeConf, datestampConf));
 
         Sample sample = GenericSample.of(sampConf);
+
+        assertEquals("CNTSample", sample.getName());
+        assertEquals(sampConf, sample.getConfig());
 
         String sampleAsJson = sample.toJson();
         System.out.println(sample);
@@ -140,7 +144,7 @@ Example from Scientio
     }
 
     @Test
-    public void copySampleTest(){
+    public void copySampleConfigTest(){
         ItemConfig itemConfA = new ItemNumConfig("size", "size", ItemType.Double, 1, 15, 2.0, NumGenerator.DEFAULT_DEV);
         ItemConfig itemConfB = new ItemNumConfig("incidents", "inc", ItemType.Long, 0l, 20l, 1.0, NumGenerator.DEFAULT_DEV);
         ItemConfig itemConfC = new ItemStringConfig("alert", "alert", ItemType.String, Arrays.asList("OK", "INFO", "WARN", "CRIT"));
@@ -213,6 +217,8 @@ Example from Scientio
 
         GenericSample gs = GenericSample.of(sc);
 
+        assertEquals("testing", gs.getName());
+        assertEquals(sc, gs.getConfig());
         assertEquals(2, gs.getItems().get("foo").size());
         double val0 = gs.getItems().get("foo").get(0).asDouble();
         double val1 = gs.getItems().get("foo").get(1).asDouble();
