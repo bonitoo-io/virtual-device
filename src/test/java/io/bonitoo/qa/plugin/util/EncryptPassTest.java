@@ -51,12 +51,15 @@ public class EncryptPassTest {
   // to be used in dev environment ONLY
   /* @Test
   public void decrypt() {
-    final String hashedPass = "ENCqTJZQarWDANjbiKQRH1R5/Dw3jNtSIYq12fIt67sIPEAAAAQmi6eCz/B3DynfmBHkC30s9n9/ynDhlcNo2yDA7ma90k=";
+    // final String hashedPass = "ENCqTJZQarWDANjbiKQRH1R5/Dw3jNtSIYq12fIt67sIPEAAAAQmi6eCz/B3DynfmBHkC30s9n9/ynDhlcNo2yDA7ma90k=";
+    //final String hashedPass = "ENCptzZ5lFJiPgiAXLmsUKxQkBBrlNkWvjvoywMQ7LoIgYAAAAQQSj+DV5KHKg00w77iNHR2PX+8RzXBsWV6khadgnEB40=";
 
-    char[] pass = io.bonitoo.qa.util.EncryptPass.decryptTrustPass(TLSConfig.class.getPackage().getName(),
-        hashedPass);
+    //char[] pass = io.bonitoo.qa.util.EncryptPass.decryptTrustPass(TLSConfig.class.getPackage().getName(),
+    //    hashedPass);
+    // Following was to verify tokens from virtual-device-influx project
+   // char[] pass = EncryptPass.decryptPass("io.bonitoo.virtual.device.influx.conf.Config".toCharArray(), hashedPass);
     System.out.println("result:\n" + new String(pass));
 
-  } */
+  }*/
 
 }

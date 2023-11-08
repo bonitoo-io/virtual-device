@@ -2,16 +2,21 @@ package io.bonitoo.qa;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.bonitoo.qa.conf.Config;
+import io.bonitoo.qa.conf.Mode;
 import io.bonitoo.qa.conf.VirDevConfigException;
 import io.bonitoo.qa.conf.data.ItemConfigRegistry;
 import io.bonitoo.qa.conf.device.DeviceConfig;
 import io.bonitoo.qa.conf.mqtt.broker.BrokerConfig;
 import io.bonitoo.qa.device.Device;
 import io.bonitoo.qa.device.GenericDevice;
-import io.bonitoo.qa.mqtt.client.MqttClientBlocking;
+import io.bonitoo.qa.mqtt.client.VirDevMqttClientBuilder;
 import io.bonitoo.qa.plugin.Plugin;
 import io.bonitoo.qa.plugin.PluginConfigException;
 import io.bonitoo.qa.plugin.PluginLoader;
+import io.bonitoo.qa.util.LogHelper;
+import io.bonitoo.qa.util.VirDevWorkInProgressException;
+import io.reactivex.Flowable;
+import io.reactivex.disposables.Disposable;
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
@@ -20,6 +25,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,22 +51,42 @@ public class DeviceRunner {
 
     BrokerConfig broker = Config.getBrokerConf();
 
+    VirDevMqttClientBuilder builder = new VirDevMqttClientBuilder(broker);
+
     for (DeviceConfig devConf : devConfigs) {
       for (int i = 0; i < devConf.getCount(); i++) {
         if (devConf.getCount() > 1) {
           DeviceConfig copyDevConfig = new DeviceConfig(devConf, (i + 1));
-          devices.add(GenericDevice.numberedDevice(MqttClientBlocking.client(broker,
-              copyDevConfig.getId()),
+          devices.add(GenericDevice.numberedDevice(builder
+              .id(copyDevConfig.getId())
+              .genClientFromMode(Config.getRunnerConfig().getMode()),
               copyDevConfig, (i + 1)));
         } else {
-          devices.add(GenericDevice.singleDevice(MqttClientBlocking.client(broker,
-              devConf.getId()),
+          devices.add(GenericDevice.singleDevice(builder
+              .id(devConf.getId())
+              .genClientFromMode(Config.getRunnerConfig().getMode()),
               devConf));
         }
       }
     }
 
     logger.debug("ItemConfigRegistry keys " + ItemConfigRegistry.keys());
+
+    logger.info(LogHelper.buildMsg(
+        Thread.currentThread().getName(),
+        "Runner Setup - Core",
+        "Executing runner in mode " + Config.getRunnerConfig().getMode()));
+
+    if (Config.getRunnerConfig().getMode() == Mode.ASYNC) {
+      asyncMain(devices);
+    } else if (Config.getRunnerConfig().getMode() == Mode.REACTIVE) {
+      reactiveMain(devices);
+    } else {
+      blockingMain(devices);
+    }
+  }
+
+  public static void blockingMain(List<Device> devices) {
 
     ExecutorService service = Executors.newFixedThreadPool(devices.size());
 
@@ -73,7 +99,33 @@ public class DeviceRunner {
     }
 
     service.shutdown();
+  }
 
+
+
+  public static void reactiveMain(List<Device> devices) {
+
+    // System.out.println("Starting device " + d.getId());
+    Disposable dis = Flowable.fromIterable(devices)
+        .doOnNext(Thread::start)
+        .doOnError(e -> {
+          logger.error(e.getMessage());
+        })
+        .doOnComplete(() -> {
+          logger.info("Devices complete");
+        })
+        .doOnCancel(() -> {
+          logger.info("reactiveMain Cancelled");
+        }).subscribe();
+
+    while (!dis.isDisposed()) {
+      System.out.println("Waiting for devices...");
+      LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(5000));
+    }
+  }
+
+  public static void asyncMain(List<Device> devices) {
+    throw new VirDevWorkInProgressException("asyncMain to be implemented");
   }
 
   /**

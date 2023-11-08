@@ -1,13 +1,17 @@
 package io.bonitoo.qa.mqtt.client;
 
+import com.hivemq.client.internal.mqtt.message.connect.connack.MqttConnAck;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import com.hivemq.client.mqtt.mqtt5.message.connect.connack.Mqtt5ConnAck;
 import com.hivemq.client.mqtt.mqtt5.message.disconnect.Mqtt5Disconnect;
 import com.hivemq.client.mqtt.mqtt5.message.disconnect.Mqtt5DisconnectReasonCode;
+import io.bonitoo.qa.VirtualDeviceRuntimeException;
 import io.bonitoo.qa.conf.mqtt.broker.BrokerConfig;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.LockSupport;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,7 +33,7 @@ public class MqttClientAsync extends AbstractMqttClient {
 
   Mqtt5AsyncClient client;
 
-  private MqttClientAsync() {
+  protected MqttClientAsync() {
     super();
   }
 
@@ -58,7 +62,16 @@ public class MqttClientAsync extends AbstractMqttClient {
   @Override
   public MqttClient connect() throws InterruptedException {
     // todo implement - see MqttClientBlocking
-    return null;
+    try {
+      Mqtt5ConnAck ack = this.client.connect().get(5000, TimeUnit.MILLISECONDS);
+
+      System.out.println("DEBUG ack " + ack);
+
+    } catch (ExecutionException | TimeoutException e) {
+      throw new VirtualDeviceRuntimeException("failed to connect to broker in 5 seconds", e);
+    }
+
+    return this;
   }
 
   @Override

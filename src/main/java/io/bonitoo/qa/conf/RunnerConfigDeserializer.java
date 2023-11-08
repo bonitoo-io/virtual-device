@@ -19,6 +19,28 @@ import java.util.List;
 
 public class RunnerConfigDeserializer extends VirDevDeserializer<RunnerConfig> {
 
+  protected static Mode parseMode(String modeNode) {
+
+    String cleanMode = modeNode.replace("\"", "");
+
+    switch (cleanMode.toUpperCase()) {
+      case "BLOCKING":
+      case "BLOCK":
+        return Mode.BLOCKING;
+      case "REACTIVE":
+      case "REACTIVEX":
+      case "RX":
+        return Mode.REACTIVE;
+      case "ASYNC":
+      case "ASYNCHRONOUS":
+        return Mode.ASYNC;
+      default:
+        throw new VirDevConfigException(
+          String.format("Unknown Mode type " + modeNode)
+        );
+    }
+  }
+
   public RunnerConfigDeserializer() {
     this(null);
   }
@@ -44,6 +66,8 @@ public class RunnerConfigDeserializer extends VirDevDeserializer<RunnerConfig> {
     JsonNode itemsNode = node.get("items"); // can be null
     JsonNode samplesNode = node.get("samples"); // can be null
     JsonNode devicesNode = node.get("devices");
+    // TODO node for mode - reactivex or blocking - default blocking
+    JsonNode modeNode = node.get("mode"); // can be null
 
     if (ttlNode == null
         && brokerNode == null
@@ -63,6 +87,8 @@ public class RunnerConfigDeserializer extends VirDevDeserializer<RunnerConfig> {
         ? new BrokerConfig(Config.getProp("default.broker.host"),
         Integer.parseInt(Config.getProp("default.broker.port")), null) :
         ctx.readValue(brokerNode.traverse(jsonParser.getCodec()), BrokerConfig.class);
+
+    final Mode mode = modeNode == null ? Mode.BLOCKING : parseMode(modeNode.toString());
 
     if (itemsNode != null) {
       for (JsonNode itemNode : itemsNode) {
@@ -95,6 +121,6 @@ public class RunnerConfigDeserializer extends VirDevDeserializer<RunnerConfig> {
       }
     }
 
-    return new RunnerConfig(broker, devices, ttl);
+    return new RunnerConfig(broker, devices, ttl, mode);
   }
 }

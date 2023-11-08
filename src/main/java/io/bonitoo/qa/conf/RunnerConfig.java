@@ -26,6 +26,9 @@ public class RunnerConfig {
   List<DeviceConfig> devices;
   Long ttl;
 
+  // TODO add here rxOrBlocking config option.
+  Mode mode = Mode.BLOCKING;
+
   @Override
   public String toString() {
     StringBuilder result = new StringBuilder(String.format("ttl:%d\nBroker: %s\n", ttl, broker));

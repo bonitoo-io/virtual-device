@@ -32,7 +32,7 @@ public class MqttClientBlocking extends AbstractMqttClient {
 
   Mqtt5BlockingClient client;
 
-  private MqttClientBlocking() {
+  protected MqttClientBlocking() {
     super();
   }
 
@@ -72,6 +72,11 @@ public class MqttClientBlocking extends AbstractMqttClient {
     mcb.client = clientBuilder.buildBlocking();
 
     return mcb;
+  }
+
+  // TODO review if this is needed
+  protected MqttClientBlocking(VirDevMqttClientBuilder builder){
+
   }
 
   @Override
