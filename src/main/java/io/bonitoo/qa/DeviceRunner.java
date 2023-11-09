@@ -86,7 +86,7 @@ public class DeviceRunner {
     }
   }
 
-  public static void blockingMain(List<Device> devices) {
+  protected static void blockingMain(List<Device> devices) {
 
     ExecutorService service = Executors.newFixedThreadPool(devices.size());
 
@@ -101,9 +101,7 @@ public class DeviceRunner {
     service.shutdown();
   }
 
-
-
-  public static void reactiveMain(List<Device> devices) {
+  protected static void reactiveMain(List<Device> devices) {
 
     // System.out.println("Starting device " + d.getId());
     Disposable dis = Flowable.fromIterable(devices)

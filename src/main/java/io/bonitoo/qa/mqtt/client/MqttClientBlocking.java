@@ -74,11 +74,6 @@ public class MqttClientBlocking extends AbstractMqttClient {
     return mcb;
   }
 
-  // TODO review if this is needed
-  protected MqttClientBlocking(VirDevMqttClientBuilder builder){
-
-  }
-
   @Override
   public MqttClient connect() throws InterruptedException {
     if (broker.getAuth() == null || broker.getAuth().getUsername() == null) {

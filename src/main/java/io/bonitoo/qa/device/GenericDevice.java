@@ -17,22 +17,24 @@ import io.bonitoo.qa.plugin.PluginConfigException;
 import io.bonitoo.qa.plugin.sample.SamplePluginConfig;
 import io.bonitoo.qa.plugin.sample.SamplePluginMill;
 import io.bonitoo.qa.util.LogHelper;
-import java.lang.reflect.InvocationTargetException;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.LockSupport;
-
 import io.bonitoo.qa.util.VirDevWorkInProgressException;
 import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.BooleanSupplier;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
+import java.lang.reflect.InvocationTargetException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 
 /**
  * A Generic device configurable with a DeviceConfig.
@@ -84,8 +86,7 @@ public class GenericDevice extends Device {
     return new GenericDevice(client, config, number);
   }
 
-
-  public void blockingRun(long ttl) throws InterruptedException {
+  private void blockingRun(long ttl) throws InterruptedException {
 
     if (! (this.client instanceof MqttClientBlocking)) {
       throw new VirtualDeviceRuntimeException(
@@ -126,7 +127,7 @@ public class GenericDevice extends Device {
     }
   }
 
-  public void reactiveRun(long ttl) {
+  private void reactiveRun(long ttl) {
 
     if (! (this.client instanceof MqttClientRx)) {
       throw new VirtualDeviceRuntimeException(
@@ -144,17 +145,18 @@ public class GenericDevice extends Device {
       throw new RuntimeException(e);
     }
 
-    // todo set delay based on config
     Flowable<Mqtt5Publish> messageFlow = Flowable.fromIterable(sampleList)
         .concatMap(sample -> {
-//        sample.update();
-          Flowable<Sample> fs = Flowable.just(sample).delay(1000, TimeUnit.MILLISECONDS, Schedulers.io());
-//        System.out.println("DEBUG sample on thread " + Thread.currentThread().getName() + ":\n" + sample.toJson());
-          return fs;
+          return Flowable
+            .just(sample)
+            .delay(this.getConfig().getInterval(),
+              TimeUnit.MILLISECONDS,
+              Schedulers.io());
         })
         .doOnNext(sample -> {
           sample.update();
-          logger.debug("sample on thread " + Thread.currentThread().getName() + ":\n" + sample.toJson());
+          logger.debug("sample on thread "
+              + Thread.currentThread().getName() + ":\n" + sample.toJson());
         })
         .doOnError(System.err::println)
         .doOnComplete(() -> {
@@ -178,14 +180,17 @@ public class GenericDevice extends Device {
         });
 
     Disposable disposable = ((MqttClientRx) client).getClient().publish(messageFlow)
-        .doOnNext(pubRes -> logger.debug(pubRes.toString()))
+        // todo - create method to return richer result currently "payload=Nbyte"
+        .doOnNext(pubRes -> logger.info("published: " + pubRes.getPublish()))
         .doOnError(System.err::println)
-        .doOnComplete(() -> logger.debug(Thread.currentThread().getName() + " publishing samples complete"))
-        .subscribe();
+        .doOnComplete(() -> logger.debug(Thread.currentThread().getName()
+          + " publishing samples complete"))
+        .subscribe(pr -> logger.debug(pr.toString()),
+          er -> logger.error(er.toString()));
 
     while (!disposable.isDisposed()) {
-      System.out.println("Waiting for samples...");
-      LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(3000));
+      logger.debug("Waiting for samples...");
+      LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(this.getConfig().getInterval()));
     }
 
     try {
@@ -205,7 +210,7 @@ public class GenericDevice extends Device {
 
     long ttl = System.currentTimeMillis() + Config.ttl();
 
-    if (Config.getRunnerConfig().getMode() == Mode.REACTIVE ) {
+    if (Config.getRunnerConfig().getMode() == Mode.REACTIVE) {
       reactiveRun(ttl);
     } else if (Config.getRunnerConfig().getMode() == Mode.ASYNC) {
       asyncRun(ttl);
@@ -216,38 +221,6 @@ public class GenericDevice extends Device {
         throw new RuntimeException(e);
       }
     }
-
-    /* try {
-      if (config.getJitter() > 0) {
-        LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(config.getJitter() * number));
-      }
-      logger.info(LogHelper.buildMsg(config.getId(), "Device Connection", ""));
-      client.connect();
-    } catch (InterruptedException e) {
-      throw new RuntimeException(e);
-    }
-
-    try {
-      while (System.currentTimeMillis() < ttl) {
-        logger.debug(LogHelper.buildMsg(config.getId(),
-            "Wait to publish",
-            Long.toString((ttl - System.currentTimeMillis()))));
-        LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(config.getJitter()));
-        for (Sample sample : sampleList) {
-          String jsonSample = sample.update().toJson();
-          logger.info(LogHelper.buildMsg(sample.getId(), "Publishing", jsonSample));
-          client.publish(sample.getTopic(), jsonSample);
-        }
-        LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(config.getInterval()));
-      }
-      logger.debug(LogHelper.buildMsg(config.getId(),
-          "Published",
-          Long.toString((ttl - System.currentTimeMillis()))));
-    } catch (JsonProcessingException | InterruptedException e) {
-      throw new RuntimeException(e);
-    } finally {
-      client.disconnect();
-    } */
 
   }
 }

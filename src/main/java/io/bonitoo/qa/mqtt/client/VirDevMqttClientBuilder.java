@@ -10,15 +10,17 @@ import io.bonitoo.qa.conf.Mode;
 import io.bonitoo.qa.conf.mqtt.broker.AuthConfig;
 import io.bonitoo.qa.conf.mqtt.broker.BrokerConfig;
 import io.bonitoo.qa.conf.mqtt.broker.TlsConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.net.ssl.SSLException;
-import javax.net.ssl.TrustManagerFactory;
 import java.io.File;
 import java.lang.invoke.MethodHandles;
 import java.util.UUID;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.TrustManagerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * A builder for generating the various possible MqttClients.
+ */
 public class VirDevMqttClientBuilder {
 
   static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -30,6 +32,11 @@ public class VirDevMqttClientBuilder {
 
   String id;
 
+  /**
+   * Constructs a new builder beginning with the brokerConfig.
+   *
+   * @param brokerConfig - a base BrokerConfig.
+   */
   public VirDevMqttClientBuilder(BrokerConfig brokerConfig) {
     this.brokerConfig = brokerConfig;
     this.authConfig = brokerConfig.getAuth();
@@ -69,6 +76,11 @@ public class VirDevMqttClientBuilder {
     return clientBuilder;
   }
 
+  /**
+   * Builds a new blocking MqttClient.
+   *
+   * @return - a new MqttClientBlocking instance.
+   */
   public MqttClientBlocking buildBlocking() {
     MqttClientBlocking clientBlocking = new MqttClientBlocking();
     clientBlocking.setBroker(this.brokerConfig);
@@ -77,6 +89,11 @@ public class VirDevMqttClientBuilder {
     return clientBlocking;
   }
 
+  /**
+   * Builds a reactivex based MqttClient.
+   *
+   * @return - a new MqttClientRx instance.
+   */
   public MqttClientRx buildRx() {
     MqttClientRx clientRx = new MqttClientRx();
     clientRx.setBroker(this.brokerConfig);
@@ -85,6 +102,11 @@ public class VirDevMqttClientBuilder {
     return clientRx;
   }
 
+  /**
+   * Builds an AsyncClient based on previously defined values.
+   *
+   * @return - a new MqttClientAssync instance.
+   */
   public MqttClientAsync buildAsync() {
     MqttClientAsync clientAsync = new MqttClientAsync();
     clientAsync.setBroker(this.brokerConfig);
@@ -93,16 +115,34 @@ public class VirDevMqttClientBuilder {
     return clientAsync;
   }
 
+  /**
+   * Adds an AuthConfig to the builder.
+   *
+   * @param authconfig - AuthConfig to add.
+   * @return - this builder.
+   */
   public VirDevMqttClientBuilder authConfig(AuthConfig authconfig) {
     this.authConfig = authconfig;
     return this;
   }
 
+  /**
+   * Adds a TlsConfig to the builder.
+   *
+   * @param tlsconfig - TlsConfig to be added.
+   * @return - this builder.
+   */
   public VirDevMqttClientBuilder tlsConfig(TlsConfig tlsconfig) {
     this.tlsConfig = tlsconfig;
     return this;
   }
 
+  /**
+   * Adds a BrokerConfig to the builder.
+   *
+   * @param brokerconfig - BrokerConfig to be added.
+   * @return - this builder.
+   */
   public VirDevMqttClientBuilder brokerConfig(BrokerConfig brokerconfig) {
     this.brokerConfig = brokerconfig;
     this.tlsConfig = brokerconfig.getTls();
@@ -115,6 +155,12 @@ public class VirDevMqttClientBuilder {
     return this;
   }
 
+  /**
+   * Factory style method for creating different types of clients.
+   *
+   * @param mode - the mode of client to be generated.
+   * @return - a new MqttClient.
+   */
   public MqttClient genClientFromMode(Mode mode) {
     switch (mode) {
       case ASYNC:

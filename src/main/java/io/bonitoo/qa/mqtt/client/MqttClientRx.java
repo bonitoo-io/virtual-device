@@ -5,14 +5,11 @@ import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5ClientBuilder;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5RxClient;
 import com.hivemq.client.mqtt.mqtt5.message.auth.Mqtt5SimpleAuth;
-import com.hivemq.client.mqtt.mqtt5.message.connect.connack.Mqtt5ConnAck;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
 import io.bonitoo.qa.VirtualDeviceRuntimeException;
 import io.bonitoo.qa.conf.mqtt.broker.BrokerConfig;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
-import io.reactivex.Single;
-
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.TimeUnit;
 import lombok.AllArgsConstructor;
@@ -54,17 +51,16 @@ public class MqttClientRx extends AbstractMqttClient {
     mcr.broker = broker;
     mcr.id = id;
     Mqtt5ClientBuilder clientBuilder = Mqtt5Client.builder()
-      .identifier(id)
-      .serverHost(broker.getHost())
-      .serverPort(broker.getPort());
+        .identifier(id)
+        .serverHost(broker.getHost())
+        .serverPort(broker.getPort());
 
-    if(broker.getAuth() != null){
+    if (broker.getAuth() != null) {
       clientBuilder.simpleAuth(Mqtt5SimpleAuth.builder()
-        .username(broker.getAuth().getUsername())
-        .password(new String(broker.getAuth().getPassword()).getBytes())
-        .build());
+          .username(broker.getAuth().getUsername())
+          .password(new String(broker.getAuth().getPassword()).getBytes())
+          .build());
     }
-    // TODO TLS
     mcr.client = clientBuilder.buildRx();
     return mcr;
   }
@@ -130,6 +126,7 @@ public class MqttClientRx extends AbstractMqttClient {
     return this;
   }
 
+  // todo - review if the following is needed
   @Override
   public void shutdown() {
 

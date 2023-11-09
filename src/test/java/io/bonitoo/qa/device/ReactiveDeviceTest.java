@@ -119,20 +119,6 @@ public class ReactiveDeviceTest {
     verify(mHiveClient, times(1)).disconnect();
   }
 
-  @Test
-  public void checkRunnerReactiveBranch() throws InterruptedException {
-
-    List<Device> tds = Arrays.asList(new TestDevice(), new TestDevice(), new TestDevice());
-
-    DeviceRunner.reactiveMain(tds);
-
-    Thread.sleep(1000L);
-
-   for(Device dev : tds){
-      assertTrue(((TestDevice)dev).isCalled());
-    }
-  }
-
   // N.B. using reactivex TestSubscriber
   @Test
   public void checkFlowableSamples() throws InterruptedException, JsonProcessingException {

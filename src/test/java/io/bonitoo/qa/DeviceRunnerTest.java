@@ -14,6 +14,8 @@ import io.bonitoo.qa.conf.mqtt.broker.BrokerConfig;
 import io.bonitoo.qa.data.ItemType;
 import io.bonitoo.qa.data.generator.NumGenerator;
 import io.bonitoo.qa.conf.Config;
+import io.bonitoo.qa.device.Device;
+import io.bonitoo.qa.device.TestDevice;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
@@ -22,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -104,6 +107,20 @@ public class DeviceRunnerTest {
         }
         for(DeviceConfig deviceConf: parsedConf.getDevices()){
             assertTrue(runnerConf.getDevices().contains(deviceConf));
+        }
+    }
+
+    @Test
+    public void checkRunnerReactiveBranch() throws InterruptedException {
+
+        List<Device> tds = Arrays.asList(new TestDevice(), new TestDevice(), new TestDevice());
+
+        DeviceRunner.reactiveMain(tds);
+
+        Thread.sleep(1000L);
+
+        for(Device dev : tds){
+            assertTrue(((TestDevice)dev).isCalled());
         }
     }
 
