@@ -66,7 +66,6 @@ public class RunnerConfigDeserializer extends VirDevDeserializer<RunnerConfig> {
     JsonNode itemsNode = node.get("items"); // can be null
     JsonNode samplesNode = node.get("samples"); // can be null
     JsonNode devicesNode = node.get("devices");
-    // TODO node for mode - reactivex or blocking - default blocking
     JsonNode modeNode = node.get("mode"); // can be null
 
     if (ttlNode == null

@@ -26,7 +26,6 @@ public class RunnerConfig {
   List<DeviceConfig> devices;
   Long ttl;
 
-  // TODO add here rxOrBlocking config option.
   Mode mode = Mode.BLOCKING;
 
   @Override

@@ -1,0 +1,83 @@
+---
+ttl: 10000
+mode: Reactive
+broker:
+  host: localhost
+  port: 8883
+  auth:
+    username: fred
+    password: changeit
+  tls:
+    trustStore: "./scripts/keys/brokerTrust.jks"
+    trustPass: "ENCqTJZQarWDANjbiKQRH1R5/Dw3jNtSIYq12fIt67sIPEAAAAQmi6eCz/B3DynfmBHkC30s9n9/ynDhlcNo2yDA7ma90k="
+items:
+  - name: "tension"
+    type: "Double"
+    label: "bar"
+    max: 2.0
+    min: -1.0
+    period: 1
+  - name: "nuts"
+    type: "Long"
+    label: "nutcount"
+    max: 100.0
+    min: 1.0
+    period: 1
+  - name: "label"
+    type: "String"
+    label: "label"
+    values:
+      - "Salted"
+      - "unsalted"
+      - "smoked"
+samples:
+  - id: "random"
+    name: "alpha"
+    topic: "test/alpha"
+    items:
+      - "tension"
+      - "nuts"
+  - id: "random"
+    name: "beta"
+    topic: "test/beta"
+    items:
+      - "label"
+      - name: "flowRate"
+        label: "cmps"
+        type: Double
+        max: 30
+        min: 5
+        period: 2
+devices:
+  - id: "random"
+    name: "Test Device 01"
+    description: "testing device configuration"
+    interval: 1000
+    jitter: 0
+    count: 1
+    samples:
+      - "alpha"
+      - "beta"
+  - id: "random"
+    name: "Test Device 02"
+    description: "test device configuration"
+    interval: 3000
+    jitter: 500
+    count: 1
+    samples:
+      - beta
+      - id: "random"
+        name: "gammaInline"
+        topic: "test/gamma"
+        items:
+          - name: "radiance"
+            type: "Double"
+            label: "lumens"
+            max: 27
+            min: 0.1
+            period: 2
+          - name: "appLabel"
+            type: "String"
+            label: "app"
+            values:
+              - "luminescence"

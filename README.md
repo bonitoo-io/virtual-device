@@ -58,7 +58,7 @@ For a quick peek at what this project does and how it works, try  `scripts/quick
    1. remove any copied plugins. 
    1. tear down the listener and broker.
 
-It offers six simple scenarios. 
+It offers eight simple scenarios. 
 
    * `no args` - runs a simple scenario without plugins.
    * `nrf9160` - runs with the `runner.conf` file set to `examples/nrf9160/thingy91.yml`
@@ -66,6 +66,8 @@ It offers six simple scenarios.
    * `itemPluginRich` - runs a richer scenario with the simpleMovingAverage item plugin.
    * `samplePlugin` - runs a scenario with the lpFileReader sample plugin.
    * `tlsBasic` - runs the simple scenario without plugins but sets up mosquitto to accept only TLS connections at the default TLS port - 8883.
+   * `rxBasic` - runs a simple scenario using a Reactivex enabled client. 
+   * `rxTlsBasic` - runs a simple scenario using a Reactivex enabled client, communicating with the broker over TLS.
 
 For example: 
 
@@ -82,11 +84,11 @@ RUNNING BASIC EXAMPLE
 ...
 ```
 
-**Note on tlsBasic**
+**Note on tlsBasic and rxTlsBasic**
 
-The `tlsBasic` scenario generates a self-signed certificate used to configure a mosquitto MQTT server running in a docker container.  The CN value of the generated certificates is defined as an IP address, which should match a host IP over which the mosquitto server is accessible.  The script `scripts/selfSignCert.sh` attempts to get such an IP address from a running ethernet or wifi interface, however this is not always reliable.  This value can also be declared using the environment variable `VD_HOST_IP`.  For example declare `$ export VD_HOST_IP=192.168.101.102` before running either `selfSignCert.sh` or `quickStart.sh`.  Other environment variables are available for setting subject values in certificates.  To view them run `scripts/selfSignCert.sh --help`.
+These scenarios generate a self-signed certificate used to configure a mosquitto MQTT server running in a docker container.  The CN value of the generated certificates is defined as an IP address, which should match a host IP over which the mosquitto server is accessible.  The script `scripts/selfSignCert.sh` attempts to get such an IP address from a running ethernet or wifi interface, however this is not always reliable.  This value can also be declared using the environment variable `VD_HOST_IP`.  For example declare `$ export VD_HOST_IP=192.168.101.102` before running either `selfSignCert.sh` or `quickStart.sh`.  Other environment variables are available for setting subject values in certificates.  To view them run `scripts/selfSignCert.sh --help`.
 
-If the `tlsBasic` scenario fails, for example the subscriber fails to connect thus ending in an `SSLHandshakeException`, try stopping the mosquitto server and cleaning up the environment with these commands: `scripts/broker stop` and `sudo scripts/broker clean -certs`.  Then try and run it again.  
+If either of these scenarios fails, for example the subscriber fails to connect thus ending in an `SSLHandshakeException`, try stopping the mosquitto server and cleaning up the environment with these commands: `scripts/broker stop` and `sudo scripts/broker clean -certs`.  Then try and run it again.  
 
 ## Basic Tasks
 
@@ -187,7 +189,10 @@ An alternate base property file can be defined through the environment variable 
 
 The file indicated by the `runner.conf` property must be a valid YAML file. It needs to define the following nodes.
 
-* `ttl` - time to live in milliseconds or how long the device runner should run.  
+* `ttl` - time to live in milliseconds or how long the device runner should run.
+* `mode` - (Optional) the mode to use when communicating with a broker. The following values are currently supported.
+   * `Block`, `Blocking` - blocks when communicating with the broker, waiting for acknowledgements on publish.  When this node is omitted the runner defaults to blocking mode.
+   * `Rx`, `Reactive`, `Reactivex` - uses reactive idioms when communicating asynchronously with the broker. 
 * `broker` - a configuration for connecting to an MQTT5 broker (see [below](#broker)).
 * `items` - a list of items to be included in a sample.  Item values will be generated randomly (see [below](#items)).
 * `samples` - a list of samples bound to a topic and including a payload based on an internal item list (see [below](#samples)).
