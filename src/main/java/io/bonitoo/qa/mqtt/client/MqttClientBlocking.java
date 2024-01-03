@@ -32,7 +32,7 @@ public class MqttClientBlocking extends AbstractMqttClient {
 
   Mqtt5BlockingClient client;
 
-  private MqttClientBlocking() {
+  protected MqttClientBlocking() {
     super();
   }
 

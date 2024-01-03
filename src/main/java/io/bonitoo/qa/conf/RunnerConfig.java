@@ -26,6 +26,8 @@ public class RunnerConfig {
   List<DeviceConfig> devices;
   Long ttl;
 
+  Mode mode = Mode.BLOCKING;
+
   @Override
   public String toString() {
     StringBuilder result = new StringBuilder(String.format("ttl:%d\nBroker: %s\n", ttl, broker));

@@ -4,7 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import io.bonitoo.qa.conf.Mode;
 import io.bonitoo.qa.conf.RunnerConfig;
+import io.bonitoo.qa.conf.RunnerConfigDeserializer;
 import io.bonitoo.qa.conf.data.*;
 import io.bonitoo.qa.conf.device.DeviceConfig;
 import io.bonitoo.qa.conf.mqtt.broker.AuthConfig;
@@ -12,6 +14,8 @@ import io.bonitoo.qa.conf.mqtt.broker.BrokerConfig;
 import io.bonitoo.qa.data.ItemType;
 import io.bonitoo.qa.data.generator.NumGenerator;
 import io.bonitoo.qa.conf.Config;
+import io.bonitoo.qa.device.Device;
+import io.bonitoo.qa.device.TestDevice;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
@@ -20,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -81,11 +86,13 @@ public class DeviceRunnerTest {
 
         BrokerConfig broker = new BrokerConfig("my.mqttserver.net", 1883, new AuthConfig("fred", "changeit".toCharArray()));
 
-        RunnerConfig runnerConf = new RunnerConfig(broker, Arrays.asList(device), 30000l);
+        RunnerConfig runnerConf = new RunnerConfig(broker, Arrays.asList(device), 30000l, Mode.BLOCKING);
 
         ObjectWriter writer = new ObjectMapper(new YAMLFactory()).writer().withDefaultPrettyPrinter();
 
         String confAsYaml = writer.writeValueAsString(runnerConf);
+
+        System.out.println("DEBUG confAsYaml:\n" + confAsYaml);
 
         ObjectMapper om = new ObjectMapper(new YAMLFactory());
 
@@ -93,6 +100,7 @@ public class DeviceRunnerTest {
 
         assertEquals(runnerConf.getTtl(), parsedConf.getTtl());
         assertEquals(runnerConf.getBroker(), parsedConf.getBroker());
+        assertEquals(runnerConf.getMode(), parsedConf.getMode());
 
         for(DeviceConfig deviceConf: runnerConf.getDevices()){
             assertTrue(parsedConf.getDevices().contains(deviceConf));
@@ -100,6 +108,20 @@ public class DeviceRunnerTest {
         for(DeviceConfig deviceConf: parsedConf.getDevices()){
             assertTrue(runnerConf.getDevices().contains(deviceConf));
         }
-
     }
+
+    @Test
+    public void checkRunnerReactiveBranch() throws InterruptedException {
+
+        List<Device> tds = Arrays.asList(new TestDevice(), new TestDevice(), new TestDevice());
+
+        DeviceRunner.reactiveMain(tds);
+
+        Thread.sleep(1000L);
+
+        for(Device dev : tds){
+            assertTrue(((TestDevice)dev).isCalled());
+        }
+    }
+
 }

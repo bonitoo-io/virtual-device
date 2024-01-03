@@ -43,6 +43,8 @@ function help(){
   echo "$MY_NAME samplePlugin   - runs a configuration with a sample plugin"
   echo "$MY_NAME nrf9160        - runs without plugins but with example runner.conf"
   echo "$MY_NAME tlsBasic       - runs the basic configuration against mosquitto with TLS."
+  echo "$MY_NAME rxBasic        - runs a configuration using reactivex."
+  echo "$MY_NAME rxTlsBasic     - runs a configuration using reactivex against a TLS broker."
   echo "$MY_NAME help           - returns this message"
 }
 
@@ -349,6 +351,37 @@ function tlsBasic(){
   shutdown
 }
 
+function rxBasic(){
+  setup
+  printf "\n\nRUNNING REACTIVEX BASIC EXAMPLE\n"
+  printf "===============================\n"
+
+  scripts/runner.sh src/test/resources/testRunnerRxConfig.yml
+
+  printf "\n\nDONE PUBLISHING REACTIVEX BASIC EXAMPLE\n"
+  printf "=======================================\n"
+
+  read_log
+
+  shutdown
+}
+
+function rxTlsBasic(){
+  setup_tls
+  printf "\n\nRUNNING REACTIVE WITH TLS BASIC EXAMPLE\n"
+  printf "=======================================\n"
+
+  scripts/runner.sh src/test/resources/testRunnerRxTlsConfig.yml
+
+  printf "\n\nDONE PUBLISHING REACTIVE WITH TLS BASIC EXAMPLE\n"
+  printf "===============================================\n"
+
+  read_log
+
+  shutdown
+
+}
+
 # TODO use case with special runner config only
 
 case $1 in
@@ -366,6 +399,12 @@ case $1 in
      ;;
   "tlsBasic")
      tlsBasic
+     ;;
+  "rxBasic")
+     rxBasic
+     ;;
+  "rxTlsBasic")
+     rxTlsBasic
      ;;
   "")
      base_example

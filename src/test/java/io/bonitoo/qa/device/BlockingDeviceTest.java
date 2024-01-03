@@ -29,7 +29,7 @@ import static org.mockito.Mockito.*;
 
 @Tag("intg")
 @ExtendWith(MockitoExtension.class)
-public class DeviceTest {
+public class BlockingDeviceTest {
 
     static long origTTL;
     @Mock

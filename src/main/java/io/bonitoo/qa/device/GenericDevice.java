@@ -1,18 +1,34 @@
 package io.bonitoo.qa.device;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.hivemq.client.mqtt.datatypes.MqttQos;
+import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
+import io.bonitoo.qa.VirtualDeviceRuntimeException;
 import io.bonitoo.qa.conf.Config;
+import io.bonitoo.qa.conf.Mode;
 import io.bonitoo.qa.conf.data.SampleConfig;
 import io.bonitoo.qa.conf.device.DeviceConfig;
 import io.bonitoo.qa.data.GenericSample;
 import io.bonitoo.qa.data.Sample;
+import io.bonitoo.qa.mqtt.client.MqttClient;
 import io.bonitoo.qa.mqtt.client.MqttClientBlocking;
+import io.bonitoo.qa.mqtt.client.MqttClientRx;
 import io.bonitoo.qa.plugin.PluginConfigException;
 import io.bonitoo.qa.plugin.sample.SamplePluginConfig;
 import io.bonitoo.qa.plugin.sample.SamplePluginMill;
 import io.bonitoo.qa.util.LogHelper;
+import io.bonitoo.qa.util.VirDevWorkInProgressException;
+import io.reactivex.Flowable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.BooleanSupplier;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 import lombok.AllArgsConstructor;
@@ -31,9 +47,9 @@ public class GenericDevice extends Device {
 
   int number;
 
-  MqttClientBlocking client;
+  MqttClient client;
 
-  protected GenericDevice(MqttClientBlocking client, DeviceConfig config, int number) {
+  protected GenericDevice(MqttClient client, DeviceConfig config, int number) {
     this.config = config;
     this.sampleList = new ArrayList<>();
     this.client = client;
@@ -52,7 +68,7 @@ public class GenericDevice extends Device {
     }
   }
 
-  public static GenericDevice singleDevice(MqttClientBlocking client, DeviceConfig config) {
+  public static GenericDevice singleDevice(MqttClient client, DeviceConfig config) {
     return numberedDevice(client, config, 1);
   }
 
@@ -65,15 +81,18 @@ public class GenericDevice extends Device {
    * @param number - serial number for the device to be added to id and name fields in samples.
    * @return - a generic device.
    */
-  public static GenericDevice numberedDevice(MqttClientBlocking client,
+  public static GenericDevice numberedDevice(MqttClient client,
                                              DeviceConfig config, int number) {
     return new GenericDevice(client, config, number);
   }
 
-  @Override
-  public void run() {
+  private void blockingRun(long ttl) throws InterruptedException {
 
-    long ttl = System.currentTimeMillis() + Config.ttl();
+    if (! (this.client instanceof MqttClientBlocking)) {
+      throw new VirtualDeviceRuntimeException(
+        "Attempt to start blockingRun with non-blocking client " + this.client.getClass().getName()
+      );
+    }
 
     try {
       if (config.getJitter() > 0) {
@@ -105,6 +124,102 @@ public class GenericDevice extends Device {
       throw new RuntimeException(e);
     } finally {
       client.disconnect();
+    }
+  }
+
+  private void reactiveRun(long ttl) {
+
+    if (! (this.client instanceof MqttClientRx)) {
+      throw new VirtualDeviceRuntimeException(
+        "Attempt to start reactiveRun with non-reactive client " + this.client.getClass().getName()
+      );
+    }
+
+    try {
+      if (config.getJitter() > 0) {
+        LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(config.getJitter() * number));
+      }
+      logger.info(LogHelper.buildMsg(config.getId(), "Device Connection", ""));
+      client.connect();
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
+
+    Flowable<Mqtt5Publish> messageFlow = Flowable.fromIterable(sampleList)
+        .concatMap(sample -> {
+          return Flowable
+            .just(sample)
+            .delay(this.getConfig().getInterval(),
+              TimeUnit.MILLISECONDS,
+              Schedulers.io());
+        })
+        .doOnNext(sample -> {
+          sample.update();
+          logger.debug("sample on thread "
+              + Thread.currentThread().getName() + ":\n" + sample.toJson());
+        })
+        .doOnError(System.err::println)
+        .doOnComplete(() -> {
+          logger.debug("Flowable<Sample> complete on thread " + Thread.currentThread().getName());
+        })
+        .doOnCancel(() -> {
+          logger.error("Flowable<Sample> cancelled");
+        })
+        .map(sample ->
+          Mqtt5Publish.builder()
+            .topic(sample.getTopic())
+            .qos(MqttQos.EXACTLY_ONCE)
+            .payload(sample.toJson().getBytes())
+            .build()
+        )
+        .repeatUntil(new BooleanSupplier() {
+          @Override
+          public boolean getAsBoolean() throws Exception {
+            return Instant.now().toEpochMilli() > ttl;
+          }
+        });
+
+    Disposable disposable = ((MqttClientRx) client).getClient().publish(messageFlow)
+        // todo - create method to return richer result currently "payload=Nbyte"
+        .doOnNext(pubRes -> logger.info("published: " + pubRes.getPublish()))
+        .doOnError(System.err::println)
+        .doOnComplete(() -> logger.debug(Thread.currentThread().getName()
+          + " publishing samples complete"))
+        .subscribe(pr -> logger.debug(pr.toString()),
+          er -> logger.error(er.toString()));
+
+    while (!disposable.isDisposed()) {
+      logger.debug("Waiting for samples...");
+      LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(this.getConfig().getInterval()));
+    }
+
+    try {
+      client.disconnect();
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
+
+  }
+
+  public void asyncRun(long ttl) {
+    throw new VirDevWorkInProgressException("asyncRun logic TBD");
+  }
+
+  @Override
+  public void run() {
+
+    long ttl = System.currentTimeMillis() + Config.ttl();
+
+    if (Config.getRunnerConfig().getMode() == Mode.REACTIVE) {
+      reactiveRun(ttl);
+    } else if (Config.getRunnerConfig().getMode() == Mode.ASYNC) {
+      asyncRun(ttl);
+    } else {
+      try {
+        blockingRun(ttl);
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
     }
 
   }
